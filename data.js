@@ -9577,63 +9577,6 @@ const SECTOR_3_MINIBOSSES = [
 ];
 const SECTOR_3_MAPS = ['L21', 'L22', 'L23', 'L24', 'L25', 'L26', 'L27', 'L28', 'L29'];
 
-for (let lvl = 21; lvl <= 29; lvl++) {
-  const mapKey = SECTOR_3_MAPS[lvl - 21];
-  const mb = SECTOR_3_MINIBOSSES[lvl - 21];
-  const waves = [];
-  const lvlHpMult = 1.8 + (lvl - 21) * 0.175; // 1.8 at L21 -> 3.2 at L29
-  const lvlSpeedMult = getLevelSpeedMult(lvl);
-  const countBonus = getLevelCountBonus(lvl);
-  for (let w = 1; w <= 7; w++) {
-    const spawns = [];
-    const count = 8 + w * 2 + countBonus;
-    if (w % 2 === 0) {
-      spawns.push(createEnemySpawn('blinker', Math.max(2, Math.floor(count * 0.4)), { hpMult: lvlHpMult, speedMult: lvlSpeedMult, interval: 0.75 }));
-      spawns.push(createEnemySpawn('swarm', Math.floor(count * 0.8), { hpMult: lvlHpMult, interval: 0.15, clumps: swarmClumpsFor(lvl, w) }));
-    } else {
-      spawns.push(createEnemySpawn('grunt', count, { hpMult: lvlHpMult, speedMult: lvlSpeedMult, interval: 0.66 }));
-      if (w >= 3) spawns.push(createEnemySpawn('tank', Math.floor(count * 0.25), { hpMult: lvlHpMult, speedMult: lvlSpeedMult, interval: 1.282 }));
-    }
-    if (w === 7) {
-      spawns.push(createEnemySpawn(mb.type, 1, { isMiniBoss: true, hp: mb.hp, interval: 1.2 }));
-    }
-    waves.push({ wave: w, spawns });
-  }
-  LEVELS_DATA[lvl] = {
-    mapId: mapKey, startHp: 10, startGold: 155 + (lvl - 21) * 3, totalWaves: 7,
-    unlockedTowers: ['gun', 'laser', 'mortar', 'tesla', 'stasis'], canUpgrade: true, waves
-  };
-}
-
-LEVELS_DATA[30] = {
-  mapId: 'L30', startHp: 10, startGold: 195, totalWaves: 10,
-  unlockedTowers: ['gun', 'laser', 'mortar', 'tesla', 'stasis'], canUpgrade: true,
-  waves: (function() {
-    const wArr = [];
-    const lvlHpMult = 4.0;
-    const lvlSpeedMult = getLevelSpeedMult(30);
-    for (let w = 1; w <= 9; w++) {
-      wArr.push({
-        wave: w,
-        spawns: [
-          createEnemySpawn('blinker', 4 + Math.floor(w * 0.8), { hpMult: lvlHpMult, speedMult: lvlSpeedMult, interval: 0.688 }),
-          createEnemySpawn('tank', 2 + Math.floor(w * 0.5), { hpMult: lvlHpMult, speedMult: lvlSpeedMult, interval: 1.215 }),
-          createEnemySpawn('swarm', 8 + w * 2, { hpMult: lvlHpMult, interval: 0.15, clumps: Math.min(4, 2 + Math.floor(w / 3)) })
-        ]
-      });
-    }
-    wArr.push({
-      wave: 10,
-      spawns: [
-        createEnemySpawn('blinker', 12, { hpMult: lvlHpMult, speedMult: lvlSpeedMult, interval: 0.625 }),
-        createEnemySpawn('tank', 8, { hpMult: lvlHpMult, speedMult: lvlSpeedMult, interval: 1.2 }),
-        createEnemySpawn('swarm', 20, { hpMult: lvlHpMult, interval: 0.15, clumps: 4 }),
-        { type: 'chronos_warp', isBoss: true, isMiniBoss: false, count: 1, hp: 6500, speed: 40, interval: 1.2, bounty: 85 }
-      ]
-    });
-    return wArr;
-  })()
-};
 
 const SECTOR_4_MINIBOSSES = [
   { type: 'goliath', hp: 950 }, { type: 'blinker', hp: 760 }, { type: 'tank', hp: 1200 },
