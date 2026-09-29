@@ -1159,8 +1159,8 @@ function sellSelectedTower() {
   particles = particles.filter(p => Math.hypot(p.x - sx, p.y - sy) > 28);
   deselectTower();
 
-  createShockwave(sx, sy, 40, '#ff2a85');
-  createSparks(sx, sy, '#ff2a85', 14);
+createShockwave(sx, sy, 40, '#f05f9f');
+  createSparks(sx, sy, '#f05f9f', 14);
   updateUI();
 }
 
@@ -2027,7 +2027,8 @@ function update(dt) {
         const damageToBasePath = getBaseDamageFor(e);
         baseHp = Math.max(0, baseHp - damageToBasePath);
         sfx('baseHit');
-        createShockwave(e.x, e.y, e.isBoss ? 80 : (e.isMiniBoss ? 50 : 35), '#ff2a85');
+		vibrate('warning');
+        createShockwave(e.x, e.y, e.isBoss ? 80 : (e.isMiniBoss ? 50 : 35), '#f05f9f');
         enemies.splice(i, 1);
         updateUI();
         if (baseHp <= 0) {

@@ -275,7 +275,7 @@ function buildTowerIconSvg(type, level = 1, size = 28, angleDeg = 0) {
 
 const TOWER_CONFIGS = {
   gun: { cost: 50, range: 165, damage: 16, fireRate: 0.52, color: '#00e5ff', glow: '#00e5ff', type: 'projectile', costMultiplier: 1.3, damageMultiplier: 1.7, rateMultiplier: 0.8, rangeMultiplier: 1.1, powerDmg: 0.08, powerRate: 0.06, powerRange: 0.04 },
-  laser: { cost: 70, range: 150, dps: 44, color: '#e58bb5', glow: '#e58bb5', type: 'beam', costMultiplier: 1.3, damageMultiplier: 1.85, rangeMultiplier: 1.1, powerDmg: 0.08, powerRate: 0.06, powerRange: 0.04 },
+  laser: { cost: 70, range: 150, dps: 44, color: '#f05f9f', glow: '#f05f9f', type: 'beam', costMultiplier: 1.3, damageMultiplier: 1.85, rangeMultiplier: 1.1, powerDmg: 0.08, powerRate: 0.06, powerRange: 0.04 },
   mortar: { cost: 85, range: 195, damage: 32, splash: 80, fireRate: 1.5, color: '#ff9100', glow: '#ff9100', type: 'mortar', costMultiplier: 1.3, damageMultiplier: 1.6, rateMultiplier: 0.9, rangeMultiplier: 1.1, powerDmg: 0.08, powerRate: 0.06, powerRange: 0.04 },
   tesla: { cost: 75, range: 145, damage: 22, chainTargets: 3, jumpRadius: 90, fireRate: 0.85, color: '#00ffcc', glow: '#00ffcc', type: 'chain', costMultiplier: 1.3, damageMultiplier: 1.55, rateMultiplier: 0.85, rangeMultiplier: 1.1, powerDmg: 0.05, powerRate: 0.04, powerRange: 0.03 },
   // Stasis: скромная база, умеренное замедление, растущий радиус
@@ -294,8 +294,8 @@ const TOWER_CONFIGS = {
     powerRange: 0.05, powerSlow: 0.04, powerDuration: 0.06 
   },
   // Melter: базовая фаза 4.0с огня / 4.0с остывания (50/50)
-  melter: { cost: 95, range: 140, baseDps: 10, rampCap: 40, rampTime: 4.0, color: '#e05b67', glow: '#d978a3', type: 'melter', costMultiplier: 1.35, damageMultiplier: 1.35, rangeMultiplier: 1.1, powerDmg: 0.05, powerRate: 0.05, powerRange: 0.03 },
-  railgun: { cost: 115, range: 220, damage: 120, fireRate: 2.2, color: '#9b82d6', glow: '#b08bd8', type: 'railgun', costMultiplier: 1.35, damageMultiplier: 1.5, rangeMultiplier: 1.1, powerDmg: 0.10, powerRate: 0.06, powerRange: 0.04 }
+  melter: { cost: 95, range: 140, baseDps: 10, rampCap: 40, rampTime: 4.0, color: '#e85268', glow: '#e477a3', type: 'melter', costMultiplier: 1.35, damageMultiplier: 1.35, rangeMultiplier: 1.1, powerDmg: 0.05, powerRate: 0.05, powerRange: 0.03 },
+  railgun: { cost: 115, range: 220, damage: 120, fireRate: 2.2, color: '#a275df', glow: '#b57fdd', type: 'railgun', costMultiplier: 1.35, damageMultiplier: 1.5, rangeMultiplier: 1.1, powerDmg: 0.10, powerRate: 0.06, powerRange: 0.04 }
 };
 
 // Block 3a (requirements.md): meta upgrade branches unlock at most this many
@@ -374,12 +374,12 @@ const LOCKED_TARGET_TOWERS = ['laser', 'melter'];
 const MORTAR_BASE_TRAVEL_TIME = 1.0;
 
 const ENEMY_CONFIGS = {
-  grunt: { shape: 'circle', color: '#e58bb5', glow: '#e58bb5', size: 11, baseSpeed: 55, baseHp: 40, baseBounty: 7 },
+  grunt: { shape: 'circle', color: '#f05f9f', glow: '#f05f9f', size: 11, baseSpeed: 55, baseHp: 40, baseBounty: 7 },
   scout: { shape: 'triangle', color: '#ff9100', glow: '#ffaa33', size: 11, baseSpeed: 110, baseHp: 24, baseBounty: 6 },
-  tank:  { shape: 'square', color: '#987fd5', glow: '#7966bd', size: 13, baseSpeed: 38, baseHp: 100, baseBounty: 12 },
+  tank:  { shape: 'square', color: '#a06fdc', glow: '#825cc2', size: 13, baseSpeed: 38, baseHp: 100, baseBounty: 12 },
   swarm: { shape: 'diamond', color: '#00ffcc', glow: '#00ffcc', size: 8, baseSpeed: 170, baseHp: 16, baseBounty: 3 },
   blinker: { shape: 'hexagon', color: '#3b82f6', glow: '#60a5fa', size: 12, baseSpeed: 62, baseHp: 65, baseBounty: 8 },
-  goliath: { shape: 'octagon', color: '#8170bd', glow: '#66559e', size: 15, baseSpeed: 30, baseHp: 260, baseBounty: 18 },
+  goliath: { shape: 'octagon', color: '#8964c4', glow: '#7050a4', size: 15, baseSpeed: 30, baseHp: 260, baseBounty: 18 },
   emp_bomber: { shape: 'triangle_inverted', color: '#38bdf8', glow: '#0284c7', size: 13, baseSpeed: 40, baseHp: 170, baseBounty: 14 },
   hive_empress: { shape: 'diamond', color: '#00ffcc', glow: '#00ffcc', size: 15, baseSpeed: 38, baseHp: 2200, baseBounty: 60 },
   chronos_warp: { shape: 'hexagon', color: '#3b82f6', glow: '#60a5fa', size: 16, baseSpeed: 40, baseHp: 4200, baseBounty: 85 },

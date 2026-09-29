@@ -228,7 +228,7 @@
       animation: alertFlashMini 0.8s infinite alternate ease-in-out;
     }
     .incoming-alert-banner.boss {
-      border-color: #e58bb5;
+      border-color: #f05f9f;
       animation: alertFlashBoss 0.6s infinite alternate ease-in-out;
     }
 
@@ -247,8 +247,8 @@
     .incoming-alert-banner.boss .incoming-alert-text {
       font-size: 16px;
       font-weight: 900;
-      color: #e58bb5;
-      text-shadow: 0 0 14px rgba(229, 139, 181, 0.8);
+      color: #f05f9f;
+      text-shadow: 0 0 14px rgba(240, 95, 159, 0.8);
       letter-spacing: 2.5px;
     }
 
@@ -257,8 +257,8 @@
       100% { opacity: 1; transform: translateX(-50%) scale(1.02); }
     }
     @keyframes alertFlashBoss {
-      0% { opacity: 0.5; transform: translateX(-50%) scale(0.96); filter: drop-shadow(0 0 4px #e58bb5); }
-      100% { opacity: 1; transform: translateX(-50%) scale(1.04); filter: drop-shadow(0 0 12px #e58bb5); }
+      0% { opacity: 0.5; transform: translateX(-50%) scale(0.96); filter: drop-shadow(0 0 4px #f05f9f); }
+      100% { opacity: 1; transform: translateX(-50%) scale(1.04); filter: drop-shadow(0 0 12px #f05f9f); }
     }
 
     /* New Tower Unlocked Banner */
@@ -371,8 +371,8 @@
       width: 90px;
       height: 36px;
       background: #1d1024;
-      border: 1.5px solid #e58bb5;
-      color: #e58bb5;
+      border: 1.5px solid #f05f9f;
+      color: #f05f9f;
       font-size: 12px;
       font-weight: 800;
       border-radius: 8px;
@@ -383,12 +383,12 @@
       gap: 4px;
       z-index: 9999;
       pointer-events: auto;
-      box-shadow: 0 0 15px rgba(229, 139, 181, 0.35);
+      box-shadow: 0 0 15px rgba(240, 95, 159, 0.35);
     }
     .dev-live-pause-floating.paused {
-      background: #e58bb5;
+      background: #f05f9f;
       color: #06070d;
-      box-shadow: 0 0 20px #e58bb5;
+      box-shadow: 0 0 20px #f05f9f;
     }
 
     .dev-clearsave-floating {
@@ -562,9 +562,9 @@
       width: 100%;
       height: 100%;
       background: rgba(30, 11, 24, 0.94);
-      border: 2px dashed rgba(229, 139, 181, 0.6);
+      border: 2px dashed rgba(240, 95, 159, 0.6);
       border-radius: 16px;
-      box-shadow: inset 0 0 20px rgba(229, 139, 181, 0.2);
+      box-shadow: inset 0 0 20px rgba(240, 95, 159, 0.2);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -574,16 +574,16 @@
     }
     .cancel-zone-overlay.hovered {
       background: rgba(45, 14, 34, 0.98);
-      border-color: rgba(229, 139, 181, 0.95);
-      box-shadow: inset 0 0 30px rgba(229, 139, 181, 0.4);
+      border-color: rgba(240, 95, 159, 0.95);
+      box-shadow: inset 0 0 30px rgba(240, 95, 159, 0.4);
     }
     .cancel-zone-text {
-      color: #e6a0bd;
+      color: #f28eae;
       font-weight: 800;
       font-size: 15px;
       letter-spacing: 3px;
       text-transform: uppercase;
-      text-shadow: 0 0 10px rgba(230, 160, 189, 0.5);
+      text-shadow: 0 0 10px rgba(242, 142, 174, 0.5);
     }
 
     .tower-btn {
@@ -605,12 +605,12 @@
     .tower-btn:active:not(.disabled):not(:disabled) { cursor: grabbing; }
 
     .tower-btn[data-type="gun"]:hover:not(:disabled):not(.disabled) { border-color: #00e5ff; box-shadow: 0 0 14px rgba(0, 229, 255, 0.35); }
-    .tower-btn[data-type="laser"]:hover:not(:disabled):not(.disabled) { border-color: #e58bb5; box-shadow: 0 0 14px rgba(229, 139, 181, 0.35); }
+    .tower-btn[data-type="laser"]:hover:not(:disabled):not(.disabled) { border-color: #f05f9f; box-shadow: 0 0 14px rgba(240, 95, 159, 0.35); }
     .tower-btn[data-type="mortar"]:hover:not(:disabled):not(.disabled) { border-color: #ff9100; box-shadow: 0 0 14px rgba(255, 145, 0, 0.35); }
     .tower-btn[data-type="tesla"]:hover:not(:disabled):not(.disabled) { border-color: #00ffcc; box-shadow: 0 0 14px rgba(0, 255, 204, 0.35); }
     .tower-btn[data-type="stasis"]:hover:not(:disabled):not(.disabled) { border-color: #38bdf8; box-shadow: 0 0 14px rgba(56, 189, 248, 0.35); }
-    .tower-btn[data-type="melter"]:hover:not(:disabled):not(.disabled) { border-color: #e05b67; box-shadow: 0 0 14px rgba(224, 91, 103, 0.35); }
-    .tower-btn[data-type="railgun"]:hover:not(:disabled):not(.disabled) { border-color: #9b82d6; box-shadow: 0 0 14px rgba(155, 130, 214, 0.35); }
+    .tower-btn[data-type="melter"]:hover:not(:disabled):not(.disabled) { border-color: #e85268; box-shadow: 0 0 14px rgba(232, 82, 104, 0.35); }
+    .tower-btn[data-type="railgun"]:hover:not(:disabled):not(.disabled) { border-color: #a275df; box-shadow: 0 0 14px rgba(162, 117, 223, 0.35); }
 
     .tower-btn:disabled,
     .tower-btn.disabled {
@@ -999,9 +999,9 @@
       text-shadow: 0 0 22px rgba(0, 229, 255, 0.85);
       text-align: center;
     }
-    .result-screen.is-fail .result-kicker { color: #e6a0bd; }
+    .result-screen.is-fail .result-kicker { color: #f28eae; }
     .result-screen.is-fail .result-title {
-      text-shadow: 0 0 22px rgba(229, 139, 181, 0.85), 0 0 38px rgba(229, 139, 181, 0.45);
+      text-shadow: 0 0 22px rgba(240, 95, 159, 0.85), 0 0 38px rgba(240, 95, 159, 0.45);
     }
     .result-subline {
       font-family: 'Montserrat', sans-serif;
@@ -1198,7 +1198,7 @@
       pointer-events: none;
     }
     .result-screen.is-fail .result-title::before {
-      color: #e58bb5;
+      color: #f05f9f;
       text-shadow: none;
       clip-path: inset(12% 0 58% 0);
       animation: glitchSlipA 2.6s steps(1, end) 0.55s 2 both;
@@ -1228,9 +1228,9 @@
       z-index: 2;
       background: linear-gradient(180deg,
         transparent 0%,
-        rgba(229, 139, 181, 0.0) 42%,
-        rgba(229, 139, 181, 0.45) 50%,
-        rgba(229, 139, 181, 0.0) 58%,
+        rgba(240, 95, 159, 0.0) 42%,
+        rgba(240, 95, 159, 0.45) 50%,
+        rgba(240, 95, 159, 0.0) 58%,
         transparent 100%);
       animation: defeatSweep 1.15s ease-out 0.15s both;
     }
@@ -1600,7 +1600,7 @@
       height: 100%;
       border-radius: 18px;
       background: rgba(8, 12, 24, 0.65);
-      border: 1.5px solid rgba(229, 139, 181, 0.45);
+      border: 1.5px solid rgba(240, 95, 159, 0.45);
       backdrop-filter: blur(10px);
       display: flex;
       flex-direction: column;
@@ -1612,16 +1612,16 @@
       padding: 4px 6px;
     }
     .btn-sell:hover {
-      background: rgba(229, 139, 181, 0.15);
-      border-color: #e58bb5;
-      box-shadow: 0 0 16px rgba(229, 139, 181, 0.4);
+      background: rgba(240, 95, 159, 0.15);
+      border-color: #f05f9f;
+      box-shadow: 0 0 16px rgba(240, 95, 159, 0.4);
       transform: translateY(-1px);
     }
     .btn-sell.confirm-armed {
-      background: #e58bb5;
-      border-color: #e58bb5;
+      background: #f05f9f;
+      border-color: #f05f9f;
       color: #06070d;
-      box-shadow: 0 0 24px rgba(229, 139, 181, 0.8);
+      box-shadow: 0 0 24px rgba(240, 95, 159, 0.8);
       animation: sellConfirmPulse 0.7s ease-in-out infinite alternate;
     }
     .btn-sell.confirm-armed svg { stroke: #06070d; }
@@ -1637,7 +1637,7 @@
       font-size: 10px;
       font-weight: 900;
       letter-spacing: 0.8px;
-      color: #e6a0bd;
+      color: #f28eae;
       text-transform: uppercase;
     }
     .btn-sell .cost {
@@ -1657,7 +1657,7 @@
       height: 100%;
       border-radius: 18px;
       background: rgba(8, 12, 24, 0.65);
-      border: 1.5px solid rgba(229, 139, 181, 0.45);
+      border: 1.5px solid rgba(240, 95, 159, 0.45);
       backdrop-filter: blur(10px);
       display: flex;
       align-items: center;
@@ -1665,25 +1665,25 @@
       cursor: pointer;
       transition: all 0.2s ease;
       padding: 0;
-      color: #e6a0bd;
+      color: #f28eae;
     }
 
     .btn-close-inspect:hover {
-      background: rgba(229, 139, 181, 0.18);
-      border-color: #e58bb5;
-      box-shadow: 0 0 16px rgba(229, 139, 181, 0.45);
+      background: rgba(240, 95, 159, 0.18);
+      border-color: #f05f9f;
+      box-shadow: 0 0 16px rgba(240, 95, 159, 0.45);
       transform: translateY(-1px);
     }
 
     .btn-close-inspect:active {
       transform: scale(0.95);
-      background: rgba(229, 139, 181, 0.3);
+      background: rgba(240, 95, 159, 0.3);
     }
 
     .btn-close-inspect svg {
       width: 18px;
       height: 18px;
-      stroke: #e6a0bd;
+      stroke: #f28eae;
       stroke-width: 2.5;
       stroke-linecap: round;
       transition: stroke 0.2s ease;
@@ -1691,7 +1691,7 @@
 
     .btn-close-inspect:hover svg {
       stroke: #ffffff;
-      filter: drop-shadow(0 0 6px #e58bb5);
+      filter: drop-shadow(0 0 6px #f05f9f);
     }
 
     /* Modal Screens */
@@ -1735,8 +1735,8 @@
       text-align: center;
     }
     .menu-title.red-glow {
-      color: #e58bb5 !important;
-      text-shadow: 0 0 20px #e58bb5, 0 0 35px rgba(229, 139, 181, 0.6) !important;
+      color: #f05f9f !important;
+      text-shadow: 0 0 20px #f05f9f, 0 0 35px rgba(240, 95, 159, 0.6) !important;
     }
 
     #defeatScreen {
