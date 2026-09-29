@@ -658,10 +658,10 @@ function handleDevHpClick() {
 }
 
 const BASE_BRANCH_ICONS = {
-  base_hp: `<svg width="25" height="25" viewBox="-32 -32 64 64"><circle cx="0" cy="0" r="17" fill="none" stroke="#ff2a85" stroke-width="1.6"/><circle cx="0" cy="0" r="11" fill="none" stroke="#ff2a85" stroke-width="1" opacity=".35"/><path d="M0,7 C-10,0 -10,-9 -2.5,-9 C0,-9 0,-6 0,-6 C0,-6 0,-9 2.5,-9 C10,-9 10,0 0,7 Z" fill="#ff2a85"/></svg>`,
+  base_hp: `<svg width="25" height="25" viewBox="-32 -32 64 64"><circle cx="0" cy="0" r="17" fill="none" stroke="#e58bb5" stroke-width="1.6"/><circle cx="0" cy="0" r="11" fill="none" stroke="#e58bb5" stroke-width="1" opacity=".35"/><path d="M0,7 C-10,0 -10,-9 -2.5,-9 C0,-9 0,-6 0,-6 C0,-6 0,-9 2.5,-9 C10,-9 10,0 0,7 Z" fill="#e58bb5"/></svg>`,
   base_gold: `<svg width="25" height="25" viewBox="-32 -32 64 64"><circle cx="0" cy="0" r="17" fill="none" stroke="#f59e0b" stroke-width="1.6"/><circle cx="0" cy="0" r="11" fill="none" stroke="#f59e0b" stroke-width="1" opacity=".35"/><circle cx="0" cy="0" r="8" fill="#f59e0b"/><text x="0" y="4" font-size="11" font-weight="900" fill="#0a0e1c" text-anchor="middle" font-family="Montserrat, sans-serif">$</text></svg>`
 };
-const BASE_BRANCH_COLORS = { base_hp: '#ff2a85', base_gold: '#f59e0b' };
+const BASE_BRANCH_COLORS = { base_hp: '#e58bb5', base_gold: '#f59e0b' };
 
 function renderUpgradeTree() {
   updateDiamondUI();
@@ -766,8 +766,9 @@ function renderUpgradeTree() {
       buyBtn.innerHTML = `<span style="font-size:11px; filter:grayscale(1) brightness(.7);">🔒</span><span class="upgrade-row-buy-cost" style="color:#8ea3c4; font-size:10px;">L${lvlNeeded}</span>`;
       buyBtn.onclick = () => showHintToast(`Unlocks on Level ${lvlNeeded}`);
     } else {
-      const canAfford = diamonds >= nextStep;
-      buyBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2.2" stroke-linejoin="round" style="flex:none;"><polygon points="6 3 18 3 22 9 12 22 2 9" fill="rgba(0,229,255,.25)"/><polyline points="2 9 12 13 22 9"/><line x1="12" y1="22" x2="12" y2="13"/></svg><span class="upgrade-row-buy-cost" style="color:${canAfford ? '#ffffff' : '#f87171'};">${nextStep}</span>`;
+      const cost = UPGRADE_STEP_COSTS[nextStep - 1];
+      const canAfford = diamonds >= cost;
+      buyBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2.2" stroke-linejoin="round" style="flex:none;"><polygon points="6 3 18 3 22 9 12 22 2 9" fill="rgba(0,229,255,.25)"/><polyline points="2 9 12 13 22 9"/><line x1="12" y1="22" x2="12" y2="13"/></svg><span class="upgrade-row-buy-cost" style="color:${canAfford ? '#ffffff' : '#f87171'};">${cost}</span>`;
       buyBtn.onclick = () => handleNodeClick(row.key, nextStep);
     }
     card.appendChild(buyBtn);
@@ -1045,10 +1046,6 @@ function showStartScreen() {
   const customSpawner = document.getElementById('devCustomSpawner');
   if (customSpawner) customSpawner.classList.add('hidden');
 
-  const startTopZone = document.querySelector('.start-screen-top-zone');
-  if (startTopZone) {
-    startTopZone.style.marginTop = 'clamp(140px, 22vh, 200px)';
-  }
   const startSubTitle = document.querySelector('.start-sub-title');
   if (startSubTitle) {
     startSubTitle.style.textShadow = '0 0 14px rgba(2, 3, 8, 0.95), 0 2px 8px rgba(2, 3, 8, 0.95)';
@@ -1504,6 +1501,10 @@ function showUpgradesScreen(fromSource) {
   const devSpawner = document.getElementById('devCustomSpawner');
   if (devSpawner) devSpawner.classList.add('hidden');
 
+  // Скрываем постоянный верхний HUD, чтобы он не просвечивал сквозь шапку Tech Tree
+  const topHud = document.getElementById('topHud');
+  if (topHud) topHud.classList.add('hidden');
+
   const upg = document.getElementById('upgradesScreen');
   const isResultBg = (bgScreenId === 'victoryScreen' || bgScreenId === 'defeatScreen');
   upg.classList.toggle('from-result', isResultBg);
@@ -1515,6 +1516,10 @@ function showUpgradesScreen(fromSource) {
 
 function closeUpgradesScreen() {
   document.getElementById('upgradesScreen').classList.add('hidden');
+  
+  // Возвращаем постоянный верхний HUD:
+  const topHud = document.getElementById('topHud');
+  if (topHud) topHud.classList.remove('hidden');
 
   ['startScreen', 'victoryScreen', 'defeatScreen', 'levelsScreen', 'pauseScreen', 'settingsScreen'].forEach(id => {
     const el = document.getElementById(id);
@@ -2347,7 +2352,7 @@ function drawPathPortals() {
   baseOffsets.forEach(off => {
     const px = baseX + 35 + Math.cos(baseAngle) * off;
     const py = baseY + 35 + Math.sin(baseAngle) * off;
-    drawChevron(px, py, baseAngle, 13, '#ff2a85', '#ff2a85');
+    drawChevron(px, py, baseAngle, 13, '#e58bb5', '#e58bb5');
   });
 }
 
@@ -2692,14 +2697,14 @@ function drawEnemyModel(e, showHpBar = true) {
     ctx.restore();
   }
 
-  if (showHpBar && settings.showEnemyHp) {
+if (showHpBar && settings.showEnemyHp) {
     ctx.shadowBlur = 0;
     const barW = Math.max(22, e.radius * 2.2);
     const barH = e.isBoss ? 5 : (e.isMiniBoss ? 4 : 3);
     const hpPct = Math.max(0, e.hp / e.maxHp);
     ctx.fillStyle = 'rgba(7, 10, 20, 0.9)';
     ctx.fillRect(-barW/2, -e.radius - (e.isBoss ? 14 : (e.isMiniBoss ? 12 : 8)), barW, barH);
-    ctx.fillStyle = e.isBoss ? (e.color || '#ff2a85') : (hpPct > 0.5 ? '#00e5ff' : '#ff9100');
+    ctx.fillStyle = e.isBoss ? (e.color || '#e58bb5') : (hpPct > 0.5 ? '#00e5ff' : '#ff9100');
     ctx.fillRect(-barW/2, -e.radius - (e.isBoss ? 14 : (e.isMiniBoss ? 12 : 8)), barW * hpPct, barH);
   }
 
@@ -2898,15 +2903,15 @@ function render(now) {
     }
     ctx.restore();
 
-    if (t.type === 'laser' && t.target && t.isLockedOn && t.disabledTimer <= 0) {
+if (t.type === 'laser' && t.target && t.isLockedOn && t.disabledTimer <= 0) {
       const muzzleX = t.x + Math.cos(t.angle) * 24;
       const muzzleY = t.y + Math.sin(t.angle) * 24;
       ctx.save();
-      setGlow('#ff2a85', 8);
+      setGlow('#e58bb5', 8);
       ctx.beginPath();
       ctx.moveTo(muzzleX, muzzleY);
       ctx.lineTo(t.target.x, t.target.y);
-      ctx.strokeStyle = '#ff2a85';
+      ctx.strokeStyle = '#e58bb5';
       ctx.lineWidth = 3.5 + Math.sin(Date.now() * 0.02) * 1.5;
       ctx.stroke();
       ctx.restore();
@@ -2917,11 +2922,11 @@ function render(now) {
       const muzzleY = t.y + Math.sin(t.angle) * 24;
       const beamW = 3.5;
       ctx.save();
-      setGlow('#ef4444', 8);
+      setGlow('#d978a3', 8);
       ctx.beginPath();
       ctx.moveTo(muzzleX, muzzleY);
       ctx.lineTo(t.target.x, t.target.y);
-      ctx.strokeStyle = '#ef4444';
+      ctx.strokeStyle = '#e05b67';
       ctx.lineWidth = beamW;
       ctx.stroke();
       ctx.restore();
@@ -3032,17 +3037,17 @@ function render(now) {
     const canBuild = isValidCell && grid[r][c] === 0;
     const conf = TOWER_CONFIGS[draggingTower.type];
 
-    if (isValidCell) {
-      ctx.fillStyle = canBuild ? 'rgba(0, 229, 255, 0.2)' : 'rgba(255, 42, 133, 0.3)';
+  if (isValidCell) {
+      ctx.fillStyle = canBuild ? 'rgba(0, 229, 255, 0.2)' : 'rgba(229, 139, 181, 0.3)';
       ctx.fillRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-      ctx.strokeStyle = canBuild ? '#00e5ff' : '#ff2a85';
+      ctx.strokeStyle = canBuild ? '#00e5ff' : '#e58bb5';
       ctx.lineWidth = 2;
       ctx.strokeRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     }
 
     ctx.beginPath();
     ctx.arc(draggingTower.worldX, draggingTower.worldY, conf.range, 0, Math.PI * 2);
-    ctx.strokeStyle = canBuild ? 'rgba(0, 229, 255, 0.45)' : 'rgba(255, 42, 133, 0.5)';
+    ctx.strokeStyle = canBuild ? 'rgba(0, 229, 255, 0.45)' : 'rgba(229, 139, 181, 0.5)';
     ctx.lineWidth = 1.5;
     ctx.stroke();
 

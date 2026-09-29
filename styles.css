@@ -228,7 +228,7 @@
       animation: alertFlashMini 0.8s infinite alternate ease-in-out;
     }
     .incoming-alert-banner.boss {
-      border-color: #ff2b9c;
+      border-color: #e58bb5;
       animation: alertFlashBoss 0.6s infinite alternate ease-in-out;
     }
 
@@ -247,8 +247,8 @@
     .incoming-alert-banner.boss .incoming-alert-text {
       font-size: 16px;
       font-weight: 900;
-      color: #ff2b9c;
-      text-shadow: 0 0 14px rgba(255, 43, 156, 0.8);
+      color: #e58bb5;
+      text-shadow: 0 0 14px rgba(229, 139, 181, 0.8);
       letter-spacing: 2.5px;
     }
 
@@ -257,8 +257,8 @@
       100% { opacity: 1; transform: translateX(-50%) scale(1.02); }
     }
     @keyframes alertFlashBoss {
-      0% { opacity: 0.5; transform: translateX(-50%) scale(0.96); filter: drop-shadow(0 0 4px #ff2b9c); }
-      100% { opacity: 1; transform: translateX(-50%) scale(1.04); filter: drop-shadow(0 0 12px #ff2b9c); }
+      0% { opacity: 0.5; transform: translateX(-50%) scale(0.96); filter: drop-shadow(0 0 4px #e58bb5); }
+      100% { opacity: 1; transform: translateX(-50%) scale(1.04); filter: drop-shadow(0 0 12px #e58bb5); }
     }
 
     /* New Tower Unlocked Banner */
@@ -371,8 +371,8 @@
       width: 90px;
       height: 36px;
       background: #1d1024;
-      border: 1.5px solid #ff2b9c;
-      color: #ff2b9c;
+      border: 1.5px solid #e58bb5;
+      color: #e58bb5;
       font-size: 12px;
       font-weight: 800;
       border-radius: 8px;
@@ -383,12 +383,12 @@
       gap: 4px;
       z-index: 9999;
       pointer-events: auto;
-      box-shadow: 0 0 15px rgba(255, 43, 156, 0.35);
+      box-shadow: 0 0 15px rgba(229, 139, 181, 0.35);
     }
     .dev-live-pause-floating.paused {
-      background: #ff2b9c;
+      background: #e58bb5;
       color: #06070d;
-      box-shadow: 0 0 20px #ff2b9c;
+      box-shadow: 0 0 20px #e58bb5;
     }
 
     .dev-clearsave-floating {
@@ -562,9 +562,9 @@
       width: 100%;
       height: 100%;
       background: rgba(30, 11, 24, 0.94);
-      border: 2px dashed rgba(255, 43, 156, 0.6);
+      border: 2px dashed rgba(229, 139, 181, 0.6);
       border-radius: 16px;
-      box-shadow: inset 0 0 20px rgba(255, 43, 156, 0.2);
+      box-shadow: inset 0 0 20px rgba(229, 139, 181, 0.2);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -574,16 +574,16 @@
     }
     .cancel-zone-overlay.hovered {
       background: rgba(45, 14, 34, 0.98);
-      border-color: rgba(255, 43, 156, 0.95);
-      box-shadow: inset 0 0 30px rgba(255, 43, 156, 0.4);
+      border-color: rgba(229, 139, 181, 0.95);
+      box-shadow: inset 0 0 30px rgba(229, 139, 181, 0.4);
     }
     .cancel-zone-text {
-      color: #f472b6;
+      color: #e6a0bd;
       font-weight: 800;
       font-size: 15px;
       letter-spacing: 3px;
       text-transform: uppercase;
-      text-shadow: 0 0 10px rgba(244, 114, 182, 0.5);
+      text-shadow: 0 0 10px rgba(230, 160, 189, 0.5);
     }
 
     .tower-btn {
@@ -605,12 +605,12 @@
     .tower-btn:active:not(.disabled):not(:disabled) { cursor: grabbing; }
 
     .tower-btn[data-type="gun"]:hover:not(:disabled):not(.disabled) { border-color: #00e5ff; box-shadow: 0 0 14px rgba(0, 229, 255, 0.35); }
-    .tower-btn[data-type="laser"]:hover:not(:disabled):not(.disabled) { border-color: #ff2b9c; box-shadow: 0 0 14px rgba(255, 43, 156, 0.35); }
+    .tower-btn[data-type="laser"]:hover:not(:disabled):not(.disabled) { border-color: #e58bb5; box-shadow: 0 0 14px rgba(229, 139, 181, 0.35); }
     .tower-btn[data-type="mortar"]:hover:not(:disabled):not(.disabled) { border-color: #ff9100; box-shadow: 0 0 14px rgba(255, 145, 0, 0.35); }
     .tower-btn[data-type="tesla"]:hover:not(:disabled):not(.disabled) { border-color: #00ffcc; box-shadow: 0 0 14px rgba(0, 255, 204, 0.35); }
     .tower-btn[data-type="stasis"]:hover:not(:disabled):not(.disabled) { border-color: #38bdf8; box-shadow: 0 0 14px rgba(56, 189, 248, 0.35); }
-    .tower-btn[data-type="melter"]:hover:not(:disabled):not(.disabled) { border-color: #ef4444; box-shadow: 0 0 14px rgba(239, 68, 68, 0.35); }
-    .tower-btn[data-type="railgun"]:hover:not(:disabled):not(.disabled) { border-color: #a855f7; box-shadow: 0 0 14px rgba(168, 85, 247, 0.35); }
+    .tower-btn[data-type="melter"]:hover:not(:disabled):not(.disabled) { border-color: #e05b67; box-shadow: 0 0 14px rgba(224, 91, 103, 0.35); }
+    .tower-btn[data-type="railgun"]:hover:not(:disabled):not(.disabled) { border-color: #9b82d6; box-shadow: 0 0 14px rgba(155, 130, 214, 0.35); }
 
     .tower-btn:disabled,
     .tower-btn.disabled {
@@ -933,7 +933,7 @@
     }
     .wave-go-bonus.visible svg { opacity: 1; }
 
-    /* Вынос кнопки вызова волны над панелью управления: фиксированное позиционирование */
+    /* Вынос кнопки вызова волны над панелью управления */
     .action-btn.floating-wave-btn {
       position: fixed;
       right: max(16px, env(safe-area-inset-right));
@@ -944,7 +944,7 @@
       pointer-events: auto;
     }
 
-    /* === Result screens (Visual Directions 9A / 9B / 9E) ========================== */
+    /* === Result screens ========================== */
     .result-screen {
       background: transparent !important;
       backdrop-filter: none !important;
@@ -999,9 +999,9 @@
       text-shadow: 0 0 22px rgba(0, 229, 255, 0.85);
       text-align: center;
     }
-    .result-screen.is-fail .result-kicker { color: #ff8fb0; }
+    .result-screen.is-fail .result-kicker { color: #e6a0bd; }
     .result-screen.is-fail .result-title {
-      text-shadow: 0 0 22px rgba(255, 43, 156, 0.85), 0 0 38px rgba(255, 43, 156, 0.45);
+      text-shadow: 0 0 22px rgba(229, 139, 181, 0.85), 0 0 38px rgba(229, 139, 181, 0.45);
     }
     .result-subline {
       font-family: 'Montserrat', sans-serif;
@@ -1198,7 +1198,7 @@
       pointer-events: none;
     }
     .result-screen.is-fail .result-title::before {
-      color: #ff2b9c;
+      color: #e58bb5;
       text-shadow: none;
       clip-path: inset(12% 0 58% 0);
       animation: glitchSlipA 2.6s steps(1, end) 0.55s 2 both;
@@ -1228,9 +1228,9 @@
       z-index: 2;
       background: linear-gradient(180deg,
         transparent 0%,
-        rgba(255, 43, 156, 0.0) 42%,
-        rgba(255, 43, 156, 0.45) 50%,
-        rgba(255, 43, 156, 0.0) 58%,
+        rgba(229, 139, 181, 0.0) 42%,
+        rgba(229, 139, 181, 0.45) 50%,
+        rgba(229, 139, 181, 0.0) 58%,
         transparent 100%);
       animation: defeatSweep 1.15s ease-out 0.15s both;
     }
@@ -1452,7 +1452,7 @@
       filter: grayscale(1) brightness(0.75);
     }
 
-/* Inspection Panel (Сбалансированный вертикальный стек) */
+    /* Inspection Panel (Сбалансированный вертикальный стек) */
     #inspectPanel {
       display: flex;
       align-items: center;
@@ -1469,7 +1469,6 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      /* Равномерно разносим иконку к верху, а текстовый блок к низу */
       justify-content: space-between;
       background: transparent;
       padding: 6px 4px 5px 4px;
@@ -1504,7 +1503,6 @@
       width: 100%;
     }
 
-    /* Название башни: аккуратный меньший шрифт */
     .selected-title {
       font-family: 'Montserrat', sans-serif;
       font-size: 9px;
@@ -1516,7 +1514,6 @@
       line-height: 1.1;
     }
 
-    /* Надпись LVL 1 */
     .selected-lvl-text {
       font-family: 'Montserrat', sans-serif;
       font-size: 8px;
@@ -1527,7 +1524,6 @@
       line-height: 1;
     }
 
-    /* Полоски уровня в самом низу */
     .selected-level-bars {
       display: flex;
       gap: 3px;
@@ -1604,7 +1600,7 @@
       height: 100%;
       border-radius: 18px;
       background: rgba(8, 12, 24, 0.65);
-      border: 1.5px solid rgba(255, 43, 156, 0.45);
+      border: 1.5px solid rgba(229, 139, 181, 0.45);
       backdrop-filter: blur(10px);
       display: flex;
       flex-direction: column;
@@ -1616,16 +1612,16 @@
       padding: 4px 6px;
     }
     .btn-sell:hover {
-      background: rgba(255, 43, 156, 0.15);
-      border-color: #ff2b9c;
-      box-shadow: 0 0 16px rgba(255, 43, 156, 0.4);
+      background: rgba(229, 139, 181, 0.15);
+      border-color: #e58bb5;
+      box-shadow: 0 0 16px rgba(229, 139, 181, 0.4);
       transform: translateY(-1px);
     }
     .btn-sell.confirm-armed {
-      background: #ff2b9c;
-      border-color: #ff2b9c;
+      background: #e58bb5;
+      border-color: #e58bb5;
       color: #06070d;
-      box-shadow: 0 0 24px rgba(255, 43, 156, 0.8);
+      box-shadow: 0 0 24px rgba(229, 139, 181, 0.8);
       animation: sellConfirmPulse 0.7s ease-in-out infinite alternate;
     }
     .btn-sell.confirm-armed svg { stroke: #06070d; }
@@ -1641,7 +1637,7 @@
       font-size: 10px;
       font-weight: 900;
       letter-spacing: 0.8px;
-      color: #ff8fb0;
+      color: #e6a0bd;
       text-transform: uppercase;
     }
     .btn-sell .cost {
@@ -1654,14 +1650,14 @@
       color: #ffffff;
     }
 
-    /* Кнопка закрытия инспектора (✖) в стиле продажи башни */
+    /* Кнопка закрытия инспектора (✖) */
     .btn-close-inspect {
       flex: none;
       width: 52px;
       height: 100%;
       border-radius: 18px;
       background: rgba(8, 12, 24, 0.65);
-      border: 1.5px solid rgba(255, 43, 156, 0.45);
+      border: 1.5px solid rgba(229, 139, 181, 0.45);
       backdrop-filter: blur(10px);
       display: flex;
       align-items: center;
@@ -1669,25 +1665,25 @@
       cursor: pointer;
       transition: all 0.2s ease;
       padding: 0;
-      color: #ff8fb0;
+      color: #e6a0bd;
     }
 
     .btn-close-inspect:hover {
-      background: rgba(255, 43, 156, 0.18);
-      border-color: #ff2b9c;
-      box-shadow: 0 0 16px rgba(255, 43, 156, 0.45);
+      background: rgba(229, 139, 181, 0.18);
+      border-color: #e58bb5;
+      box-shadow: 0 0 16px rgba(229, 139, 181, 0.45);
       transform: translateY(-1px);
     }
 
     .btn-close-inspect:active {
       transform: scale(0.95);
-      background: rgba(255, 43, 156, 0.3);
+      background: rgba(229, 139, 181, 0.3);
     }
 
     .btn-close-inspect svg {
       width: 18px;
       height: 18px;
-      stroke: #ff8fb0;
+      stroke: #e6a0bd;
       stroke-width: 2.5;
       stroke-linecap: round;
       transition: stroke 0.2s ease;
@@ -1695,7 +1691,7 @@
 
     .btn-close-inspect:hover svg {
       stroke: #ffffff;
-      filter: drop-shadow(0 0 6px #ff2b9c);
+      filter: drop-shadow(0 0 6px #e58bb5);
     }
 
     /* Modal Screens */
@@ -1723,7 +1719,6 @@
       justify-content: flex-start !important;
     }
 
-    /* Экран прокачки поверх верхнего HUD и экранов результатов */
     #upgradesScreen {
       z-index: 200 !important;
       pointer-events: auto !important;
@@ -1740,8 +1735,8 @@
       text-align: center;
     }
     .menu-title.red-glow {
-      color: #ff2b9c !important;
-      text-shadow: 0 0 20px #ff2b9c, 0 0 35px rgba(255, 43, 156, 0.6) !important;
+      color: #e58bb5 !important;
+      text-shadow: 0 0 20px #e58bb5, 0 0 35px rgba(229, 139, 181, 0.6) !important;
     }
 
     #defeatScreen {
@@ -1786,7 +1781,7 @@
       color: #ffffff;
     }
 
-    /* Direction 5C Start Screen Styles */
+    /* Start Screen */
     .start-screen-container {
       position: absolute;
       inset: 0;
@@ -1799,7 +1794,7 @@
       pointer-events: none;
     }
 
-.start-screen-top-zone {
+    .start-screen-top-zone {
       margin-top: clamp(80px, 14vh, 130px);
       display: flex;
       flex-direction: column;
@@ -1828,7 +1823,7 @@
       text-shadow: 0 0 22px rgba(0, 229, 255, 0.85), 0 2px 14px rgba(2, 3, 8, 0.95);
     }
 
-.start-screen-buttons-zone {
+    .start-screen-buttons-zone {
       margin-top: calc(20vh);
       margin-bottom: auto;
       display: flex;
@@ -1943,7 +1938,7 @@
       transform: none !important;
     }
 
-    /* Levels Selection Screen (Direction 10B) */
+    /* Levels Selection Screen */
     .levels-bg {
       background: rgba(4, 6, 14, 0.65) !important;
       backdrop-filter: blur(8px) !important;
@@ -2178,7 +2173,7 @@
       box-shadow: 0 8px 30px rgba(0, 0, 0, 0.55);
       display: flex;
       align-items: center;
-      justify-content: space-between; /* Алмазы слева, заголовок справа */
+      justify-content: space-between;
       padding: 0 16px;
     }
     .upgrades-top-label {
