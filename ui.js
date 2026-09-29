@@ -1,6 +1,33 @@
 // Synth Wave Defense -- ui.js
 // Presentation layer: renders screens, HUD, canvas graphics, and user input.
 
+// --- Glow Sprites Cache for High-Performance Additive Blending ---
+const GLOW_SPRITES = Object.create(null);
+function createGlowSprite(color) {
+  const size = 64;
+  const c = document.createElement('canvas');
+  c.width = size;
+  c.height = size;
+  const gCtx = c.getContext('2d');
+  const half = size / 2;
+  const grad = gCtx.createRadialGradient(half, half, 0, half, half, half);
+  grad.addColorStop(0, color);
+  grad.addColorStop(0.35, color);
+  grad.addColorStop(1, 'transparent');
+  gCtx.fillStyle = grad;
+  gCtx.beginPath();
+  gCtx.arc(half, half, half, 0, Math.PI * 2);
+  gCtx.fill();
+  return c;
+}
+
+function getGlowSprite(color) {
+  if (!GLOW_SPRITES[color]) {
+    GLOW_SPRITES[color] = createGlowSprite(color);
+  }
+  return GLOW_SPRITES[color];
+}
+
 function showNewTowerBanner(type) {
   const banner = document.getElementById('newTowerBanner');
   if (!banner) return;
@@ -37,7 +64,7 @@ function showIncomingAlert(type) {
   banner.classList.add('visible');
   activeBossAlertType = type;
   bossAlertShown = true;
-  bossAlertHideTimer = 3.0; // 2.0 секунды до спауна + 1.0 секунда после спауна
+  bossAlertHideTimer = 3.0;
 }
 
 function hideIncomingAlert() {
@@ -476,7 +503,7 @@ function setGlow(color, blur) {
     return;
   }
   ctx.shadowColor = color;
-  ctx.shadowBlur = blur;
+  ctx.shadowBlur = Math.min(blur, 8);
 }
 
 const MAX_PARTICLES = 260;
@@ -571,7 +598,8 @@ function initDevResourceHold() {
       clearTimeout(devHoldTimer);
       devHoldTimer = setTimeout(() => {
         devHoldTriggered = true;
-        if (navigator.vibrate) { try { navigator.vibrate(35); } catch(e){} }
+        if (typeof vibrate === 'function') vibrate('light');
+        else if (navigator.vibrate) { try { navigator.vibrate(35); } catch(e){} }
         promptFn();
       }, 500);
     });
@@ -1052,26 +1080,53 @@ function updateUpgradeButtonsLock() {
   });
 }
 
-function showSettings() {
-  document.getElementById('startScreen').classList.add('hidden');
+let settingsPreviousSource = 'start';
+
+function showSettings(fromSource = 'start') {
+  settingsPreviousSource = fromSource;
+
+  if (fromSource === 'pause') {
+    document.getElementById('pauseScreen').classList.add('hidden');
+  } else {
+    document.getElementById('startScreen').classList.add('hidden');
+  }
+
   document.getElementById('settingsScreen').classList.remove('hidden');
   gameState = 'SETTINGS';
+
   const hpCheckbox = document.getElementById('settingShowHp');
   if (hpCheckbox) hpCheckbox.checked = !!settings.showEnemyHp;
-  const perfCheckbox = document.getElementById('settingPerfMode');
-  if (perfCheckbox) perfCheckbox.checked = (perfMode === 'low');
-  applySfxVolume(settings.sfxVolume != null ? settings.sfxVolume : (settings.sfxEnabled === false ? 0 : 100), false);
-  applyMusicVolume(settings.musicVolume != null ? settings.musicVolume : (settings.musicEnabled === false ? 0 : 70), false);
+
+  const vibCheckbox = document.getElementById('settingVibration');
+  if (vibCheckbox) vibCheckbox.checked = settings.vibrationEnabled !== false;
+
+  applySfxVolume(settings.sfxVolume != null ? settings.sfxVolume : 100, false);
+  applyMusicVolume(settings.musicVolume != null ? settings.musicVolume : 70, false);
 }
 
 function closeSettings() {
   document.getElementById('settingsScreen').classList.add('hidden');
-  document.getElementById('startScreen').classList.remove('hidden');
-  gameState = 'START';
-  music('menu');
+
+  if (settingsPreviousSource === 'pause') {
+    document.getElementById('pauseScreen').classList.remove('hidden');
+    gameState = 'PAUSED';
+  } else {
+    document.getElementById('startScreen').classList.remove('hidden');
+    gameState = 'START';
+    music('menu');
+  }
 }
 
 function toggleSettingHp(isChecked) { settings.showEnemyHp = isChecked; saveGameSoon(); }
+
+function toggleSettingVibration(isChecked) {
+  settings.vibrationEnabled = isChecked;
+  if (isChecked) {
+    if (typeof vibrate === 'function') vibrate('medium');
+    else if (navigator.vibrate) { try { navigator.vibrate(30); } catch(e){} }
+  }
+  saveGameSoon();
+}
 
 function applySfxVolume(pct, persist) {
   const v = Math.max(0, Math.min(100, Math.round(Number(pct) || 0)));
@@ -1139,7 +1194,7 @@ function showLevelSelect() {
 
   const customSpawner = document.getElementById('devCustomSpawner');
   if (customSpawner) customSpawner.classList.add('hidden');
-  
+
   currentLevelSection = Math.min(TOTAL_SECTIONS, Math.max(1, Math.ceil(currentLevel / LEVELS_PER_SECTION)));
   renderLevelsGrid();
   showLoadoutWidgetIn('loadoutAnchor-levels');
@@ -1167,7 +1222,7 @@ function showLevelSelectFromGame() {
 
   const customSpawner = document.getElementById('devCustomSpawner');
   if (customSpawner) customSpawner.classList.add('hidden');
-  
+
   currentLevelSection = Math.min(TOTAL_SECTIONS, Math.max(1, Math.ceil(currentLevel / LEVELS_PER_SECTION)));
   renderLevelsGrid();
   showLoadoutWidgetIn('loadoutAnchor-levels');
@@ -1460,7 +1515,7 @@ function showUpgradesScreen(fromSource) {
 
 function closeUpgradesScreen() {
   document.getElementById('upgradesScreen').classList.add('hidden');
-  
+
   ['startScreen', 'victoryScreen', 'defeatScreen', 'levelsScreen', 'pauseScreen', 'settingsScreen'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.remove('screen-bg-only');
@@ -1803,25 +1858,17 @@ function updateInspectUI() {
 
   const iconBox = document.getElementById('inspectIconBox');
   if (iconBox) {
-    iconBox.innerHTML = buildTowerIconSvg(t.type, t.level || 1, 28) || '';
+    iconBox.innerHTML = buildTowerIconSvg(t.type, t.level || 1, 18) || '';
     iconBox.style.borderColor = t.color || '#00e5ff';
-    iconBox.style.boxShadow = `0 0 16px ${t.color || '#00e5ff'}55`;
+    iconBox.style.boxShadow = `0 0 10px ${t.color || '#00e5ff'}55`;
   }
 
   const nameEl = document.getElementById('inspectName');
   if (nameEl) nameEl.textContent = TOWER_NAMES[t.type] || t.type;
 
-  const statDmgEl = document.getElementById('inspectStatDamage');
-  if (statDmgEl) {
-    if (t.type === 'laser' || t.type === 'melter') {
-      statDmgEl.textContent = `LV.${t.level} · DPS ${Math.round(t.damage)}`;
-    } else if (t.type === 'stasis') {
-      const stasisPowerLvl = upgradeTreeData.stasis_power || 0;
-      const slowPct = Math.round(Math.min(0.9, TOWER_CONFIGS.stasis.slowFactor * (1 + stasisPowerLvl * (TOWER_CONFIGS.stasis.powerSlow || 0))) * 100);
-      statDmgEl.textContent = `LV.${t.level} · SLOW ${slowPct}%`;
-    } else {
-      statDmgEl.textContent = `LV.${t.level} · DMG ${Math.round(t.damage)}`;
-    }
+  const lvlTextEl = document.getElementById('inspectLvlText');
+  if (lvlTextEl) {
+    lvlTextEl.textContent = `LVL ${t.level || 1}`;
   }
 
   for (let lvl = 1; lvl <= 3; lvl++) {
@@ -1830,7 +1877,7 @@ function updateInspectUI() {
       if (lvl <= t.level) {
         seg.classList.add('active');
         seg.style.background = t.color || '#00e5ff';
-        seg.style.boxShadow = `0 0 6px ${t.color || '#00e5ff'}99`;
+        seg.style.boxShadow = `0 0 5px ${t.color || '#00e5ff'}99`;
       } else {
         seg.classList.remove('active');
         seg.style.background = 'rgba(140, 200, 255, 0.2)';
@@ -2142,7 +2189,7 @@ function drawSynthWaveTriangleLogo5C(w, horizonY, time) {
     ctx.strokeStyle = tier.color;
     ctx.lineWidth = tier.width;
     if (tier.glow) {
-      setGlow('#00e5ff', 16);
+      setGlow('#00e5ff', 8);
     }
     const curHalfW = halfW * tier.scaleSpread;
     const curTopY = topY - (tier.scaleSpread - 1) * 12;
@@ -2245,7 +2292,7 @@ function drawSynthWavePerspectiveScene(now) {
   ctx.fillRect(0, horizonY, w, 80);
 
   ctx.strokeStyle = '#eafcff';
-  setGlow('#00e5ff', 24);
+  setGlow('#00e5ff', 8);
   ctx.lineWidth = 3.5;
   ctx.beginPath();
   ctx.moveTo(0, horizonY);
@@ -2265,7 +2312,7 @@ function drawChevron(centerX, centerY, angle, size, color, glowColor) {
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
   if (glowColor) {
-    setGlow(glowColor, 10);
+    setGlow(glowColor, 8);
   }
   ctx.beginPath();
   ctx.moveTo(-size * 0.8, -size);
@@ -2410,7 +2457,7 @@ function drawTowerModel(type, angle, color, level = 1, glow = '#00e5ff', isDisab
   ctx.arc(0, 0, 17, 0, Math.PI * 2);
   ctx.fill();
 
-  setGlow(isDisabled ? 'transparent' : glow, isShooting ? 12 : 7);
+  setGlow(isDisabled ? 'transparent' : glow, isShooting ? 8 : 6);
   ctx.strokeStyle = ringColor;
   ctx.lineWidth = 1.6;
   ctx.beginPath();
@@ -2463,7 +2510,7 @@ function drawTowerModel(type, angle, color, level = 1, glow = '#00e5ff', isDisab
     }
   }
 
-  setGlow(isDisabled ? 'transparent' : glow, 14);
+  setGlow(isDisabled ? 'transparent' : glow, 8);
   if (spec && spec.flakes) {
     ctx.strokeStyle = isDisabled ? '#475569' : color;
     ctx.lineCap = 'round';
@@ -2506,7 +2553,7 @@ function drawTowerModel(type, angle, color, level = 1, glow = '#00e5ff', isDisab
     const heatColor = isOverheated ? '#ffffff' : (isCooling ? '#fb923c' : '#ef4444');
     ctx.beginPath();
     ctx.strokeStyle = heatColor;
-    setGlow(heatColor, isOverheated ? 12 : 5);
+    setGlow(heatColor, isOverheated ? 8 : 5);
     ctx.lineWidth = 3;
     ctx.lineCap = 'round';
     ctx.rotate(-Math.PI / 2);
@@ -2564,7 +2611,7 @@ function drawEnemyModel(e, showHpBar = true) {
   ctx.fillStyle = isBlinkerShielded ? '#334155' : renderColor + (e.isBoss ? '28' : (e.isMiniBoss ? '22' : '18'));
   ctx.strokeStyle = renderColor;
   ctx.lineWidth = strokeW;
-  setGlow(isBlinkerShielded ? 'transparent' : renderColor, isBlinkerShielded ? 0 : (e.isBoss ? 26 : (e.isMiniBoss ? 18 : 14)));
+  setGlow(isBlinkerShielded ? 'transparent' : renderColor, isBlinkerShielded ? 0 : 8);
 
   if (e.shape === 'circle') {
     ctx.beginPath();
@@ -2692,7 +2739,7 @@ function drawJaggedLightning(x1, y1, x2, y3, color, alpha, progress = 1.0) {
   ctx.lineJoin = 'round';
 
   ctx.strokeStyle = color || '#00ffcc';
-  setGlow('#00e5ff', 18);
+  setGlow('#00e5ff', 8);
   ctx.lineWidth = 4.5;
   ctx.beginPath();
   ctx.moveTo(points[0].x, points[0].y);
@@ -2741,8 +2788,10 @@ function render(now) {
   ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
   const isUpgradesFromCombat = (gameState === 'UPGRADES' && (upgradesPreviousSource === 'victory' || upgradesPreviousSource === 'defeat'));
+  const isSettingsFromCombat = (gameState === 'SETTINGS' && settingsPreviousSource === 'pause');
 
-  if ((gameState === 'START' || gameState === 'SETTINGS' || gameState === 'LEVELS' || gameState === 'UPGRADES') && !isUpgradesFromCombat) {
+  if ((gameState === 'START' || gameState === 'SETTINGS' || gameState === 'LEVELS' || gameState === 'UPGRADES') 
+      && !isUpgradesFromCombat && !isSettingsFromCombat) {
     drawSynthWavePerspectiveScene(now);
     return;
   }
@@ -2853,7 +2902,7 @@ function render(now) {
       const muzzleX = t.x + Math.cos(t.angle) * 24;
       const muzzleY = t.y + Math.sin(t.angle) * 24;
       ctx.save();
-      setGlow('#ff2a85', 14);
+      setGlow('#ff2a85', 8);
       ctx.beginPath();
       ctx.moveTo(muzzleX, muzzleY);
       ctx.lineTo(t.target.x, t.target.y);
@@ -2868,7 +2917,7 @@ function render(now) {
       const muzzleY = t.y + Math.sin(t.angle) * 24;
       const beamW = 3.5;
       ctx.save();
-      setGlow('#ef4444', 16);
+      setGlow('#ef4444', 8);
       ctx.beginPath();
       ctx.moveTo(muzzleX, muzzleY);
       ctx.lineTo(t.target.x, t.target.y);
@@ -2885,7 +2934,7 @@ function render(now) {
     ctx.save();
     if (p.type === 'bullet') {
       ctx.fillStyle = '#ffffff';
-      setGlow('#00e5ff', 10);
+      setGlow('#00e5ff', 8);
       ctx.beginPath();
       ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
       ctx.fill();
@@ -2901,7 +2950,7 @@ function render(now) {
       ctx.fill();
       ctx.globalAlpha = 1;
       ctx.fillStyle = '#ff9100';
-      setGlow('#ff9100', 12);
+      setGlow('#ff9100', 8);
       ctx.beginPath();
       ctx.arc(p.x, p.y - heightOffset, 6, 0, Math.PI * 2);
       ctx.fill();
@@ -2916,7 +2965,7 @@ function render(now) {
       ctx.save();
       ctx.globalAlpha = alpha;
       ctx.strokeStyle = TOWER_CONFIGS.railgun.glow;
-      setGlow(TOWER_CONFIGS.railgun.color, 20);
+      setGlow(TOWER_CONFIGS.railgun.color, 8);
       ctx.lineWidth = 5;
       ctx.beginPath();
       ctx.moveTo(lb.x1, lb.y1);
@@ -2935,7 +2984,7 @@ function render(now) {
     ctx.save();
     ctx.strokeStyle = sw.color;
     ctx.globalAlpha = Math.max(0, 1 - prog);
-    setGlow(sw.color, 16);
+    setGlow(sw.color, 8);
     ctx.lineWidth = 2.5 * (1 - prog);
     ctx.beginPath();
     ctx.arc(sw.x, sw.y, currentR, 0, Math.PI * 2);
@@ -2954,20 +3003,22 @@ function render(now) {
       ctx.globalCompositeOperation = 'source-over';
       ctx.globalAlpha = prog * 0.55;
       ctx.fillStyle = pt.color;
-      setGlow(pt.color, 5);
       ctx.beginPath();
       ctx.arc(pt.x, pt.y, pt.radius * (0.6 + growProg * 0.9), 0, Math.PI * 2);
       ctx.fill();
     } else if (pt.isFlash) {
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.arc(pt.x, pt.y, pt.radius, 0, Math.PI * 2);
-      ctx.fill();
+      const sprite = getGlowSprite(pt.color || '#ffffff');
+      const r = pt.radius * 2;
+      ctx.drawImage(sprite, pt.x - r, pt.y - r, r * 2, r * 2);
     } else {
       ctx.fillStyle = pt.color;
-      setGlow(pt.color, 12);
       ctx.beginPath();
       ctx.arc(pt.x, pt.y, pt.radius * prog, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.arc(pt.x, pt.y, (pt.radius * prog) * 0.5, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.restore();

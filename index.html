@@ -235,17 +235,17 @@
     <!-- Inspector Panel (Visual Direction 3G) -->
     <div class="controls-panel hidden" id="inspectPanel">
       <div class="selected-info">
-        <div class="selected-icon-box" id="inspectIconBox"></div>
-        <div class="selected-texts">
-          <span class="selected-title" id="inspectName">Gatling</span>
-          <span class="selected-stats" id="inspectStatDamage">LV.1 · DMG 16</span>
-          <div class="selected-level-bars" id="inspectLevelBars">
-            <div class="level-bar-seg" id="lvlBar1"></div>
-            <div class="level-bar-seg" id="lvlBar2"></div>
-            <div class="level-bar-seg" id="lvlBar3"></div>
-          </div>
-        </div>
+       <div class="selected-icon-box" id="inspectIconBox"></div>
+       <div class="selected-texts">
+        <span class="selected-title" id="inspectName">Gatling</span>
+        <span class="selected-lvl-text" id="inspectLvlText">LVL 1</span>
+        <div class="selected-level-bars" id="inspectLevelBars">
+         <div class="level-bar-seg" id="lvlBar1"></div>
+         <div class="level-bar-seg" id="lvlBar2"></div>
+        <div class="level-bar-seg" id="lvlBar3"></div>
+       </div>
       </div>
+    </div>
 
       <button class="btn-upgrade" id="inspectUpgradeBtn" onclick="upgradeSelectedTower()">
         <span class="upg-btn-title">
@@ -381,16 +381,16 @@
 <!-- Upgrades Screen -->
 <div class="overlay-screen transparent-bg upgrades-bg hidden" id="upgradesScreen">
   <div class="upgrades-content-col">
-    <div class="upgrades-top-bar">
-      <span class="upgrades-top-label">TECH TREE</span>
-      <div class="levels-top-diamonds">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2.2" stroke-linejoin="round">
-          <polygon points="6 3 18 3 22 9 12 22 2 9" fill="rgba(0,229,255,.25)"/>
-          <polyline points="2 9 12 13 22 9"/><line x1="12" y1="22" x2="12" y2="13"/>
-        </svg>
-        <span id="upgradesDiamondVal">0</span>
-      </div>
-    </div>
+   <div class="upgrades-top-bar">
+    <div class="levels-top-diamonds">
+     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2.2" stroke-linejoin="round">
+       <polygon points="6 3 18 3 22 9 12 22 2 9" fill="rgba(0,229,255,.25)"/>
+       <polyline points="2 9 12 13 22 9"/><line x1="12" y1="22" x2="12" y2="13"/>
+     </svg>
+     <span id="upgradesDiamondVal">0</span>
+   </div>
+  <span class="upgrades-top-label">TECH TREE</span>
+</div>
     <div class="upgrades-row-list" id="upgradesTreeBody"></div>
     <button class="menu-btn-glass-capsule upgrades-back-btn" onclick="closeUpgradesScreen()"><span>BACK</span></button>
   </div>
@@ -486,7 +486,8 @@
     <button class="result-btn result-btn-primary seq-in seq-d1" onclick="togglePause()"><span>RESUME</span></button>
     <button class="result-btn seq-in seq-d2" onclick="retryLevel()"><span>RETRY</span></button>
     <button class="result-btn seq-in seq-d2" onclick="showLevelSelectFromGame()"><span>LEVELS</span></button>
-    <div class="loadout-anchor seq-in seq-d3" id="loadoutAnchor-pause"></div>
+    <button class="result-btn seq-in seq-d3" onclick="showSettings('pause')"><span>SETTINGS</span></button>
+    <div class="loadout-anchor seq-in seq-d4" id="loadoutAnchor-pause"></div>
   </div>
 </div>
 
