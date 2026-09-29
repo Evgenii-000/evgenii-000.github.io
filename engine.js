@@ -1,0 +1,2399 @@
+// Synth Wave Defense -- engine.js
+//
+// The simulation layer: everything about *what happens* in a match, with no
+// opinion on how it's drawn or which screen is showing. Owns all mutable
+// game state (gold, diamonds, towers/enemies/projectiles arrays, wave/level
+// progress, save data) and the logic that changes it.
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+const TILE_SIZE = 70;
+const TOUCH_OFFSET_Y = 65;
+let currentLevelSection = 1;
+
+let COLS = 10;
+let ROWS = 7;
+let FIELD_WIDTH = COLS * TILE_SIZE;
+let FIELD_HEIGHT = ROWS * TILE_SIZE;
+
+let camZoom = 1.0;
+let camX = 0;
+let camY = 0;
+let baseZoom = 1.0;
+let minZoom = 1.0;
+let maxZoom = 2.0;
+
+let isPanning = false;
+let panStartTouch = { x: 0, y: 0 };
+let panStartCam = { x: 0, y: 0 };
+let isMousePanning = false;
+let mouseSpacePressed = false;
+let panStartMouse = { x: 0, y: 0 };
+let initialPinchDist = null;
+let initialPinchZoom = 1.0;
+let pinchCenterWorld = { x: 0, y: 0 };
+
+let bossAlertScheduled = false;
+let bossAlertShown = false;
+let activeBossAlertType = null;
+let bossAlertHideTimer = 0;
+let newTowerBannerHideTimer = 0;
+
+function hasClearedLevelBefore(lvl) {
+  return maxUnlockedLevel > lvl;
+}
+
+const MINIBOSS_BASE_DAMAGE_TIER_LEVEL = 21;
+const BOSS_BASE_DAMAGE_TIER_LEVEL = 30;
+function getBaseDamageFor(e) {
+  if (e.isBoss) return currentLevel >= BOSS_BASE_DAMAGE_TIER_LEVEL ? 10 : 5;
+  if (e.isMiniBoss) return currentLevel >= MINIBOSS_BASE_DAMAGE_TIER_LEVEL ? 4 : 2;
+  return 1;
+}
+
+function getNewlyUnlockedTowers(lvl) {
+  const cur = (LEVELS_DATA[lvl] && LEVELS_DATA[lvl].unlockedTowers) || [];
+  const prev = (LEVELS_DATA[lvl - 1] && LEVELS_DATA[lvl - 1].unlockedTowers) || [];
+  return cur.filter(t => !prev.includes(t));
+}
+
+let gameState = 'START';
+let currentLevel = 1;
+let settings = {
+  showEnemyHp: true, perfModeOverride: null,
+  sfxEnabled: true, musicEnabled: true,
+  sfxVolume: 100, musicVolume: 70
+};
+
+function sfx(name, arg) {
+  if (!settings.sfxEnabled) return;
+  try {
+    if (typeof SFX !== 'undefined' && SFX) SFX.play(name, arg);
+  } catch (e) { }
+}
+function sfxDeath(enemy) {
+  if (!settings.sfxEnabled) return;
+  try {
+    if (typeof SFX !== 'undefined' && SFX) SFX.death(enemy);
+  } catch (e) {}
+}
+function sfxBeam(kind, active, intensity) {
+  if (!settings.sfxEnabled) return;
+  try {
+    if (typeof SFX !== 'undefined' && SFX) SFX.beam(kind, active, intensity);
+  } catch (e) {}
+}
+function sfxStopBeams() {
+  try {
+    if (typeof SFX !== 'undefined' && SFX) SFX.stopBeams();
+  } catch (e) {}
+}
+function sfxReap() {
+  try {
+    if (typeof SFX !== 'undefined' && SFX) SFX.reap();
+  } catch (e) {}
+}
+function sfxSetEnabled(on) {
+  try {
+    if (typeof SFX !== 'undefined' && SFX) SFX.setEnabled(on);
+  } catch (e) {}
+}
+function sfxSetVolume(v) {
+  try {
+    if (typeof SFX !== 'undefined' && SFX && SFX.setVolume) SFX.setVolume(v);
+  } catch (e) {}
+}
+
+function music(category) {
+  try {
+    if (typeof MusicManager !== 'undefined' && MusicManager) MusicManager.play(category);
+  } catch (e) { }
+}
+function musicSetEnabled(on) {
+  try {
+    if (typeof MusicManager !== 'undefined' && MusicManager) MusicManager.setEnabled(on);
+  } catch (e) {}
+}
+function musicSetVolume(v) {
+  try {
+    if (typeof MusicManager !== 'undefined' && MusicManager && MusicManager.setVolume) MusicManager.setVolume(v);
+  } catch (e) {}
+}
+function musicUnlock() {
+  try {
+    if (typeof MusicManager !== 'undefined' && MusicManager) MusicManager.unlock();
+  } catch (e) {}
+}
+function musicSuspend() {
+  try {
+    if (typeof MusicManager !== 'undefined' && MusicManager) MusicManager.suspend();
+  } catch (e) {}
+}
+function musicResume() {
+  try {
+    if (typeof MusicManager !== 'undefined' && MusicManager) MusicManager.resume();
+  } catch (e) {}
+}
+
+let devMode = false;
+let devInputOpen = false;
+let suppressBackgroundPauseUntil = 0;
+function suppressBackgroundPause(ms = 900) {
+  suppressBackgroundPauseUntil = Date.now() + ms;
+}
+let gameTimeScale = 1.0;
+let isLivePaused = false;
+
+let gold = 100;
+let baseHp = 10;
+let wave = 1;
+let waveInProgress = false;
+let autoWaveTimeRemaining = 0;
+let waveTimerActive = false;
+let waveTotalSpawnTime = 1.0;
+let waveSpawnElapsedTime = 0;
+let victoryDelayTimer = 0;
+
+let selectedLoadout = [];
+const LOADOUT_SIZE = 3;
+
+let draggingTower = null;
+let selectedTower = null;
+let sellConfirmArmed = false;
+let sellConfirmTimer = null;
+
+let diamonds = 0;
+let maxUnlockedLevel = 1;
+let clearedLevels = [];
+let levelStars = {};
+let matchStartBaseHp = 10;
+let upgradesPreviousSource = 'main';
+let lastVictoryDiamondsReward = 2;
+let hasClaimedX2ThisLevel = false;
+
+let reviveUsedThisMatch = false;
+let reviveTimerInterval = null;
+let reviveRemainingSeconds = 3;
+let reviveSkipShowTimer = null;
+
+let tutorialActive = false;
+let tutorialLevel = null;
+let tutorialStep = -1;
+let tutorialTargetTower = null;
+let tutorialDestCell = null;
+let tutorialSeen = { l1: false, l2: false, l3: false };
+
+let activePathTiles = [];
+let WAYPOINTS = [];
+let grid = [];
+let pathCells = [];
+let obstacleCells = [];
+
+const SAVE_KEY = 'sectorDefenseTD_save_v1';
+let saveGameTimer = null;
+
+function serializeSaveData() {
+  return {
+    version: 1,
+    diamonds,
+    maxUnlockedLevel,
+    clearedLevels,
+    levelStars,
+    upgradeTreeData: Object.assign({}, upgradeTreeData),
+    selectedLoadout,
+    settings,
+    tutorialSeen
+  };
+}
+
+function saveGame() {
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(serializeSaveData()));
+  } catch (e) {
+    console.warn('SectorDefenseTD: save failed', e);
+  }
+}
+
+function saveGameSoon() {
+  if (saveGameTimer) clearTimeout(saveGameTimer);
+  saveGameTimer = setTimeout(saveGame, 300);
+}
+
+function loadGame() {
+  let raw;
+  try {
+    raw = localStorage.getItem(SAVE_KEY);
+  } catch (e) {
+    console.warn('SectorDefenseTD: localStorage unavailable, starting fresh', e);
+    return false;
+  }
+  if (!raw) return false;
+
+  let data;
+  try {
+    data = JSON.parse(raw);
+  } catch (e) {
+    console.warn('SectorDefenseTD: save data corrupt, starting fresh', e);
+    return false;
+  }
+  if (!data || typeof data !== 'object') return false;
+
+  if (typeof data.diamonds === 'number' && data.diamonds >= 0) diamonds = data.diamonds;
+  if (typeof data.maxUnlockedLevel === 'number' && data.maxUnlockedLevel >= 1) {
+    maxUnlockedLevel = Math.min(data.maxUnlockedLevel, TOTAL_LEVELS);
+  }
+  if (Array.isArray(data.clearedLevels)) {
+    clearedLevels = data.clearedLevels.filter(n => typeof n === 'number');
+  }
+  if (data.levelStars && typeof data.levelStars === 'object') {
+    levelStars = data.levelStars;
+  }
+  if (data.upgradeTreeData && typeof data.upgradeTreeData === 'object') {
+    Object.keys(upgradeTreeData).forEach(key => {
+      const v = data.upgradeTreeData[key];
+      if (typeof v === 'number' && v >= 0) upgradeTreeData[key] = v;
+    });
+  }
+  if (Array.isArray(data.selectedLoadout) && data.selectedLoadout.length > 0) {
+    selectedLoadout = data.selectedLoadout.filter(t => TOWER_CONFIGS[t]);
+  }
+  if (data.settings && typeof data.settings === 'object') {
+    Object.assign(settings, data.settings);
+    sfxSetEnabled(settings.sfxEnabled !== false);
+  }
+  if (data.tutorialSeen && typeof data.tutorialSeen === 'object') {
+    if (typeof data.tutorialSeen.l1 === 'boolean') tutorialSeen.l1 = data.tutorialSeen.l1;
+    if (typeof data.tutorialSeen.l2 === 'boolean') tutorialSeen.l2 = data.tutorialSeen.l2;
+    if (typeof data.tutorialSeen.l3 === 'boolean') tutorialSeen.l3 = data.tutorialSeen.l3;
+    Object.keys(data.tutorialSeen).forEach(k => {
+      if (k.startsWith('towerUnlock_l') && typeof data.tutorialSeen[k] === 'boolean') {
+        tutorialSeen[k] = data.tutorialSeen[k];
+      }
+    });
+  }
+  return true;
+}
+
+function safeTrack(name, params) {
+  try {
+    if (typeof trackEvent === 'function') trackEvent(name, params);
+  } catch (e) { }
+}
+
+function buildLevelGeometry(pathNodes, colsCount, rowsCount, blockedCells) {
+  COLS = colsCount || 10;
+  ROWS = rowsCount || 7;
+  grid = Array(ROWS).fill(null).map(() => Array(COLS).fill(0));
+  activePathTiles = pathNodes;
+  pathCells = [];
+  obstacleCells = [];
+
+  for (let i = 0; i < pathNodes.length - 1; i++) {
+    const p1 = pathNodes[i];
+    const p2 = pathNodes[i + 1];
+    const cStep = Math.sign(p2.c - p1.c);
+    const rStep = Math.sign(p2.r - p1.r);
+    let curC = p1.c;
+    let curR = p1.r;
+
+    while (curC !== p2.c || curR !== p2.r) {
+      if (curR >= 0 && curR < ROWS && curC >= 0 && curC < COLS) grid[curR][curC] = 1;
+      pathCells.push({ c: curC, r: curR, dirX: cStep, dirY: rStep });
+      curC += cStep;
+      curR += rStep;
+    }
+  }
+
+  const lastNode = pathNodes[pathNodes.length - 1];
+  const prevCell = pathCells[pathCells.length - 1];
+  const lastDirX = prevCell ? prevCell.dirX : 0;
+  const lastDirY = prevCell ? prevCell.dirY : 1;
+  if (lastNode.r >= 0 && lastNode.r < ROWS && lastNode.c >= 0 && lastNode.c < COLS) {
+    grid[lastNode.r][lastNode.c] = 1;
+  }
+  pathCells.push({ c: lastNode.c, r: lastNode.r, dirX: lastDirX, dirY: lastDirY });
+
+  const lastVisit = new Map();
+  const visitCounts = new Map();
+  pathCells.forEach((cell, idx) => {
+    const key = `${cell.c},${cell.r}`;
+    lastVisit.set(key, idx);
+    visitCounts.set(key, (visitCounts.get(key) || 0) + 1);
+  });
+
+  const totalCells = pathCells.length;
+  const D = 23;
+  const half = TILE_SIZE / 2;
+
+  for (let i = 0; i < totalCells; i++) {
+    const cell = pathCells[i];
+    const key = `${cell.c},${cell.r}`;
+    cell.isLowerLayer = (lastVisit.get(key) !== i);
+    cell.isIntersection = (visitCounts.get(key) > 1);
+
+    let inDir, outDir;
+    if (i === 0) {
+      inDir = { x: pathCells[1].c - cell.c, y: pathCells[1].r - cell.r };
+      outDir = inDir;
+    } else if (i === totalCells - 1) {
+      outDir = { x: cell.c - pathCells[i - 1].c, y: cell.r - pathCells[i - 1].r };
+      inDir = outDir;
+    } else {
+      inDir = { x: cell.c - pathCells[i - 1].c, y: cell.r - pathCells[i - 1].r };
+      outDir = { x: pathCells[i + 1].c - cell.c, y: pathCells[i + 1].r - cell.r };
+    }
+
+    cell.inDir = inDir;
+    cell.outDir = outDir;
+    cell.isTurn = (inDir.x !== outDir.x || inDir.y !== outDir.y);
+    const cx = cell.c * TILE_SIZE + half;
+    const cy = cell.r * TILE_SIZE + half;
+
+    if (!cell.isTurn) {
+      const nx = -inDir.y;
+      const ny = inDir.x;
+      cell.rails = [
+        { x1: cx - inDir.x * half - nx * D, y1: cy - inDir.y * half - ny * D, x2: cx + inDir.x * half - nx * D, y2: cy + inDir.y * half - ny * D },
+        { x1: cx - inDir.x * half + nx * D, y1: cy - inDir.y * half + ny * D, x2: cx + inDir.x * half + nx * D, y2: cy + inDir.y * half + ny * D }
+      ];
+    } else {
+      const pivotX = inDir.x === 0 ? cx + outDir.x * half : cx - inDir.x * half;
+      const pivotY = inDir.y === 0 ? cy + outDir.y * half : cy - inDir.y * half;
+      const entryX = cx - inDir.x * half;
+      const entryY = cy - inDir.y * half;
+      const exitX  = cx + outDir.x * half;
+      const exitY  = cy + outDir.y * half;
+      cell.turnPivot = { x: pivotX, y: pivotY };
+      cell.turnAngles = { start: Math.atan2(entryY - pivotY, entryX - pivotX), end: Math.atan2(exitY - pivotY, exitX - pivotX), anticlockwise: (inDir.x * outDir.y - inDir.y * outDir.x) < 0 };
+      cell.turnRadii = [half - D, half + D];
+    }
+  }
+
+  WAYPOINTS = pathNodes.map(p => ({
+    x: p.c * TILE_SIZE + TILE_SIZE / 2,
+    y: p.r * TILE_SIZE + TILE_SIZE / 2
+  }));
+
+  if (Array.isArray(blockedCells)) {
+    blockedCells.forEach(bc => {
+      if (bc.r >= 0 && bc.r < ROWS && bc.c >= 0 && bc.c < COLS && grid[bc.r][bc.c] === 0) {
+        grid[bc.r][bc.c] = 3;
+        obstacleCells.push({ c: bc.c, r: bc.r });
+      }
+    });
+  }
+}
+
+let towers = [];
+let enemies = [];
+let projectiles = [];
+let particles = [];
+let shockwaves = [];
+let lightningBolts = [];
+let spawnQueue = [];
+let spawnTimer = 0;
+
+let perfMode = 'high';
+let perfDecided = false;
+let perfSampleFrames = 0;
+let perfSampleTime = 0;
+
+function getMaxUpgradeStep() {
+  const lvl = getLoadoutReferenceLevel();
+  if (lvl < 11) return 0;
+  if (lvl <= 20) return 3;
+  if (lvl <= 30) return 6;
+  if (lvl <= 40) return 8;
+  return 10;
+}
+
+function handleNodeClick(key, stepIndex) {
+  const currentVal = upgradeTreeData[key] || 0;
+  if (devMode) {
+    if (stepIndex > currentVal) {
+      const diff = stepIndex - currentVal;
+      if (diamonds >= diff) {
+        diamonds -= diff;
+        upgradeTreeData[key] = stepIndex;
+      } else {
+        upgradeTreeData[key] = stepIndex;
+      }
+    } else if (stepIndex === currentVal) {
+      upgradeTreeData[key] = currentVal - 1;
+    } else {
+      upgradeTreeData[key] = stepIndex;
+    }
+    updateDiamondUI();
+    renderUpgradeTree();
+    saveGameSoon();
+    return;
+  }
+
+  if (stepIndex <= currentVal) return;
+  const maxStep = getMaxUpgradeStep();
+  if (stepIndex > maxStep) {
+    let lvlNeeded = 11;
+    if (stepIndex > 8) lvlNeeded = 41;
+    else if (stepIndex > 6) lvlNeeded = 31;
+    else if (stepIndex > 3) lvlNeeded = 21;
+    sfx('denied');
+    showHintToast(`Unlocks on Level ${lvlNeeded}`);
+    return;
+  }
+  if (stepIndex === currentVal + 1) {
+    const cost = stepIndex;
+    if (diamonds >= cost) {
+      diamonds -= cost;
+      upgradeTreeData[key] = stepIndex;
+      sfx('confirm');
+      updateDiamondUI();
+      renderUpgradeTree();
+      saveGameSoon();
+      safeTrack('upgrade_purchased', { key, step: stepIndex });
+    } else {
+      sfx('denied');
+    }
+  }
+}
+
+function getLoadoutReferenceLevel() {
+  return Math.max(maxUnlockedLevel, currentLevel || 1);
+}
+
+function getLoadoutStartLevel() {
+  for (let l = 1; l <= TOTAL_LEVELS; l++) {
+    const pool = LEVELS_DATA[l] && LEVELS_DATA[l].unlockedTowers;
+    if (pool && pool.length > LOADOUT_SIZE) return l;
+  }
+  return TOTAL_LEVELS + 1;
+}
+
+function getTowerUnlockLevel(type) {
+  for (let l = 1; l <= TOTAL_LEVELS; l++) {
+    const pool = LEVELS_DATA[l] && LEVELS_DATA[l].unlockedTowers;
+    if (pool && pool.includes(type)) return l;
+  }
+  return 1;
+}
+
+function getBuildPanelPool(lvl) {
+  if (devMode) return Object.keys(TOWER_CONFIGS);
+  const loadoutStart = getLoadoutStartLevel();
+  if (lvl < loadoutStart) {
+    const priorLvl = loadoutStart - 1;
+    return (LEVELS_DATA[priorLvl] && LEVELS_DATA[priorLvl].unlockedTowers)
+      ? LEVELS_DATA[priorLvl].unlockedTowers.slice() : ['gun'];
+  }
+  return selectedLoadout.slice();
+}
+
+function isTowerActiveThisLevel(type) {
+  if (devMode) return true;
+  const lvlConfig = LEVELS_DATA[currentLevel];
+  const trueUnlocked = (lvlConfig && lvlConfig.unlockedTowers) ? lvlConfig.unlockedTowers : Object.keys(TOWER_CONFIGS);
+  if (currentLevel < getLoadoutStartLevel()) return trueUnlocked.includes(type);
+  return selectedLoadout.includes(type) && trueUnlocked.includes(type);
+}
+
+function computeDefaultLoadout(lvl, pool) {
+  const prevLvl = lvl - 1;
+  const prevPool = (prevLvl >= 1 && LEVELS_DATA[prevLvl] && LEVELS_DATA[prevLvl].unlockedTowers)
+    ? LEVELS_DATA[prevLvl].unlockedTowers : [];
+  const newlyUnlocked = pool.filter(t => !prevPool.includes(t));
+
+  let picks = selectedLoadout.filter(t => pool.includes(t));
+  newlyUnlocked.forEach(t => { if (!picks.includes(t)) picks.unshift(t); });
+  picks = picks.slice(0, LOADOUT_SIZE);
+
+  for (const t of pool) {
+    if (picks.length >= LOADOUT_SIZE) break;
+    if (!picks.includes(t)) picks.push(t);
+  }
+  return { picks: picks.slice(0, LOADOUT_SIZE), newlyUnlocked };
+}
+
+let loadoutSyncedUpToLevel = 0;
+
+function refreshLoadoutForProgress() {
+  const loadoutStart = getLoadoutStartLevel();
+  const progressRef = getLoadoutReferenceLevel();
+  if (progressRef < loadoutStart) {
+    const priorLvl = loadoutStart - 1;
+    const tierPool = (LEVELS_DATA[priorLvl] && LEVELS_DATA[priorLvl].unlockedTowers)
+      ? LEVELS_DATA[priorLvl].unlockedTowers.slice() : ['gun'];
+    selectedLoadout = tierPool;
+    return;
+  }
+
+  const ref = Math.min(progressRef, TOTAL_LEVELS);
+  const pool = (LEVELS_DATA[ref] && LEVELS_DATA[ref].unlockedTowers) ? LEVELS_DATA[ref].unlockedTowers : ['gun'];
+
+  if (ref > loadoutSyncedUpToLevel || selectedLoadout.length === 0) {
+    const { picks } = computeDefaultLoadout(ref, pool);
+    selectedLoadout = picks;
+    loadoutSyncedUpToLevel = ref;
+  } else {
+    selectedLoadout = selectedLoadout.filter(t => pool.includes(t));
+  }
+}
+
+function startSpecificLevel(lvl) {
+  refreshLoadoutForProgress();
+  reallyStartLevel(lvl);
+}
+
+function reallyStartLevel(lvl) {
+  if (reviveTimerInterval) { clearInterval(reviveTimerInterval); reviveTimerInterval = null; }
+  music('battle');
+  currentLevel = lvl;
+  document.getElementById('levelsScreen').classList.add('hidden');
+  document.getElementById('victoryScreen').classList.add('hidden');
+  document.getElementById('defeatScreen').classList.add('hidden');
+  document.getElementById('pauseScreen').classList.add('hidden');
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('settingsScreen').classList.add('hidden');
+  document.getElementById('upgradesScreen').classList.add('hidden');
+  const revSc = document.getElementById('reviveScreen');
+  if (revSc) revSc.classList.add('hidden');
+
+  document.getElementById('econHpSplitBadge').classList.remove('hidden');
+  document.getElementById('levelWaveSplitBadge').classList.remove('hidden');
+  document.getElementById('hudRightGroup').classList.remove('hidden');
+  updateStartChapterLabel(false);
+  document.getElementById('controlsWrapper').classList.remove('hidden');
+
+  // Кнопка волны теперь парит отдельно, снимаем с неё класс hidden при старте уровня
+  const waveBtn = document.getElementById('waveBtn');
+  if (waveBtn) waveBtn.classList.remove('hidden');
+
+  if (devMode) {
+    document.getElementById('speedContainer').classList.remove('hidden');
+    document.getElementById('livePauseBtn').classList.remove('hidden');
+    const customSpawner = document.getElementById('devCustomSpawner');
+    if (customSpawner) customSpawner.classList.remove('hidden');
+  }
+
+  resetLevelState();
+  initBuildPanel();
+  updateUI();
+  resizeCanvasAndCamera();
+  gameState = 'PLAYING';
+  lastTime = performance.now();
+  initTutorialForLevel(lvl);
+  safeTrack('level_start', { level: lvl });
+
+  if (lvl < getLoadoutStartLevel() && !hasClearedLevelBefore(lvl)) {
+    const seenKey = `towerUnlock_l${lvl}`;
+    if (!tutorialSeen[seenKey]) {
+      const newTowers = getNewlyUnlockedTowers(lvl);
+      if (newTowers.length > 0) {
+        showNewTowerBanner(newTowers[0]);
+        tutorialSeen[seenKey] = true;
+        saveGameSoon();
+      }
+    }
+  }
+}
+
+function resetLevelState() {
+  if (reviveTimerInterval) { clearInterval(reviveTimerInterval); reviveTimerInterval = null; }
+  reviveUsedThisMatch = false;
+
+  const lvlConfig = LEVELS_DATA[currentLevel];
+  gold = lvlConfig ? lvlConfig.startGold : 100;
+  const initialBaseHp = (lvlConfig && lvlConfig.startHp !== undefined) ? lvlConfig.startHp : 10;
+  baseHp = initialBaseHp + (upgradeTreeData.base_hp || 0);
+  matchStartBaseHp = baseHp;
+
+  wave = 1;
+  waveInProgress = false;
+  autoWaveTimeRemaining = 0;
+  waveTimerActive = false;
+  victoryDelayTimer = 0;
+  towers = [];
+  enemies = [];
+  projectiles = [];
+  particles = [];
+  shockwaves = [];
+  lightningBolts = [];
+  spawnQueue = [];
+  bossAlertScheduled = false;
+  bossAlertShown = false;
+  activeBossAlertType = null;
+  hideIncomingAlert();
+  hideNewTowerBanner();
+
+  if (lvlConfig && lvlConfig.mapId && MAP_CATALOG[lvlConfig.mapId]) {
+    const mapCfg = MAP_CATALOG[lvlConfig.mapId];
+    buildLevelGeometry(mapCfg.path, mapCfg.cols, mapCfg.rows, mapCfg.blocked);
+  }
+
+  camZoom = 0;
+
+  deselectTower();
+  const btn = document.getElementById('waveBtn');
+  const btnText = document.getElementById('waveBtnText');
+  if (btn) btn.disabled = false;
+  if (btnText) btnText.textContent = 'Go';
+  updateWaveCircle(0);
+  updateUI();
+  if (devMode) refreshDevDropdowns();
+}
+
+function nextLevel() {
+  if (currentLevel < TOTAL_LEVELS) {
+    startSpecificLevel(currentLevel + 1);
+  } else {
+    showLevelSelect();
+  }
+}
+
+function retryLevel() { reallyStartLevel(currentLevel); }
+
+function togglePause() {
+  if (gameState !== 'PLAYING' && gameState !== 'PAUSED') return;
+  if (gameState === 'PLAYING') {
+    gameState = 'PAUSED';
+    sfxStopBeams();
+  
+    document.getElementById('pauseScreen').classList.remove('hidden');
+    showLoadoutWidgetIn('loadoutAnchor-pause');
+  } else {
+    gameState = 'PLAYING';
+    document.getElementById('pauseScreen').classList.add('hidden');
+    lastTime = performance.now();
+  }
+}
+
+function forcePauseForBackground() {
+  sfxStopBeams();
+  musicSuspend();
+  if (devInputOpen || Date.now() < suppressBackgroundPauseUntil) {
+    saveGame();
+    return;
+  }
+  if (gameState === 'PLAYING') {
+    gameState = 'PAUSED';
+    document.getElementById('pauseScreen').classList.remove('hidden');
+    showLoadoutWidgetIn('loadoutAnchor-pause');
+  }
+  saveGame();
+}
+
+function handleHardwareBack() {
+  const upgradesEl = document.getElementById('upgradesScreen');
+  const settingsEl = document.getElementById('settingsScreen');
+  const levelsEl = document.getElementById('levelsScreen');
+
+  if (upgradesEl && !upgradesEl.classList.contains('hidden')) {
+    closeUpgradesScreen();
+    return;
+  }
+  if (settingsEl && !settingsEl.classList.contains('hidden')) {
+    closeSettings();
+    return;
+  }
+  if (gameState === 'PAUSED') {
+    togglePause();
+    return;
+  }
+  if (gameState === 'PLAYING') {
+    togglePause();
+    return;
+  }
+  if (levelsEl && !levelsEl.classList.contains('hidden')) {
+    showStartScreen();
+    return;
+  }
+  if (gameState === 'START' && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App && typeof window.Capacitor.Plugins.App.exitApp === 'function') {
+    window.Capacitor.Plugins.App.exitApp();
+  }
+}
+
+function calculateLevelStarsAndReward(lvl, currentHp, startingHp) {
+  const hpRatio = startingHp > 0 ? (currentHp / startingHp) : 1;
+  let earnedStars = 1;
+  if (hpRatio >= 0.999) {
+    earnedStars = 3;
+  } else if (hpRatio >= 0.5) {
+    earnedStars = 2;
+  } else {
+    earnedStars = 1;
+  }
+
+  const prevBestStars = levelStars[lvl] || 0;
+  let rewardDiamonds = 0;
+  let rewardLabel = 'FARM REWARD';
+
+  if (earnedStars > prevBestStars) {
+    const deltaStars = earnedStars - prevBestStars;
+    rewardDiamonds = deltaStars * 2;
+    rewardLabel = (prevBestStars === 0) ? 'FIRST CLEAR BONUS' : 'STAR UPGRADE BONUS';
+    levelStars[lvl] = earnedStars;
+    if (!clearedLevels.includes(lvl)) {
+      clearedLevels.push(lvl);
+    }
+  } else {
+    rewardDiamonds = 1;
+    rewardLabel = 'FARM REWARD';
+  }
+
+  return { stars: earnedStars, reward: rewardDiamonds, rewardLabel: rewardLabel };
+}
+
+function claimX2Reward() {
+  if (hasClaimedX2ThisLevel) return;
+  const claimBtn = document.getElementById('claimX2Btn');
+  const adOverlay = document.getElementById('adSimOverlay');
+  if (adOverlay) adOverlay.classList.remove('hidden');
+
+  setTimeout(() => {
+    if (adOverlay) adOverlay.classList.add('hidden');
+    hasClaimedX2ThisLevel = true;
+    diamonds += lastVictoryDiamondsReward;
+    updateDiamondUI();
+    if (claimBtn) {
+      claimBtn.disabled = true;
+      claimBtn.innerHTML = '<span>CLAIMED</span>';
+    }
+    saveGame();
+  }, 1000);
+}
+
+function triggerVictory() {
+  gameState = 'VICTORY';
+  sfxStopBeams();
+  music('win');
+  sfx('victory');
+  const { stars, reward, rewardLabel } = calculateLevelStarsAndReward(currentLevel, baseHp, matchStartBaseHp);
+  lastVictoryDiamondsReward = reward;
+  hasClaimedX2ThisLevel = false;
+
+  diamonds += reward;
+  updateDiamondUI();
+  renderVictoryStars(stars);
+
+  const badgeTypeEl = document.getElementById('victoryRewardBadgeType');
+  if (badgeTypeEl) {
+    badgeTypeEl.textContent = rewardLabel === 'DIAMONDS' ? 'DIAMONDS' : rewardLabel;
+    badgeTypeEl.style.color = (rewardLabel === 'FIRST CLEAR BONUS' || rewardLabel === 'STAR UPGRADE BONUS') ? '#f59e0b' : '#8ef3ff';
+  }
+
+  const rewardValEl = document.getElementById('victoryRewardVal');
+  if (rewardValEl) rewardValEl.textContent = `+${reward}`;
+  setTimeout(() => sfx('reward'), 760);
+
+  const claimBtn = document.getElementById('claimX2Btn');
+  if (claimBtn) {
+    claimBtn.disabled = false;
+    claimBtn.classList.remove('hidden');
+    claimBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="3" fill="none" stroke="#ffffff" stroke-width="2"/><polygon points="10,9 16,12 10,15" fill="#ffffff"/></svg><span>CLAIM x2</span>';
+  }
+
+  const wasUpgradesLocked = !(devMode || getLoadoutReferenceLevel() >= getLoadoutStartLevel());
+  const isFirstClear = currentLevel >= maxUnlockedLevel;
+
+  if (currentLevel >= maxUnlockedLevel && maxUnlockedLevel < TOTAL_LEVELS) {
+    maxUnlockedLevel = currentLevel + 1;
+  }
+  refreshLoadoutForProgress();
+  renderLevelsGrid();
+  updateUpgradeButtonsLock();
+
+  const nowUnlocked = (devMode || getLoadoutReferenceLevel() >= getLoadoutStartLevel());
+  pendingUpgradeUnlockFx = wasUpgradesLocked && nowUnlocked;
+  pendingLoadoutRevealFx = pendingUpgradeUnlockFx;
+
+  const showVictory = () => {
+    document.getElementById('victoryScreen').classList.remove('hidden');
+    showLoadoutWidgetIn('loadoutAnchor-victory');
+    playVictoryUnlockFx();
+  };
+
+  saveGame();
+  safeTrack('level_complete', { level: currentLevel, stars, reward });
+
+  if (isFirstClear && currentLevel % LEVELS_PER_SECTION === 0) {
+    showMilestoneSequence(currentLevel, showVictory);
+  } else {
+    showVictory();
+  }
+}
+
+function playVictoryUnlockFx() {
+  if (pendingUpgradeUnlockFx) {
+    const btn = document.getElementById('victoryUpgradesBtn');
+    if (btn) {
+      btn.classList.add('btn-locked', 'btn-unlocking');
+      btn.innerHTML = '<span class="btn-lock-glyph">🔒</span><span>TECH TREE</span>';
+      setTimeout(() => {
+        btn.classList.remove('btn-locked', 'btn-unlocking', 'no-press-feedback');
+        btn.innerHTML = '<span>TECH TREE</span>';
+      }, 1700);
+    }
+    pendingUpgradeUnlockFx = false;
+  }
+  if (pendingLoadoutRevealFx) {
+    const widget = document.getElementById('loadoutWidget');
+    if (widget) {
+      widget.classList.remove('loadout-revealing');
+      void widget.offsetWidth;
+      widget.classList.add('loadout-revealing');
+      setTimeout(() => widget.classList.remove('loadout-revealing'), 2100);
+    }
+    pendingLoadoutRevealFx = false;
+  }
+}
+
+function triggerDefeat() {
+  sfxStopBeams();
+  music('lose');
+  sfx('defeat');
+  if (reviveTimerInterval) { clearInterval(reviveTimerInterval); reviveTimerInterval = null; }
+  gameState = 'DEFEAT';
+
+  const reviveBtn = document.getElementById('reviveBtn');
+  const retryBtn = document.getElementById('defeatRetryBtn');
+  const upgBtn = document.getElementById('defeatUpgradesBtn');
+  const levelsBtn = document.getElementById('defeatLevelsBtn');
+
+  if (reviveBtn) reviveBtn.classList.add('hidden');
+  if (retryBtn) retryBtn.classList.remove('hidden');
+  if (upgBtn) upgBtn.classList.remove('hidden');
+  if (levelsBtn) levelsBtn.classList.remove('hidden');
+
+  updateUpgradeButtonsLock();
+  updateDefeatWaveLine();
+  document.getElementById('defeatScreen').classList.remove('hidden');
+  replayDefeatFlash();
+  showLoadoutWidgetIn('loadoutAnchor-defeat');
+  safeTrack('level_failed', { level: currentLevel, wave });
+}
+
+function setReviveBtnLabel(seconds) {
+  const label = document.getElementById('reviveBtnLabel');
+  if (label) label.innerHTML = `REVIVE (${seconds}<span class="revive-sec">s</span>)`;
+}
+
+function replayDefeatFlash() {
+  const old = document.getElementById('defeatFlash');
+  if (!old || !old.parentNode) return;
+  const fresh = old.cloneNode(false);
+  old.parentNode.replaceChild(fresh, old);
+  const heading = document.querySelector('#defeatScreen .result-heading');
+  if (heading) {
+    heading.classList.remove('fail-shake');
+    void heading.offsetWidth;
+    heading.classList.add('fail-shake');
+  }
+}
+
+function updateDefeatWaveLine() {
+  const el = document.getElementById('defeatWaveLine');
+  if (!el) return;
+  const maxW = (LEVELS_DATA[currentLevel] && LEVELS_DATA[currentLevel].totalWaves) || 1;
+  el.textContent = `WAVE ${Math.min(wave, maxW)} OF ${maxW} REACHED`;
+}
+
+function triggerEmergencyRevivePrompt() {
+  gameState = 'DEFEAT';
+  reviveRemainingSeconds = 3;
+  const reviveBtn = document.getElementById('reviveBtn');
+  const skipBtn = document.getElementById('reviveSkipBtn');
+  const retryBtn = document.getElementById('defeatRetryBtn');
+  const upgBtn = document.getElementById('defeatUpgradesBtn');
+  const levelsBtn = document.getElementById('defeatLevelsBtn');
+
+  if (reviveBtn) {
+    reviveBtn.classList.remove('hidden');
+    setReviveBtnLabel(reviveRemainingSeconds);
+  }
+  if (skipBtn) skipBtn.classList.add('hidden');
+  if (retryBtn) retryBtn.classList.add('hidden');
+  if (upgBtn) upgBtn.classList.add('hidden');
+  if (levelsBtn) levelsBtn.classList.add('hidden');
+
+  updateDefeatWaveLine();
+  const loadoutWidget = document.getElementById('loadoutWidget');
+  if (loadoutWidget) loadoutWidget.classList.add('hidden');
+  document.getElementById('defeatScreen').classList.remove('hidden');
+  replayDefeatFlash();
+
+  if (reviveSkipShowTimer) clearTimeout(reviveSkipShowTimer);
+  reviveSkipShowTimer = setTimeout(() => {
+    reviveSkipShowTimer = null;
+    if (skipBtn) skipBtn.classList.remove('hidden');
+  }, 500);
+
+  if (reviveTimerInterval) clearInterval(reviveTimerInterval);
+  reviveTimerInterval = setInterval(() => {
+    reviveRemainingSeconds--;
+    if (reviveBtn && reviveRemainingSeconds > 0) {
+      setReviveBtnLabel(reviveRemainingSeconds);
+    }
+    if (reviveRemainingSeconds <= 0) {
+      finishRevivePromptWindow();
+    }
+  }, 1000);
+}
+
+function finishRevivePromptWindow() {
+  if (reviveTimerInterval) { clearInterval(reviveTimerInterval); reviveTimerInterval = null; }
+  if (reviveSkipShowTimer) { clearTimeout(reviveSkipShowTimer); reviveSkipShowTimer = null; }
+  const reviveBtn = document.getElementById('reviveBtn');
+  const skipBtn = document.getElementById('reviveSkipBtn');
+  const retryBtn = document.getElementById('defeatRetryBtn');
+  const upgBtn = document.getElementById('defeatUpgradesBtn');
+  const levelsBtn = document.getElementById('defeatLevelsBtn');
+  if (reviveBtn) reviveBtn.classList.add('hidden');
+  if (skipBtn) skipBtn.classList.add('hidden');
+  if (retryBtn) retryBtn.classList.remove('hidden');
+  if (upgBtn) upgBtn.classList.remove('hidden');
+  if (levelsBtn) levelsBtn.classList.remove('hidden');
+  updateUpgradeButtonsLock();
+  showLoadoutWidgetIn('loadoutAnchor-defeat');
+}
+
+function skipEmergencyRevive() {
+  finishRevivePromptWindow();
+}
+
+function acceptEmergencyRevive() {
+  sfx('revive');
+  if (reviveTimerInterval) { clearInterval(reviveTimerInterval); reviveTimerInterval = null; }
+  if (reviveSkipShowTimer) { clearTimeout(reviveSkipShowTimer); reviveSkipShowTimer = null; }
+  document.getElementById('defeatScreen').classList.add('hidden');
+  const adOverlay = document.getElementById('adSimOverlay');
+  if (adOverlay) adOverlay.classList.remove('hidden');
+
+  setTimeout(() => {
+    if (adOverlay) adOverlay.classList.add('hidden');
+    baseHp = Math.max(3, Math.round(baseHp + 3));
+    reviveUsedThisMatch = true;
+    updateUI();
+
+    if (WAYPOINTS && WAYPOINTS.length > 0) {
+      const basePt = WAYPOINTS[WAYPOINTS.length - 1];
+      createShockwave(basePt.x, basePt.y, 160, '#00e5ff');
+      createExplosion(basePt.x, basePt.y, 80);
+      for (let i = enemies.length - 1; i >= 0; i--) {
+        const e = enemies[i];
+        if (Math.hypot(e.x - basePt.x, e.y - basePt.y) <= 160) {
+          createSparks(e.x, e.y, e.color, 14);
+          enemies.splice(i, 1);
+        }
+      }
+    }
+    gameState = 'PLAYING';
+    lastTime = performance.now();
+  }, 1000);
+}
+
+function buildTowerAt(type, c, r) {
+  const conf = TOWER_CONFIGS[type];
+  if (grid[r][c] === 0 && gold >= conf.cost) {
+    gold -= conf.cost;
+    grid[r][c] = 2;
+
+    const powerLvl = upgradeTreeData[`${type}_power`] || 0;
+    const dmgBonus = 1 + powerLvl * (conf.powerDmg || 0);
+    const rateBonus = 1 + powerLvl * (conf.powerRate || 0);
+    const rangeBonus = 1 + powerLvl * (conf.powerRange || 0);
+    const calcDamage = (conf.damage || conf.dps || conf.baseDps || 0) * dmgBonus;
+    const calcFireRate = conf.fireRate ? (conf.fireRate / rateBonus) : 0;
+
+    const baseLockOnDelay = (type === 'laser' || type === 'melter')
+      ? (typeof LOCK_ON_DELAY_HEAVY === 'number' ? LOCK_ON_DELAY_HEAVY : 0.5)
+      : (typeof LOCK_ON_DELAY_LIGHT === 'number' ? LOCK_ON_DELAY_LIGHT : 0.1);
+    const calcLockOnDelay = (type === 'mortar') ? baseLockOnDelay : (baseLockOnDelay / rateBonus);
+    const calcMortarTravelTime = (type === 'mortar')
+      ? ((typeof MORTAR_BASE_TRAVEL_TIME === 'number' ? MORTAR_BASE_TRAVEL_TIME : 1.0) / rateBonus)
+      : undefined;
+    const calcMelterRampTime = (type === 'melter')
+      ? ((conf.rampTime || 4.0) / rateBonus)
+      : undefined;
+
+    sfx('build');
+    const newTower = {
+      c, r,
+      x: c * TILE_SIZE + TILE_SIZE / 2,
+      y: r * TILE_SIZE + TILE_SIZE / 2,
+      type: type,
+      level: 1,
+      totalInvested: conf.cost,
+      damage: calcDamage,
+      range: conf.range * rangeBonus,
+      fireRate: calcFireRate,
+      color: conf.color,
+      glow: conf.glow,
+      lastFire: 0,
+      target: null,
+      angle: 0,
+      lockOnDelay: calcLockOnDelay,
+      lockOnTimer: 0,
+      mortarTravelTime: calcMortarTravelTime,
+      melterRampTime: calcMelterRampTime,
+      melterCooldownTime: (type === 'melter') ? ((conf.cooldownTime || 4.0) / rateBonus) : 0,
+      slowFactor: conf.slowFactor || 0.30,
+      slowDuration: conf.slowDuration || 1.4,
+      disabledTimer: 0,
+      melterFireTimer: 0,
+      melterCoolingTimer: 0
+    };
+
+    towers.push(newTower);
+    createShockwave(newTower.x, newTower.y, 40, conf.color);
+    updateUI();
+
+    if (tutorialActive && tutorialLevel === 1 && tutorialStep === 0) {
+      tutorialStep = 1;
+    } else if (tutorialActive && tutorialLevel === 2 && tutorialStep === -1) {
+      tutorialStep = 0;
+      tutorialTargetTower = newTower;
+    }
+
+    safeTrack('tower_built', { type, level: currentLevel });
+    return true;
+  }
+  return false;
+}
+
+function handleDrop(worldX, worldY, clientX, clientY) {
+  if (!draggingTower || gameState !== 'PLAYING') {
+    draggingTower = null;
+    showCancelZoneVisual(false);
+    return;
+  }
+
+  try {
+    const isCancelled = isOverCancelZone(clientX, clientY);
+    if (!isCancelled) {
+      const c = Math.floor(worldX / TILE_SIZE);
+      const r = Math.floor(worldY / TILE_SIZE);
+      if (c >= 0 && c < COLS && r >= 0 && r < ROWS) {
+        buildTowerAt(draggingTower.type, c, r);
+      }
+    }
+  } catch (err) {
+    console.error(err);
+  } finally {
+    draggingTower = null;
+    showCancelZoneVisual(false);
+  }
+}
+
+function getUpgradeCost(towerOrType, level) {
+  const type = typeof towerOrType === 'object' ? towerOrType.type : towerOrType;
+  const lvl = typeof towerOrType === 'object' ? towerOrType.level : level;
+  const conf = TOWER_CONFIGS[type];
+  const costMult = (conf && conf.costMultiplier) ? conf.costMultiplier : 1.3;
+  return Math.floor(conf.cost * Math.pow(costMult, lvl));
+}
+
+function upgradeSelectedTower() {
+  const lvlConfig = LEVELS_DATA[currentLevel];
+  if (lvlConfig && lvlConfig.canUpgrade === false) return;
+  if (!selectedTower || selectedTower.level >= 3) return;
+  const cost = getUpgradeCost(selectedTower.type, selectedTower.level);
+  if (gold >= cost) {
+    const conf = TOWER_CONFIGS[selectedTower.type];
+    const dmgMult = (conf && conf.damageMultiplier) ? conf.damageMultiplier : 1.4;
+    const rngMult = (conf && conf.rangeMultiplier) ? conf.rangeMultiplier : 1.1;
+    const rateMult = (conf && conf.rateMultiplier) ? conf.rateMultiplier : 1.0;
+
+    gold -= cost;
+    selectedTower.level++;
+    sfx('upgrade');
+    selectedTower.totalInvested += cost;
+    selectedTower.damage *= dmgMult;
+    selectedTower.range *= rngMult;
+    if (selectedTower.fireRate && rateMult !== 1.0) {
+      selectedTower.fireRate *= rateMult;
+    }
+
+    if (selectedTower.type === 'stasis') {
+      selectedTower.slowFactor = (selectedTower.level === 2) ? 0.40 : 0.50;
+    }
+
+    if (selectedTower.type === 'melter') {
+      const powerLvl = upgradeTreeData.melter_power || 0;
+      const rateBonus = 1 + powerLvl * (conf.powerRate || 0);
+      if (selectedTower.level === 2) {
+        selectedTower.melterRampTime = 4.4 / rateBonus;
+        selectedTower.melterCooldownTime = 3.6 / rateBonus;
+      } else if (selectedTower.level === 3) {
+        selectedTower.melterRampTime = 4.8 / rateBonus;
+        selectedTower.melterCooldownTime = 3.2 / rateBonus;
+      }
+    }
+
+    createShockwave(selectedTower.x, selectedTower.y, 60, selectedTower.color);
+    createSparks(selectedTower.x, selectedTower.y, selectedTower.color, 24);
+    updateUI();
+
+    if (tutorialActive && tutorialLevel === 2 && tutorialStep === 1) {
+      tutorialStep = 2;
+    }
+  }
+}
+
+function sellSelectedTower() {
+  if (!selectedTower) return;
+  if (!sellConfirmArmed) {
+    armSellConfirm();
+    return;
+  }
+  resetSellConfirm();
+
+  const sc = selectedTower.c;
+  const sr = selectedTower.r;
+  const sx = selectedTower.x;
+  const sy = selectedTower.y;
+  const refund = Math.floor(selectedTower.totalInvested * 0.7);
+  gold += refund;
+  sfx('sell');
+
+  grid[sr][sc] = 0;
+  towers = towers.filter(t => t.c !== sc || t.r !== sr);
+  particles = particles.filter(p => Math.hypot(p.x - sx, p.y - sy) > 28);
+  deselectTower();
+
+  createShockwave(sx, sy, 40, '#ff2a85');
+  createSparks(sx, sy, '#ff2a85', 14);
+  updateUI();
+}
+
+function getAutoWaveDelay() {
+  if (currentLevel >= 40) return 9.0;
+  if (currentLevel >= 30) return 7.0;
+  return 5.0;
+}
+
+function triggerManualWave() {
+  if (tutorialActive && tutorialLevel === 1 && tutorialStep === 1) {
+    completeTutorial(1);
+  }
+
+  const lvlConfig = LEVELS_DATA[currentLevel];
+  const maxW = lvlConfig ? lvlConfig.totalWaves : 10;
+
+  if (waveTimerActive) {
+    const secondsSaved = autoWaveTimeRemaining;
+    waveTimerActive = false;
+    autoWaveTimeRemaining = 0;
+    if (wave < maxW) {
+      let totalDelay = 5.0;
+      let currentWaveObj = null;
+      if (lvlConfig && lvlConfig.waves) {
+        currentWaveObj = lvlConfig.waves.find(w => w.wave === wave);
+        if (currentWaveObj && currentWaveObj.delayAfter !== undefined) {
+          totalDelay = currentWaveObj.delayAfter;
+        }
+      }
+
+      wave++;
+      const moneyMultiplier = 1 + (upgradeTreeData.base_gold || 0) * 0.05;
+      const fractionSaved = totalDelay > 0 ? Math.min(1, Math.max(0, secondsSaved / totalDelay)) : 0;
+      let baseBonus = (currentWaveObj && currentWaveObj.earlyBonus !== undefined) ? currentWaveObj.earlyBonus : 15;
+      const earlyCallBonus = Math.round(fractionSaved * baseBonus * moneyMultiplier);
+
+      if (earlyCallBonus > 0) {
+        gold += earlyCallBonus;
+        sfx('confirm');
+      }
+      startWave();
+    }
+  } else if (!waveInProgress && spawnQueue.length === 0) {
+    if (wave <= maxW) startWave();
+  }
+}
+
+function getMinibossPreDelay() { return 2.0; }
+function getBossPreDelay(lvl) {
+  const clamped = Math.max(10, Math.min(50, lvl));
+  return 2.5 + ((clamped - 10) / 40) * 2.5;
+}
+
+function startWave() {
+  sfx('waveStart');
+  const lvlConfig = LEVELS_DATA[currentLevel];
+  const maxW = lvlConfig ? lvlConfig.totalWaves : 10;
+  if (wave > maxW) return;
+
+  waveInProgress = true;
+  waveTimerActive = false;
+  autoWaveTimeRemaining = 0;
+  spawnQueue = [];
+
+  const waveData = lvlConfig ? lvlConfig.waves.find(w => w.wave === wave) : null;
+  let hasBoss = false;
+  let hasMiniBoss = false;
+
+  if (waveData && waveData.spawns) {
+    waveData.spawns.forEach(grp => {
+      if (grp.isBoss) hasBoss = true;
+      if (grp.isMiniBoss) hasMiniBoss = true;
+
+      if ((grp.isBoss || grp.isMiniBoss) && spawnQueue.length > 0) {
+        const preDelay = grp.isBoss ? getBossPreDelay(currentLevel) : getMinibossPreDelay();
+        spawnQueue[spawnQueue.length - 1].interval += preDelay;
+      }
+
+      const proto = ENEMY_CONFIGS[grp.type] || ENEMY_CONFIGS.grunt;
+      const isSwarm = grp.type === 'swarm';
+      const swarmClumps = isSwarm ? Math.max(1, grp.clumps || 3) : 0;
+      const clumpSize = typeof swarmClumpSizeFor === 'function' ? swarmClumpSizeFor(currentLevel) : 10;
+      const spawnCount = isSwarm ? (swarmClumps * clumpSize) : grp.count;
+      const baseRadius = proto.size * (grp.isBoss ? 1.75 : (grp.isMiniBoss ? 1.35 : 1.0));
+      const finalRadius = isSwarm ? baseRadius * 0.5 : baseRadius;
+      const spawnInterval = isSwarm ? (typeof SWARM_CLUMP_INTERVAL !== 'undefined' ? SWARM_CLUMP_INTERVAL : 0.03) : (grp.interval || 0.8);
+      const clumpGap = typeof SWARM_CLUMP_GAP !== 'undefined' ? SWARM_CLUMP_GAP : 3.2;
+
+      for (let i = 0; i < spawnCount; i++) {
+        const isLeft = (i % 2 === 0);
+        const laneOffset = isSwarm ? (isLeft ? -6 : 6) : 0;
+        const startsNewClump = isSwarm && i > 0 && (i % clumpSize === 0);
+        const interval = startsNewClump ? clumpGap : spawnInterval;
+
+        spawnQueue.push({
+          type: grp.type,
+          isBoss: grp.isBoss,
+          isMiniBoss: grp.isMiniBoss,
+          hp: isSwarm ? Math.max(6, Math.round(grp.hp * 0.65)) : grp.hp,
+          maxHp: isSwarm ? Math.max(6, Math.round(grp.hp * 0.65)) : grp.hp,
+          speed: grp.speed,
+          bounty: isSwarm ? Math.max(1, Math.round(grp.bounty * 0.35 * (typeof SWARM_BOUNTY_SCALE !== 'undefined' ? SWARM_BOUNTY_SCALE : 0.62))) : grp.bounty,
+          radius: finalRadius,
+          shape: grp.shape || proto.shape,
+          color: grp.color || proto.color,
+          glow: grp.glow || proto.glow,
+          interval: interval,
+          laneOffset: laneOffset
+        });
+      }
+    });
+  }
+
+  bossAlertScheduled = false;
+  bossAlertShown = false;
+  activeBossAlertType = null;
+  hideIncomingAlert();
+
+  let firstUnitIsBoss = false;
+  if (spawnQueue.length > 0 && (spawnQueue[0].isBoss || spawnQueue[0].isMiniBoss)) {
+    firstUnitIsBoss = true;
+  }
+
+  if (hasBoss) {
+    activeBossAlertType = 'boss';
+    bossAlertScheduled = true;
+  } else if (hasMiniBoss) {
+    activeBossAlertType = 'miniboss';
+    bossAlertScheduled = true;
+  }
+
+  spawnTimer = firstUnitIsBoss ? 2.0 : 0.15;
+
+  let totalTime = 0;
+  if (spawnQueue.length > 1) {
+    for (let i = 0; i < spawnQueue.length - 1; i++) totalTime += (spawnQueue[i].interval || 0.8);
+  } else {
+    totalTime = 0.5;
+  }
+  waveTotalSpawnTime = totalTime > 0 ? totalTime : 0.8;
+  waveSpawnElapsedTime = 0;
+
+  updateWaveCircle(0);
+  updateUI();
+  if (devMode) refreshDevDropdowns();
+}
+
+function handleDevSpawnClick() {
+  if (!devMode || gameState !== 'PLAYING') return;
+  const typeSel = document.getElementById('devSpawnType');
+  const countEl = document.getElementById('devSpawnCount');
+  const intEl = document.getElementById('devSpawnInterval');
+  const hpEl = document.getElementById('devSpawnHpMult');
+  const spdEl = document.getElementById('devSpawnSpeedMult');
+  const hpAbsEl = document.getElementById('devSpawnHpAbs');
+  const spdAbsEl = document.getElementById('devSpawnSpeedAbs');
+  
+  if (typeSel && countEl && intEl) {
+    const type = typeSel.value;
+    const count = parseInt(countEl.value, 10) || 1;
+    const interval = parseFloat(intEl.value) || 0.5;
+    const proto = ENEMY_CONFIGS[type] || ENEMY_CONFIGS.grunt;
+
+    let hpMult = hpEl ? parseFloat(hpEl.value) : 1.0;
+    if (hpAbsEl && (!hpEl || isNaN(hpMult))) {
+      const absHp = parseFloat(hpAbsEl.value) || proto.baseHp;
+      hpMult = absHp / proto.baseHp;
+    }
+    if (isNaN(hpMult) || hpMult <= 0) hpMult = 1.0;
+
+    let speedMult = spdEl ? parseFloat(spdEl.value) : 1.0;
+    if (spdAbsEl && (!spdEl || isNaN(speedMult))) {
+      const absSpd = parseFloat(spdAbsEl.value) || proto.baseSpeed;
+      speedMult = absSpd / proto.baseSpeed;
+    }
+    if (isNaN(speedMult) || speedMult <= 0) speedMult = 1.0;
+    
+    injectCustomSpawn(type, count, interval, hpMult, speedMult);
+  }
+}
+
+function initDevSpawnerSync() {
+  const typeSel = document.getElementById('devSpawnType');
+  const hpMultEl = document.getElementById('devSpawnHpMult');
+  const hpAbsEl = document.getElementById('devSpawnHpAbs');
+  const spdMultEl = document.getElementById('devSpawnSpeedMult');
+  const spdAbsEl = document.getElementById('devSpawnSpeedAbs');
+
+  if (!typeSel) return;
+  if (typeSel.dataset.syncBound === '1') {
+    syncFromMult();
+    return;
+  }
+  typeSel.dataset.syncBound = '1';
+
+  function syncFromMult() {
+    const proto = ENEMY_CONFIGS[typeSel.value] || ENEMY_CONFIGS.grunt;
+    const hpM = (hpMultEl && parseFloat(hpMultEl.value)) ? parseFloat(hpMultEl.value) : 1.0;
+    const spdM = (spdMultEl && parseFloat(spdMultEl.value)) ? parseFloat(spdMultEl.value) : 1.0;
+    if (hpAbsEl) hpAbsEl.value = Math.max(1, Math.round(proto.baseHp * hpM));
+    if (spdAbsEl) spdAbsEl.value = Math.max(1, Math.round(proto.baseSpeed * spdM));
+  }
+
+  function syncFromAbsHp() {
+    const proto = ENEMY_CONFIGS[typeSel.value] || ENEMY_CONFIGS.grunt;
+    const absHp = (hpAbsEl && parseFloat(hpAbsEl.value)) ? parseFloat(hpAbsEl.value) : proto.baseHp;
+    if (hpMultEl) hpMultEl.value = (absHp / proto.baseHp).toFixed(2);
+  }
+
+  function syncFromAbsSpeed() {
+    const proto = ENEMY_CONFIGS[typeSel.value] || ENEMY_CONFIGS.grunt;
+    const absSpd = (spdAbsEl && parseFloat(spdAbsEl.value)) ? parseFloat(spdAbsEl.value) : proto.baseSpeed;
+    if (spdMultEl) spdMultEl.value = (absSpd / proto.baseSpeed).toFixed(2);
+  }
+
+  typeSel.addEventListener('change', syncFromMult);
+  if (hpMultEl) hpMultEl.addEventListener('input', syncFromMult);
+  if (spdMultEl) spdMultEl.addEventListener('input', syncFromMult);
+  if (hpAbsEl) hpAbsEl.addEventListener('input', syncFromAbsHp);
+  if (spdAbsEl) spdAbsEl.addEventListener('input', syncFromAbsSpeed);
+
+  syncFromMult();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initDevSpawnerSync);
+} else {
+  initDevSpawnerSync();
+}
+
+function injectCustomSpawn(type, count, interval, hpMult, speedMult) {
+  if (gameState !== 'PLAYING') return;
+
+  const proto = ENEMY_CONFIGS[type] || ENEMY_CONFIGS.grunt;
+  const isSwarm = type === 'swarm';
+  const isBoss = ['hive_empress', 'chronos_warp', 'titan_core', 'emp_overlord'].includes(type);
+  
+  const clumpSize = typeof swarmClumpSizeFor === 'function' ? swarmClumpSizeFor(currentLevel) : 10;
+  const baseRadius = proto.size * (isBoss ? 1.75 : 1.0);
+  const finalRadius = isSwarm ? baseRadius * 0.5 : baseRadius;
+  const spawnInterval = isSwarm ? (typeof SWARM_CLUMP_INTERVAL !== 'undefined' ? SWARM_CLUMP_INTERVAL : 0.03) : interval;
+  const clumpGap = typeof SWARM_CLUMP_GAP !== 'undefined' ? SWARM_CLUMP_GAP : 3.2;
+
+  for (let i = 0; i < count; i++) {
+    const isLeft = (i % 2 === 0);
+    const laneOffset = isSwarm ? (isLeft ? -6 : 6) : 0;
+    const startsNewClump = isSwarm && i > 0 && (i % clumpSize === 0);
+    const currentInterval = startsNewClump ? clumpGap : spawnInterval;
+
+    spawnQueue.push({
+      type: type,
+      isBoss: isBoss,
+      isMiniBoss: false,
+      hp: Math.max(1, Math.round(proto.baseHp * hpMult)),
+      maxHp: Math.max(1, Math.round(proto.baseHp * hpMult)),
+      speed: Math.round(proto.baseSpeed * speedMult),
+      bounty: Math.max(1, Math.round(proto.baseBounty * (isSwarm ? (typeof SWARM_BOUNTY_SCALE !== 'undefined' ? SWARM_BOUNTY_SCALE : 0.62) : (isBoss ? 4.5 : 1.0)))),
+      radius: finalRadius,
+      shape: proto.shape,
+      color: proto.color,
+      glow: proto.glow,
+      interval: currentInterval,
+      laneOffset: laneOffset
+    });
+  }
+
+  if (spawnTimer <= 0) spawnTimer = 0.15;
+  updateUI();
+}
+
+let lastTime = performance.now();
+
+function samplePerfAndMaybeDowngrade(rawDt) {
+  if (perfDecided) return;
+  if (settings.perfModeOverride) { perfDecided = true; return; }
+  if (gameState !== 'PLAYING' || isLivePaused) return;
+
+  perfSampleFrames++;
+  perfSampleTime += rawDt;
+  if (perfSampleFrames < 90) return;
+
+  const avgFps = perfSampleTime > 0 ? perfSampleFrames / perfSampleTime : 60;
+  perfDecided = true;
+  if (avgFps < 42 && perfMode !== 'low') {
+    perfMode = 'low';
+  }
+}
+
+function gameLoop(now) {
+  sfxReap();
+  const rawDt = Math.min((now - lastTime) / 1000, 0.1);
+  lastTime = now;
+  const dt = isLivePaused ? 0 : rawDt * gameTimeScale;
+
+  samplePerfAndMaybeDowngrade(rawDt);
+
+  if (gameState === 'PLAYING' && dt > 0) {
+    update(dt);
+  }
+  render(now);
+  requestAnimationFrame(gameLoop);
+}
+
+const _elCache = Object.create(null);
+function el(id) {
+  let n = _elCache[id];
+  if (n && n.isConnected !== false) return n;
+  n = document.getElementById(id);
+  _elCache[id] = n;
+  return n;
+}
+
+function toggleDevMode(enabled) {
+  devMode = enabled;
+  const checkbox = document.getElementById('devModeCheckbox');
+  if (checkbox && checkbox.checked !== enabled) checkbox.checked = enabled;
+
+  const speedContainer = document.getElementById('speedContainer');
+  const livePauseBtn = document.getElementById('livePauseBtn');
+  const devClearSaveBtn = document.getElementById('devClearSaveBtn');
+  const devLevelSelect = document.getElementById('devLevelSelect');
+  const devWaveSelect = document.getElementById('devWaveSelect');
+  const devCustomSpawner = document.getElementById('devCustomSpawner');
+  const levelText = document.getElementById('levelText');
+  const waveText = document.getElementById('waveText');
+  const hudStaticLabels = Array.from(document.querySelectorAll('.hud-static-label'));
+  const goldHalf = document.getElementById('goldHalf');
+  const hpHalf = document.getElementById('hpHalf');
+
+  if (devMode) {
+    if (gameState === 'PLAYING' || gameState === 'PAUSED') {
+      if (speedContainer) speedContainer.classList.remove('hidden');
+      if (livePauseBtn) livePauseBtn.classList.remove('hidden');
+      if (devCustomSpawner) devCustomSpawner.classList.remove('hidden');
+    }
+    if (devClearSaveBtn) devClearSaveBtn.classList.remove('hidden');
+    if (devLevelSelect) devLevelSelect.classList.remove('hidden');
+    if (devWaveSelect) devWaveSelect.classList.remove('hidden');
+    if (levelText) levelText.classList.add('hidden');
+    if (waveText) waveText.classList.add('hidden');
+    hudStaticLabels.forEach(el => el.classList.add('hidden'));
+    if (goldHalf) goldHalf.classList.add('interactive');
+    if (hpHalf) hpHalf.classList.add('interactive');
+    refreshDevDropdowns();
+    initDevSpawnerSync();
+  } else {
+    if (speedContainer) speedContainer.classList.add('hidden');
+    if (livePauseBtn) livePauseBtn.classList.add('hidden');
+    if (devClearSaveBtn) devClearSaveBtn.classList.add('hidden');
+    if (devLevelSelect) devLevelSelect.classList.add('hidden');
+    if (devWaveSelect) devWaveSelect.classList.add('hidden');
+    if (devCustomSpawner) devCustomSpawner.classList.add('hidden');
+    if (levelText) levelText.classList.remove('hidden');
+    if (waveText) waveText.classList.remove('hidden');
+    hudStaticLabels.forEach(el => el.classList.remove('hidden'));
+    setGameSpeed(1);
+    if (speedContainer) speedContainer.value = "1";
+    if (isLivePaused) {
+      isLivePaused = false;
+      if (livePauseBtn) {
+        livePauseBtn.innerHTML = '<span>⏸ Pause</span>';
+        livePauseBtn.classList.remove('paused');
+      }
+    }
+  }
+
+  renderLevelsGrid();
+  updateUI();
+  updateUpgradeButtonsLock();
+}
+
+function handleClearSaveClick() {
+  if (!devMode) return;
+  devInputOpen = true;
+  const ok = confirm('Clear all saved progress (diamonds, levels, upgrades, loadout, tutorial) and reset to a fresh install?');
+  devInputOpen = false;
+  suppressBackgroundPause();
+  if (!ok) return;
+
+  try {
+    localStorage.removeItem(SAVE_KEY);
+  } catch (e) {
+    console.warn('SectorDefenseTD: could not clear localStorage', e);
+  }
+
+  diamonds = 0;
+  maxUnlockedLevel = 1;
+  clearedLevels = [];
+  levelStars = {};
+  Object.keys(upgradeTreeData).forEach(key => { upgradeTreeData[key] = 0; });
+  selectedLoadout = [];
+  loadoutSyncedUpToLevel = 0;
+  settings.showEnemyHp = true;
+  settings.perfModeOverride = null;
+  perfMode = 'high';
+  perfDecided = false;
+  perfSampleFrames = 0;
+  perfSampleTime = 0;
+  tutorialSeen.l1 = false;
+  tutorialSeen.l2 = false;
+  tutorialSeen.l3 = false;
+  hasClaimedX2ThisLevel = false;
+
+  showStartScreen();
+  renderLevelsGrid();
+  updateDiamondUI();
+  updateUpgradeButtonsLock();
+  console.log('SectorDefenseTD: save cleared, state reset.');
+}
+
+function handleDevGoldClick() {
+  if (!devMode) return;
+  devInputOpen = true;
+  const val = prompt("Set Gold:", gold);
+  devInputOpen = false;
+  suppressBackgroundPause();
+  if (val !== null) {
+    const parsed = parseInt(val, 10);
+    if (!isNaN(parsed) && parsed >= 0) {
+      gold = parsed;
+      updateUI();
+    }
+  }
+}
+
+function handleDevHpClick() {
+  if (!devMode) return;
+  devInputOpen = true;
+  const val = prompt("Set Lives (HP):", baseHp);
+  devInputOpen = false;
+  suppressBackgroundPause();
+  if (val !== null) {
+    const parsed = parseInt(val, 10);
+    if (!isNaN(parsed) && parsed > 0) {
+      baseHp = parsed;
+      updateUI();
+    }
+  }
+}
+
+function refreshDevDropdowns() {
+  ['devLevelSelect', 'devWaveSelect'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el.dataset.pauseGuard) {
+      el.dataset.pauseGuard = '1';
+      el.addEventListener('focus', () => suppressBackgroundPause(1500));
+      el.addEventListener('change', () => suppressBackgroundPause(1500));
+      el.addEventListener('blur', () => suppressBackgroundPause());
+    }
+  });
+  const lvlSelect = document.getElementById('devLevelSelect');
+  if (!lvlSelect) return;
+  lvlSelect.innerHTML = '';
+  for (let l = 1; l <= TOTAL_LEVELS; l++) {
+    const opt = document.createElement('option');
+    opt.value = l;
+    opt.textContent = `${l}`;
+    if (l === currentLevel) opt.selected = true;
+    lvlSelect.appendChild(opt);
+  }
+
+  const lvlConfig = LEVELS_DATA[currentLevel];
+  const maxW = lvlConfig ? lvlConfig.totalWaves : 10;
+  const waveSelect = document.getElementById('devWaveSelect');
+  if (!waveSelect) return;
+  waveSelect.innerHTML = '';
+  for (let w = 1; w <= maxW; w++) {
+    const opt = document.createElement('option');
+    opt.value = w;
+    opt.textContent = `${w}/${maxW}`;
+    if (w === wave) opt.selected = true;
+    waveSelect.appendChild(opt);
+  }
+}
+
+function devJumpToWave(targetWave) {
+  const lvlConfig = LEVELS_DATA[currentLevel];
+  const maxW = lvlConfig ? lvlConfig.totalWaves : 10;
+  if (targetWave < 1 || targetWave > maxW) return;
+
+  enemies = [];
+  projectiles = [];
+  spawnQueue = [];
+  waveInProgress = false;
+  waveTimerActive = false;
+  autoWaveTimeRemaining = 0;
+  wave = targetWave;
+  startWave();
+}
+
+function setGameSpeed(speed) { gameTimeScale = speed; }
+
+function toggleLivePause() {
+  isLivePaused = !isLivePaused;
+  const btn = document.getElementById('livePauseBtn');
+  if (isLivePaused) {
+    btn.innerHTML = '<span>▶ Play</span>';
+    btn.classList.add('paused');
+  } else {
+    btn.innerHTML = '<span>⏸ Pause</span>';
+    btn.classList.remove('paused');
+  }
+}
+
+function updateStartChapterLabel(show) {
+  const el = document.getElementById('startChapterLabel');
+  if (!el) return;
+  if (show) {
+    const sector = Math.max(1, Math.min(TOTAL_SECTIONS,
+      Math.ceil(Math.min(maxUnlockedLevel, TOTAL_LEVELS) / LEVELS_PER_SECTION)));
+    el.textContent = `CHAPTER ${sector}`;
+    el.classList.remove('hidden');
+  } else {
+    el.classList.add('hidden');
+  }
+}
+
+function showStartScreen() {
+  music('menu');
+  if (reviveTimerInterval) { clearInterval(reviveTimerInterval); reviveTimerInterval = null; }
+  document.getElementById('pauseScreen').classList.add('hidden');
+  document.getElementById('levelsScreen').classList.add('hidden');
+  document.getElementById('settingsScreen').classList.add('hidden');
+  document.getElementById('upgradesScreen').classList.add('hidden');
+  document.getElementById('victoryScreen').classList.add('hidden');
+  document.getElementById('defeatScreen').classList.add('hidden');
+  const revSc = document.getElementById('reviveScreen');
+  if (revSc) revSc.classList.add('hidden');
+  document.getElementById('startScreen').classList.remove('hidden');
+
+  document.getElementById('econHpSplitBadge').classList.add('hidden');
+  document.getElementById('levelWaveSplitBadge').classList.add('hidden');
+  document.getElementById('hudRightGroup').classList.add('hidden');
+  updateStartChapterLabel(true);
+  document.getElementById('controlsWrapper').classList.add('hidden');
+
+  const waveBtn = document.getElementById('waveBtn');
+  if (waveBtn) waveBtn.classList.add('hidden');
+
+  document.getElementById('speedContainer').classList.add('hidden');
+  document.getElementById('livePauseBtn').classList.add('hidden');
+  
+  const customSpawner = document.getElementById('devCustomSpawner');
+  if (customSpawner) customSpawner.classList.add('hidden');
+
+  const startTopZone = document.querySelector('.start-screen-top-zone');
+  if (startTopZone) {
+    startTopZone.style.marginTop = 'clamp(140px, 22vh, 200px)';
+  }
+  const startSubTitle = document.querySelector('.start-sub-title');
+  if (startSubTitle) {
+    startSubTitle.style.textShadow = '0 0 14px rgba(2, 3, 8, 0.95), 0 2px 8px rgba(2, 3, 8, 0.95)';
+  }
+  const startMainTitle = document.querySelector('.start-main-title');
+  if (startMainTitle) {
+    startMainTitle.style.textShadow = '0 0 24px rgba(0, 229, 255, 0.9), 0 0 12px rgba(2, 3, 8, 0.95), 0 3px 10px rgba(2, 3, 8, 0.95)';
+  }
+
+  const l1 = MAP_CATALOG['L1'];
+  if (l1) buildLevelGeometry(l1.path, l1.cols, l1.rows, l1.blocked);
+  resizeCanvasAndCamera();
+  gameState = 'START';
+  updateUpgradeButtonsLock();
+}
+
+function showLevelSelect() {
+  music('menu');
+  if (reviveTimerInterval) { clearInterval(reviveTimerInterval); reviveTimerInterval = null; }
+  document.getElementById('startScreen').classList.add('hidden');
+  document.getElementById('levelsScreen').classList.remove('hidden');
+  document.getElementById('econHpSplitBadge').classList.add('hidden');
+  document.getElementById('levelWaveSplitBadge').classList.add('hidden');
+  document.getElementById('hudRightGroup').classList.add('hidden');
+  updateStartChapterLabel(false);
+  document.getElementById('controlsWrapper').classList.add('hidden');
+
+  const waveBtn = document.getElementById('waveBtn');
+  if (waveBtn) waveBtn.classList.add('hidden');
+
+  const customSpawner = document.getElementById('devCustomSpawner');
+  if (customSpawner) customSpawner.classList.add('hidden');
+  
+  currentLevelSection = Math.min(TOTAL_SECTIONS, Math.max(1, Math.ceil(currentLevel / LEVELS_PER_SECTION)));
+  renderLevelsGrid();
+  showLoadoutWidgetIn('loadoutAnchor-levels');
+  gameState = 'LEVELS';
+}
+
+function showLevelSelectFromGame() {
+  music('menu');
+  if (reviveTimerInterval) { clearInterval(reviveTimerInterval); reviveTimerInterval = null; }
+  document.getElementById('pauseScreen').classList.add('hidden');
+  document.getElementById('victoryScreen').classList.add('hidden');
+  document.getElementById('defeatScreen').classList.add('hidden');
+  document.getElementById('upgradesScreen').classList.add('hidden');
+  const revSc = document.getElementById('reviveScreen');
+  if (revSc) revSc.classList.add('hidden');
+  document.getElementById('levelsScreen').classList.remove('hidden');
+  document.getElementById('econHpSplitBadge').classList.add('hidden');
+  document.getElementById('levelWaveSplitBadge').classList.add('hidden');
+  document.getElementById('hudRightGroup').classList.add('hidden');
+  updateStartChapterLabel(false);
+  document.getElementById('controlsWrapper').classList.add('hidden');
+
+  const waveBtn = document.getElementById('waveBtn');
+  if (waveBtn) waveBtn.classList.add('hidden');
+
+  const customSpawner = document.getElementById('devCustomSpawner');
+  if (customSpawner) customSpawner.classList.add('hidden');
+  
+  currentLevelSection = Math.min(TOTAL_SECTIONS, Math.max(1, Math.ceil(currentLevel / LEVELS_PER_SECTION)));
+  renderLevelsGrid();
+  showLoadoutWidgetIn('loadoutAnchor-levels');
+  gameState = 'LEVELS';
+}
+
+function update(dt) {
+  const lvlConfig = LEVELS_DATA[currentLevel];
+  const maxW = lvlConfig ? lvlConfig.totalWaves : 10;
+  const btn = el('waveBtn');
+  const btnText = el('waveBtnText');
+
+  if (waveInProgress && spawnQueue.length > 0) waveSpawnElapsedTime += dt;
+  updateWaveCircle(dt);
+
+  if (bossAlertScheduled && !bossAlertShown && spawnQueue.length > 0) {
+    let timeToBoss = spawnTimer;
+    let foundBoss = false;
+    for (let i = 0; i < spawnQueue.length; i++) {
+      const item = spawnQueue[i];
+      if (item.isBoss || item.isMiniBoss) {
+        foundBoss = true;
+        break;
+      }
+      timeToBoss += (item.interval || 0.8);
+    }
+    if (foundBoss && timeToBoss <= 2.0) {
+      bossAlertShown = true;
+      sfx('bossIncoming');
+      showIncomingAlert(activeBossAlertType);
+      bossAlertHideTimer = Math.max(1.0, timeToBoss + 1.0);
+    }
+  }
+
+  if (bossAlertShown && bossAlertHideTimer > 0) {
+    bossAlertHideTimer -= dt;
+    if (bossAlertHideTimer <= 0) {
+      hideIncomingAlert();
+    }
+  }
+
+  if (newTowerBannerHideTimer > 0) {
+    newTowerBannerHideTimer -= dt;
+    if (newTowerBannerHideTimer <= 0) {
+      hideNewTowerBanner();
+    }
+  }
+
+  if (waveTimerActive && autoWaveTimeRemaining > 0) {
+    autoWaveTimeRemaining -= dt;
+    if (autoWaveTimeRemaining <= 0) {
+      autoWaveTimeRemaining = 0;
+      waveTimerActive = false;
+      if (wave < maxW) {
+        wave++;
+        startWave();
+      }
+    } else {
+      if (btn) btn.disabled = false;
+      if (btnText) btnText.textContent = 'Go';
+    }
+  }
+
+  if (spawnQueue.length > 0) {
+    spawnTimer -= dt;
+    while (spawnTimer <= 0 && spawnQueue.length > 0) {
+      const eData = spawnQueue.shift();
+      if (WAYPOINTS && WAYPOINTS.length > 1) {
+        let spawnX = WAYPOINTS[0].x;
+        let spawnY = WAYPOINTS[0].y;
+        if (eData.laneOffset) {
+          const segDx = WAYPOINTS[1].x - WAYPOINTS[0].x;
+          const segDy = WAYPOINTS[1].y - WAYPOINTS[0].y;
+          const segLen = Math.hypot(segDx, segDy) || 1;
+          const nx = -segDy / segLen;
+          const ny = segDx / segLen;
+          spawnX += nx * eData.laneOffset;
+          spawnY += ny * eData.laneOffset;
+        }
+
+        enemies.push({
+          x: spawnX, y: spawnY,
+          laneOffset: eData.laneOffset || 0,
+          angle: 0, wpIndex: 1,
+          type: eData.type,
+          isBoss: eData.isBoss, isMiniBoss: eData.isMiniBoss,
+          shape: eData.shape, color: eData.color, glow: eData.glow,
+          hp: eData.hp, maxHp: eData.hp,
+          speed: eData.speed, baseSpeed: eData.speed,
+          bounty: eData.bounty, radius: eData.radius,
+          shieldTimer: 0, isShielded: false, warpTimer: 0,
+          dashTimer: 0, empTimer: 0, slowTimer: 0
+        });
+      }
+      spawnTimer += (eData.interval || 0.8);
+      
+      if (spawnQueue.length === 0 && waveInProgress) {
+        waveInProgress = false;
+        if (wave < maxW) {
+          waveTimerActive = true;
+          
+          let delay = 5.0;
+          if (lvlConfig && lvlConfig.waves) {
+            const currentWaveObj = lvlConfig.waves.find(w => w.wave === wave);
+            if (currentWaveObj && currentWaveObj.delayAfter !== undefined) {
+              delay = currentWaveObj.delayAfter;
+            }
+          }
+          autoWaveTimeRemaining = delay;
+
+          if (btn) btn.disabled = false;
+          if (btnText) btnText.textContent = 'Go';
+        }
+      }
+    }
+  }
+
+  for (let i = enemies.length - 1; i >= 0; i--) {
+    const e = enemies[i];
+
+    if (e.type === 'blinker') {
+      e.shieldTimer = (e.shieldTimer || 0) + dt;
+      if (e.shieldTimer >= 3.0) e.shieldTimer -= 3.0;
+      e.isShielded = e.shieldTimer < 1.0;
+    }
+
+    if (e.type === 'chronos_warp') {
+      e.shieldTimer = (e.shieldTimer || 0) + dt;
+      if (e.shieldTimer >= 3.0) e.shieldTimer -= 3.0;
+      e.isShielded = e.shieldTimer < 1.2;
+
+      e.warpTimer = (e.warpTimer || 0) + dt;
+      if (e.warpTimer >= 4.5) {
+        e.warpTimer -= 4.5;
+        createShockwave(e.x, e.y, 45, '#60a5fa');
+        let remainingJump = 50;
+        while (remainingJump > 0 && e.wpIndex < WAYPOINTS.length) {
+          const twp = WAYPOINTS[e.wpIndex];
+          const distToWp = Math.hypot(twp.x - e.x, twp.y - e.y);
+          if (distToWp <= remainingJump) {
+            remainingJump -= distToWp;
+            e.x = twp.x; e.y = twp.y;
+            e.wpIndex++;
+          } else {
+            e.x += ((twp.x - e.x) / distToWp) * remainingJump;
+            e.y += ((twp.y - e.y) / distToWp) * remainingJump;
+            remainingJump = 0;
+          }
+        }
+        createShockwave(e.x, e.y, 50, '#00e5ff');
+        createSparks(e.x, e.y, '#00e5ff', 12);
+      }
+    }
+
+    if (e.type === 'titan_core') {
+      e.dashTimer = (e.dashTimer || 0) + dt;
+      if (e.dashTimer >= 6.0) {
+        e.dashTimer -= 6.0;
+        e.speed = e.baseSpeed;
+        e.slowTimer = 0;
+        createShockwave(e.x, e.y, 60, '#f97316');
+        let dashRemaining = 40;
+        while (dashRemaining > 0 && e.wpIndex < WAYPOINTS.length) {
+          const twp = WAYPOINTS[e.wpIndex];
+          const distToWp = Math.hypot(twp.x - e.x, twp.y - e.y);
+          if (distToWp <= dashRemaining) {
+            dashRemaining -= distToWp;
+            e.x = twp.x; e.y = twp.y;
+            e.wpIndex++;
+          } else {
+            e.x += ((twp.x - e.x) / distToWp) * dashRemaining;
+            e.y += ((twp.y - e.y) / distToWp) * dashRemaining;
+            dashRemaining = 0;
+          }
+        }
+        createSparks(e.x, e.y, '#fb923c', 16);
+      }
+    }
+
+    if (e.type === 'hive_empress') {
+      e.summonTimer = (e.summonTimer || 0) + dt;
+      if (e.summonTimer >= 3.0) {
+        e.summonTimer -= 3.0;
+        createShockwave(e.x, e.y, 65, '#00ffcc');
+        for (let s = 0; s < 3; s++) {
+          enemies.push({
+            x: e.x + (Math.random() - 0.5) * 16,
+            y: e.y + (Math.random() - 0.5) * 16,
+            angle: e.angle, wpIndex: e.wpIndex,
+            type: 'swarm', isBoss: false, isMiniBoss: false,
+            shape: 'diamond', color: '#00ffcc', glow: '#00ffcc',
+            hp: 20, maxHp: 20, speed: 95, baseSpeed: 95,
+            bounty: 3, radius: 8, slowTimer: 0
+          });
+        }
+      }
+    }
+
+    if (e.type === 'emp_overlord') {
+      e.empTimer = (e.empTimer || 0) + dt;
+      if (e.empTimer >= 5.0) {
+        e.empTimer -= 5.0;
+        createShockwave(e.x, e.y, 180, '#fb923c');
+        towers.forEach(t => {
+          if (Math.hypot(t.x - e.x, t.y - e.y) <= 180) {
+            t.disabledTimer = Math.max(t.disabledTimer || 0, 2.5);
+            sfx('steam');
+            createSparks(t.x, t.y, '#fb923c', 8);
+          }
+        });
+      }
+    }
+
+    if (e.slowTimer > 0) {
+      e.slowTimer -= dt;
+      if (e.slowTimer <= 0) e.speed = e.baseSpeed;
+    }
+
+    const targetWp = WAYPOINTS[e.wpIndex];
+    if (!targetWp) continue;
+
+    let targetX = targetWp.x;
+    let targetY = targetWp.y;
+    if (e.laneOffset) {
+      const prevWp = WAYPOINTS[e.wpIndex - 1] || WAYPOINTS[0];
+      const nextWp = WAYPOINTS[e.wpIndex + 1];
+      const segDx = targetWp.x - prevWp.x;
+      const segDy = targetWp.y - prevWp.y;
+      const segLen = Math.hypot(segDx, segDy) || 1;
+      let offX = -segDy / segLen;
+      let offY = segDx / segLen;
+      if (nextWp) {
+        const seg2Dx = nextWp.x - targetWp.x;
+        const seg2Dy = nextWp.y - targetWp.y;
+        const seg2Len = Math.hypot(seg2Dx, seg2Dy) || 1;
+        offX += -seg2Dy / seg2Len;
+        offY += seg2Dx / seg2Len;
+      }
+      targetX += offX * e.laneOffset;
+      targetY += offY * e.laneOffset;
+    }
+
+    const dx = targetX - e.x;
+    const dy = targetY - e.y;
+    const dist = Math.hypot(dx, dy);
+    const step = e.speed * dt;
+    e.angle = Math.atan2(dy, dx);
+
+    if (dist <= step) {
+      e.x = targetX; e.y = targetY;
+      e.wpIndex++;
+      if (e.wpIndex >= WAYPOINTS.length) {
+        const damageToBasePath = getBaseDamageFor(e);
+        baseHp = Math.max(0, baseHp - damageToBasePath);
+        sfx('baseHit');
+        createShockwave(e.x, e.y, e.isBoss ? 80 : (e.isMiniBoss ? 50 : 35), '#ff2a85');
+        enemies.splice(i, 1);
+        updateUI();
+        if (baseHp <= 0) {
+          baseHp = 0;
+          if (wave >= Math.ceil(maxW * 0.8) && !reviveUsedThisMatch) {
+            triggerEmergencyRevivePrompt();
+            return;
+          }
+          triggerDefeat();
+          return;
+        }
+        continue;
+      }
+    } else {
+      e.x += (dx / dist) * step;
+      e.y += (dy / dist) * step;
+    }
+  }
+
+  towers.forEach(t => {
+    if (t.disabledTimer > 0) {
+      t.disabledTimer -= dt;
+      if (t.disabledTimer < 0) t.disabledTimer = 0;
+      return;
+    }
+
+    let target = null;
+    const isLockingTowerType = (typeof LOCKED_TARGET_TOWERS !== 'undefined' ? LOCKED_TARGET_TOWERS : ['laser', 'melter']).includes(t.type);
+    if (isLockingTowerType && t.target && enemies.includes(t.target) && t.target.hp > 0) {
+      const dLocked = Math.hypot(t.target.x - t.x, t.target.y - t.y);
+      if (dLocked <= t.range) target = t.target;
+    }
+
+    if (!target) {
+      let maxDistProgress = -1;
+      for (let e of enemies) {
+        const d = Math.hypot(e.x - t.x, e.y - t.y);
+        if (d <= t.range && WAYPOINTS[e.wpIndex]) {
+          const progress = e.wpIndex * 1000 - Math.hypot(WAYPOINTS[e.wpIndex].x - e.x, WAYPOINTS[e.wpIndex].y - e.y);
+          if (progress > maxDistProgress) {
+            maxDistProgress = progress;
+            target = e;
+          }
+        }
+      }
+    }
+
+    const isNewTarget = (t.target !== target);
+    if (isNewTarget) {
+      t.lockOnTimer = 0;
+      t.target = target;
+    } else if (target) {
+      t.lockOnTimer = (t.lockOnTimer || 0) + dt;
+    }
+    const isLockedOn = !!target && (t.lockOnTimer || 0) >= (t.lockOnDelay || 0);
+    t.isLockedOn = isLockedOn;
+
+    if (target && t.type !== 'stasis') {
+      t.angle = Math.atan2(target.y - t.y, target.x - t.x);
+    }
+
+    if (t.type === 'gun') {
+      t.lastFire += dt;
+      if (target && isLockedOn && t.lastFire >= t.fireRate) {
+        t.lastFire = 0;
+        sfx('gun');
+        projectiles.push({
+          type: 'bullet',
+          x: t.x + Math.cos(t.angle) * 22,
+          y: t.y + Math.sin(t.angle) * 22,
+          target: target,
+          damage: t.damage,
+          speed: 460,
+          color: t.color
+        });
+      }
+    }
+
+    if (t.type === 'laser' && target && isLockedOn) {
+      sfx('laserHit');
+      if (!target.isShielded) {
+        target.hp -= t.damage * dt;
+        if (Math.random() < 0.3) createSparks(target.x, target.y, t.color, 2, target.color);
+      }
+    }
+
+    if (t.type === 'mortar') {
+      t.lastFire += dt;
+      if (target && isLockedOn && t.lastFire >= t.fireRate) {
+        t.lastFire = 0;
+        sfx('mortarFire');
+        const mSpec = TOWER_GLYPH_SPECS.mortar;
+        const elevRad = (mSpec.elevationDeg || 55) * Math.PI / 180;
+        const muzzleDist = (mSpec.muzzle ? mSpec.muzzle.atX : 23) * Math.cos(elevRad);
+        const launchX = t.x + Math.cos(t.angle) * muzzleDist;
+        const launchY = t.y + Math.sin(t.angle) * muzzleDist;
+        const range = Math.hypot(target.x - launchX, target.y - launchY);
+        projectiles.push({
+          type: 'mortar_shell',
+          x: launchX,
+          y: launchY,
+          targetX: target.x, targetY: target.y,
+          targetRef: target,
+          damage: t.damage,
+          splash: TOWER_CONFIGS.mortar.splash * (1 + (t.level - 1) * 0.15),
+          duration: t.mortarTravelTime || MORTAR_BASE_TRAVEL_TIME || 1.0, elapsed: 0,
+          startX: launchX, startY: launchY,
+          arcApex: Math.max(12, range * Math.tan(elevRad) / 4),
+          color: t.color
+        });
+      }
+    }
+
+    if (t.type === 'tesla') {
+      t.lastFire += dt;
+      if (target && isLockedOn && t.lastFire >= t.fireRate) {
+        sfx('tesla');
+        t.lastFire = 0;
+        const maxChains = (t.level === 1) ? 3 : (t.level === 2 ? 4 : 5);
+        const jumpRadius = TOWER_CONFIGS.tesla.jumpRadius;
+        const hitTargets = [target];
+        let currentChainSource = target;
+        let chainDmg = t.damage;
+
+        lightningBolts.push({
+          x1: t.x, y1: t.y - 6, x2: target.x, y2: target.y,
+          delay: 0, travelTime: 0.05, life: 0.22, maxLife: 0.22,
+          targetRef: target, damage: chainDmg, hasDealtDamage: false,
+          color: '#00ffcc', towerColor: t.color
+        });
+
+        for (let c = 1; c < maxChains; c++) {
+          let nextTarget = null;
+          let minDist = jumpRadius;
+          for (let e of enemies) {
+            if (!hitTargets.includes(e)) {
+              const d = Math.hypot(e.x - currentChainSource.x, e.y - currentChainSource.y);
+              if (d < minDist) {
+                minDist = d;
+                nextTarget = e;
+              }
+            }
+          }
+          if (nextTarget) {
+            chainDmg *= 0.65;
+            lightningBolts.push({
+              x1: currentChainSource.x, y1: currentChainSource.y, x2: nextTarget.x, y2: nextTarget.y,
+              delay: c * 0.045, travelTime: 0.05, life: 0.22, maxLife: 0.22,
+              targetRef: nextTarget, damage: chainDmg, hasDealtDamage: false,
+              color: '#00ffcc', towerColor: t.color
+            });
+            hitTargets.push(nextTarget);
+            currentChainSource = nextTarget;
+          } else {
+            break;
+          }
+        }
+      }
+    }
+
+    if (t.type === 'stasis') {
+      t.lastFire += dt;
+      if (t.lastFire >= t.fireRate) {
+        t.lastFire = 0;
+        sfx('stasis');
+        createShockwave(t.x, t.y, t.range, t.color);
+        enemies.forEach(e => {
+          if (Math.hypot(e.x - t.x, e.y - t.y) <= t.range && !e.isShielded) {
+            const stasisPowerLvl = upgradeTreeData.stasis_power || 0;
+            const baseSlow = (t.slowFactor !== undefined) ? t.slowFactor : (TOWER_CONFIGS.stasis.slowFactor || 0.30);
+            const baseDur = (t.slowDuration !== undefined) ? t.slowDuration : (TOWER_CONFIGS.stasis.slowDuration || 1.4);
+            const boostedSlow = Math.min(0.9, baseSlow * (1 + stasisPowerLvl * (TOWER_CONFIGS.stasis.powerSlow || 0)));
+            const boostedDuration = baseDur * (1 + stasisPowerLvl * (TOWER_CONFIGS.stasis.powerDuration || 0));
+            e.slowTimer = boostedDuration;
+            e.speed = e.baseSpeed * (1 - boostedSlow);
+            createSparks(e.x, e.y, t.color, 4, e.color);
+          }
+        });
+      }
+    }
+
+    if (t.type === 'melter') {
+      const rampTime = t.melterRampTime || TOWER_CONFIGS.melter.rampTime || 4.0;
+      const rampCap = TOWER_CONFIGS.melter.rampCap || 40;
+      if (t.melterCoolingTimer > 0) {
+        t.melterCoolingTimer -= dt;
+        t.steamTimer = (t.steamTimer || 0) - dt;
+        if (t.steamTimer <= 0) {
+          t.steamTimer = 0.08 + Math.random() * 0.07;
+          createSteamPuff(t.x, t.y - 9);
+        }
+        if (t.melterCoolingTimer <= 0) {
+          t.melterCoolingTimer = 0;
+          t.melterFireTimer = 0;
+        }
+      } else if (target && isLockedOn) {
+        t.melterFireTimer = (t.melterFireTimer || 0) + dt;
+        sfx('melterHit');
+        if (!target.isShielded) {
+          const rampProgress = Math.min(t.melterFireTimer, rampTime) / rampTime;
+          const rampMultiplier = Math.pow(rampCap, rampProgress);
+          target.hp -= t.damage * rampMultiplier * dt;
+          if (Math.random() < 0.4) createSparks(target.x, target.y, t.color, 3, target.color);
+        }
+        if (t.melterFireTimer >= rampTime) {
+          t.melterCoolingTimer = t.melterCooldownTime || rampTime;
+          t.melterFireTimer = 0;
+          createSparks(t.x, t.y, '#fb923c', 8);
+          for (let s = 0; s < 7; s++) createSteamPuff(t.x, t.y - 9);
+        }
+      } else {
+        if (t.melterFireTimer > 0) {
+          t.melterFireTimer = Math.max(0, t.melterFireTimer - dt);
+        }
+      }
+    }
+
+    if (t.type === 'railgun') {
+      t.lastFire += dt;
+      if (target && isLockedOn && t.lastFire >= t.fireRate) {
+        sfx('railgun');
+        t.lastFire = 0;
+        const maxLen = 3500;
+        const beamEndX = t.x + Math.cos(t.angle) * maxLen;
+        const beamEndY = t.y + Math.sin(t.angle) * maxLen;
+
+        lightningBolts.push({ x1: t.x, y1: t.y, x2: beamEndX, y2: beamEndY, life: 0.22, maxLife: 0.22, isRail: true, towerColor: t.color });
+
+        enemies.forEach(e => {
+          const vx = beamEndX - t.x;
+          const vy = beamEndY - t.y;
+          const wx = e.x - t.x;
+          const wy = e.y - t.y;
+          const c1 = wx * vx + wy * vy;
+          const c2 = vx * vx + vy * vy;
+          const param = Math.max(0, Math.min(1, c1 / c2));
+          const projX = t.x + param * vx;
+          const projY = t.y + param * vy;
+          const distToBeam = Math.hypot(e.x - projX, e.y - projY);
+
+          if (distToBeam <= e.radius + 14 && !e.isShielded) {
+            e.hp -= t.damage;
+            createSparks(e.x, e.y, t.color, 6, e.color);
+          }
+        });
+      }
+    }
+  });
+
+  for (let i = projectiles.length - 1; i >= 0; i--) {
+    const p = projectiles[i];
+    if (p.type === 'bullet') {
+      if (!enemies.includes(p.target)) { projectiles.splice(i, 1); continue; }
+      const dx = p.target.x - p.x;
+      const dy = p.target.y - p.y;
+      const dist = Math.hypot(dx, dy);
+      const step = p.speed * dt;
+
+      if (dist <= step) {
+        if (!p.target.isShielded) {
+          p.target.hp -= p.damage;
+          createShockwave(p.target.x, p.target.y, 18, p.color || '#00e5ff');
+          createSparks(p.target.x, p.target.y, p.color || '#00e5ff', 6, p.target.color);
+        } else {
+          createSparks(p.target.x, p.target.y, p.color || '#00e5ff', 5, '#60a5fa');
+        }
+        projectiles.splice(i, 1);
+      } else {
+        p.x += (dx / dist) * step;
+        p.y += (dy / dist) * step;
+      }
+    } else if (p.type === 'mortar_shell') {
+      p.elapsed += dt;
+      const tProg = p.elapsed / p.duration;
+      p.x = p.startX + (p.targetX - p.startX) * tProg;
+      p.y = p.startY + (p.targetY - p.startY) * tProg;
+
+      if (tProg >= 1) {
+        sfx('explosion');
+        let hitEnemyColor = (p.targetRef && enemies.includes(p.targetRef)) ? p.targetRef.color : null;
+        enemies.forEach(e => {
+          const d = Math.hypot(e.x - p.targetX, e.y - p.targetY);
+          if (d <= p.splash && !e.isShielded) {
+            if (!hitEnemyColor) hitEnemyColor = e.color;
+            const splashDmg = p.damage * (1 - d / (p.splash * 1.3));
+            e.hp -= splashDmg;
+            createSparks(e.x, e.y, p.color || '#ff9100', 4, e.color);
+          }
+        });
+        createExplosion(p.targetX, p.targetY, p.splash, p.color || '#ff9100', hitEnemyColor || p.color || '#ff9100');
+        createShockwave(p.targetX, p.targetY, p.splash * 1.15, p.color || '#ff9100');
+        projectiles.splice(i, 1);
+      }
+    }
+  }
+
+  for (let i = enemies.length - 1; i >= 0; i--) {
+    const e = enemies[i];
+    if (e.hp <= 0) {
+      const moneyMultiplier = 1 + (upgradeTreeData.base_gold || 0) * 0.05;
+      gold += Math.round(e.bounty * moneyMultiplier);
+      sfxDeath(e);
+
+      if (e.type === 'emp_bomber') {
+        createShockwave(e.x, e.y, 110, '#fb923c');
+        towers.forEach(t => {
+          if (Math.hypot(t.x - e.x, t.y - e.y) <= 110) {
+            t.disabledTimer = Math.max(t.disabledTimer || 0, 3.0);
+            sfx('steam');
+            createSparks(t.x, t.y, '#fb923c', 10);
+          }
+        });
+      }
+
+      const killShockRadius = e.isBoss ? 80 : (e.isMiniBoss ? 50 : 32);
+      createShockwave(e.x, e.y, killShockRadius, e.color);
+      createExplosion(e.x, e.y, e.isBoss ? 45 : (e.isMiniBoss ? 24 : 18), e.color, e.glow || e.color);
+      createSparks(e.x, e.y, e.color, e.isBoss ? 35 : (e.isMiniBoss ? 20 : 14));
+      enemies.splice(i, 1);
+      updateUI();
+    }
+  }
+
+  for (let i = particles.length - 1; i >= 0; i--) {
+    const pt = particles[i];
+    pt.x += pt.vx * dt; pt.y += pt.vy * dt;
+    pt.life -= dt;
+    if (pt.life <= 0) particles.splice(i, 1);
+  }
+
+  for (let i = shockwaves.length - 1; i >= 0; i--) {
+    const sw = shockwaves[i];
+    sw.elapsed += dt;
+    if (sw.elapsed >= sw.duration) shockwaves.splice(i, 1);
+  }
+
+  for (let i = lightningBolts.length - 1; i >= 0; i--) {
+    const lb = lightningBolts[i];
+    if (lb.delay && lb.delay > 0) {
+      lb.delay -= dt;
+      continue;
+    }
+    lb.elapsed = (lb.elapsed || 0) + dt;
+    lb.life -= dt;
+
+    if (!lb.hasDealtDamage && lb.targetRef && lb.elapsed >= (lb.travelTime || 0)) {
+      lb.hasDealtDamage = true;
+      if (!lb.targetRef.isShielded && enemies.includes(lb.targetRef)) {
+        lb.targetRef.hp -= lb.damage;
+      }
+      createSparks(lb.x2, lb.y2, lb.towerColor || lb.color || '#00ffcc', 6, lb.targetRef.color);
+    }
+
+    if (lb.life <= 0) lightningBolts.splice(i, 1);
+  }
+
+  if (wave >= maxW && spawnQueue.length === 0 && enemies.length === 0 && baseHp > 0 && gameState === 'PLAYING') {
+    if (victoryDelayTimer <= 0) {
+      victoryDelayTimer = 1.0;
+    } else {
+      victoryDelayTimer -= dt;
+      if (victoryDelayTimer <= 0) {
+        triggerVictory();
+      }
+    }
+  } else {
+    victoryDelayTimer = 0;
+  }
+}

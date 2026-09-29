@@ -1,0 +1,55 @@
+{
+  "name": "Synth Wave Defense",
+  "short_name": "Synth Wave TD",
+  "description": "A synthwave tower defense game with geometric enemies, glowing towers, atmospheric music, and accessible low-to-medium difficulty.",
+  "lang": "en",
+  "dir": "ltr",
+
+  "start_url": "./index.html",
+  "scope": "./",
+  "id": "./index.html",
+
+  "display": "fullscreen",
+  "display_override": [
+    "fullscreen",
+    "standalone",
+    "minimal-ui"
+  ],
+
+  "orientation": "portrait",
+
+  "background_color": "#0a0a12",
+  "theme_color": "#0a0a12",
+
+  "categories": [
+    "games",
+    "entertainment"
+  ],
+
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
