@@ -61,7 +61,9 @@ function getNewlyUnlockedTowers(lvl) {
 let gameState = 'START';
 let currentLevel = 1;
 let settings = {
-  showEnemyHp: true, perfModeOverride: null,
+  showEnemyHp: true,
+  vibrationEnabled: true,
+  perfModeOverride: null,
   sfxEnabled: true, musicEnabled: true,
   sfxVolume: 100, musicVolume: 70
 };
@@ -135,6 +137,34 @@ function musicResume() {
     if (typeof MusicManager !== 'undefined' && MusicManager) MusicManager.resume();
   } catch (e) {}
 }
+
+// Функция вибрации (должна быть доступна глобально):
+function vibrate(type = 'light') {
+  if (!settings || !settings.vibrationEnabled) return;
+  try {
+    // 1. Проверка плагина Capacitor Haptics
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Haptics) {
+      const Haptics = window.Capacitor.Plugins.Haptics;
+      if (type === 'light') Haptics.impact({ style: 'LIGHT' });
+      else if (type === 'medium') Haptics.impact({ style: 'MEDIUM' });
+      else if (type === 'heavy') Haptics.impact({ style: 'HEAVY' });
+      else if (type === 'warning') Haptics.notification({ type: 'WARNING' });
+      else if (type === 'error') Haptics.notification({ type: 'ERROR' });
+      return;
+    }
+    // 2. Fallback на стандартный Web Vibration API
+    if (navigator.vibrate) {
+      if (type === 'light') navigator.vibrate(15);
+      else if (type === 'medium') navigator.vibrate(30);
+      else if (type === 'heavy') navigator.vibrate(50);
+      else if (type === 'warning') navigator.vibrate([30, 50, 30]);
+      else if (type === 'error') navigator.vibrate([60, 80, 60]);
+    }
+  } catch (e) {}
+}
+
+// Привязываем к window, чтобы исключить любые ошибки области видимости между файлами:
+window.vibrate = vibrate;
 
 let devMode = false;
 let devInputOpen = false;
@@ -761,6 +791,39 @@ function claimX2Reward() {
   }, 1000);
 }
 
+let victoryFanfareTimer = null;
+
+function playVictoryFanfare() {
+  const stack = document.querySelector('#victoryScreen .result-stack');
+  if (!stack) return;
+
+  if (victoryFanfareTimer) {
+    clearTimeout(victoryFanfareTimer);
+    victoryFanfareTimer = null;
+  }
+
+  // Удаляем старый элемент, если он остался
+  const existing = document.getElementById('victoryFanfareRays');
+  if (existing && existing.parentNode) {
+    existing.parentNode.removeChild(existing);
+  }
+
+  // Создаем голографический веер лучей
+  const rays = document.createElement('div');
+  rays.className = 'victory-fanfare-rays';
+  rays.id = 'victoryFanfareRays';
+  stack.insertBefore(rays, stack.firstChild);
+
+  // Удаляем элемент после завершения анимации (через 1.7 сек)
+  victoryFanfareTimer = setTimeout(() => {
+    const el = document.getElementById('victoryFanfareRays');
+    if (el && el.parentNode) {
+      el.parentNode.removeChild(el);
+    }
+    victoryFanfareTimer = null;
+  }, 1700);
+}
+
 function triggerVictory() {
   gameState = 'VICTORY';
   sfxStopBeams();
@@ -773,6 +836,7 @@ function triggerVictory() {
   diamonds += reward;
   updateDiamondUI();
   renderVictoryStars(stars);
+  playVictoryFanfare();
 
   const badgeTypeEl = document.getElementById('victoryRewardBadgeType');
   if (badgeTypeEl) {
@@ -876,17 +940,49 @@ function setReviveBtnLabel(seconds) {
   if (label) label.innerHTML = `REVIVE (${seconds}<span class="revive-sec">s</span>)`;
 }
 
+let defeatFlashTimeout = null;
+
 function replayDefeatFlash() {
-  const old = document.getElementById('defeatFlash');
-  if (!old || !old.parentNode) return;
-  const fresh = old.cloneNode(false);
-  old.parentNode.replaceChild(fresh, old);
-  const heading = document.querySelector('#defeatScreen .result-heading');
+  const defeatScreen = document.getElementById('defeatScreen');
+  if (!defeatScreen) return;
+
+  // Очищаем предыдущий таймер, если он был активен
+  if (defeatFlashTimeout) {
+    clearTimeout(defeatFlashTimeout);
+    defeatFlashTimeout = null;
+  }
+
+  // Если полосы нет (была удалена после анимации), создаем её заново для разового прогона
+  let flash = document.getElementById('defeatFlash');
+  if (!flash) {
+    flash = document.createElement('div');
+    flash.className = 'defeat-flash';
+    flash.id = 'defeatFlash';
+    defeatScreen.insertBefore(flash, defeatScreen.firstChild);
+  } else {
+    // Перезапуск анимации через замену узла
+    const fresh = flash.cloneNode(false);
+    flash.parentNode.replaceChild(fresh, flash);
+    flash = fresh;
+  }
+
+  // Тряска заголовка
+  const heading = defeatScreen.querySelector('.result-heading');
   if (heading) {
     heading.classList.remove('fail-shake');
     void heading.offsetWidth;
     heading.classList.add('fail-shake');
   }
+
+  // Ровно через 1.4 секунды (после завершения анимации полосы) удаляем её элемент,
+  // чтобы при уходе в Tech Tree и возврате полоса больше не появлялась
+  defeatFlashTimeout = setTimeout(() => {
+    const el = document.getElementById('defeatFlash');
+    if (el && el.parentNode) {
+      el.parentNode.removeChild(el);
+    }
+    defeatFlashTimeout = null;
+  }, 1400);
 }
 
 function updateDefeatWaveLine() {

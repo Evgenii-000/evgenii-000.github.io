@@ -14,6 +14,7 @@
       user-select: none;
       -webkit-user-select: none;
       touch-action: none;
+	  -webkit-tap-highlight-color: transparent;
     }
     body {
       background: #06070d;
@@ -981,6 +982,47 @@
       align-items: center;
       gap: 2px;
     }
+	/* Victory Sunburst / Holographic Laser Fanfare */
+    .victory-fanfare-rays {
+      position: absolute;
+      top: 40px;
+      left: 50%;
+      width: 440px;
+      height: 440px;
+      margin-left: -220px;
+      margin-top: -220px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      background: repeating-conic-gradient(
+        from 0deg,
+        rgba(0, 229, 255, 0.28) 0deg 14deg,
+        transparent 14deg 28deg
+      );
+      mask-image: radial-gradient(circle, rgba(0,0,0,1) 18%, transparent 70%);
+      -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,1) 18%, transparent 70%);
+      animation: victoryRaysSpin 1.6s cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
+    }
+
+    @keyframes victoryRaysSpin {
+      0% {
+        opacity: 0;
+        transform: scale(0.15) rotate(-35deg);
+        filter: drop-shadow(0 0 4px #00e5ff);
+      }
+      25% {
+        opacity: 0.95;
+        filter: drop-shadow(0 0 20px #00e5ff);
+      }
+      75% {
+        opacity: 0.7;
+      }
+      100% {
+        opacity: 0;
+        transform: scale(1.65) rotate(55deg);
+        filter: drop-shadow(0 0 30px #00e5ff);
+      }
+    }	
     .result-kicker {
       font-family: 'Montserrat', sans-serif;
       font-size: 14px;
@@ -1594,22 +1636,22 @@
     }
 
     /* Sell Button */
-    .btn-sell {
-      flex: 0.95;
+.btn-sell {
+      flex: 1;                 /* Слегка увеличиваем базовый приоритет ширины */
       min-width: 0;
       height: 100%;
       border-radius: 18px;
       background: rgba(8, 12, 24, 0.65);
-      border: 1.5px solid rgba(240, 95, 159, 0.45);
+      border: 1.5px solid rgba(255, 42, 133, 0.45);
       backdrop-filter: blur(10px);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 3px;
+      gap: 2px;
       cursor: pointer;
       transition: all 0.2s ease;
-      padding: 4px 6px;
+      padding: 4px 2px;        /* Уменьшаем боковые отступы с 6px до 2px, освобождая место для текста */
     }
     .btn-sell:hover {
       background: rgba(240, 95, 159, 0.15);
@@ -1617,28 +1659,36 @@
       box-shadow: 0 0 16px rgba(240, 95, 159, 0.4);
       transform: translateY(-1px);
     }
+/* Специально для активного состояния подтверждения */
     .btn-sell.confirm-armed {
-      background: #f05f9f;
-      border-color: #f05f9f;
+      background: #ff2a85;
+      border-color: #ff2a85;
       color: #06070d;
-      box-shadow: 0 0 24px rgba(240, 95, 159, 0.8);
+      box-shadow: 0 0 24px rgba(255, 42, 133, 0.8);
       animation: sellConfirmPulse 0.7s ease-in-out infinite alternate;
     }
     .btn-sell.confirm-armed svg { stroke: #06070d; }
-    .btn-sell.confirm-armed .sell-btn-title,
+    .btn-sell.confirm-armed .sell-btn-title {
+      font-size: 9px;          /* При слове "CONFIRM?" аккуратно уменьшаем кегль */
+      letter-spacing: 0.2px;   /* Минимальный межбуквенный интервал */
+      color: #06070d !important;
+    }
+     .btn-sell.confirm-armed svg { stroke: #06070d; }
     .btn-sell.confirm-armed .cost {
       color: #06070d !important;
     }
-    .sell-btn-title {
+.sell-btn-title {
       display: flex;
       align-items: center;
-      gap: 4px;
+      justify-content: center;
+      gap: 3px;
       font-family: 'Montserrat', sans-serif;
-      font-size: 10px;
+      font-size: 9.5px;        /* Чуть компактнее шрифт */
       font-weight: 900;
-      letter-spacing: 0.8px;
-      color: #f28eae;
+      letter-spacing: 0.4px;   /* Уменьшаем трекинг, чтобы слово CONFIRM? не распирало капсулу */
+      color: #ff8fb0;
       text-transform: uppercase;
+      white-space: nowrap;
     }
     .btn-sell .cost {
       display: flex;
@@ -2542,3 +2592,25 @@
       border-color: #00e5ff;
       color: #00e5ff;
     }
+	/* Убираем системные рамки фокуса и подсветку нажатий на мобильных устройствах */
+button,
+input,
+select,
+label,
+.switch,
+.slider,
+.tower-btn,
+.menu-btn,
+.result-btn,
+.badge-half {
+  -webkit-tap-highlight-color: transparent !important;
+  outline: none !important;
+}
+
+button:focus,
+input:focus,
+.switch:focus,
+.slider:focus {
+  outline: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
