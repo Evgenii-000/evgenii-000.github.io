@@ -802,26 +802,23 @@ function playVictoryFanfare() {
     victoryFanfareTimer = null;
   }
 
-  // Удаляем старый элемент, если он остался
   const existing = document.getElementById('victoryFanfareRays');
   if (existing && existing.parentNode) {
     existing.parentNode.removeChild(existing);
   }
 
-  // Создаем голографический веер лучей
   const rays = document.createElement('div');
   rays.className = 'victory-fanfare-rays';
   rays.id = 'victoryFanfareRays';
   stack.insertBefore(rays, stack.firstChild);
 
-  // Удаляем элемент после завершения анимации (через 1.7 сек)
-  victoryFanfareTimer = setTimeout(() => {
-    const el = document.getElementById('victoryFanfareRays');
-    if (el && el.parentNode) {
-      el.parentNode.removeChild(el);
+  // Удаляем строго по системному событию завершения анимации браузером
+  rays.addEventListener('animationend', () => {
+    if (rays && rays.parentNode) {
+      rays.parentNode.removeChild(rays);
     }
     victoryFanfareTimer = null;
-  }, 1700);
+  }, { once: true });
 }
 
 function triggerVictory() {
@@ -2367,7 +2364,7 @@ function update(dt) {
 
           if (distToBeam <= e.radius + 14 && !e.isShielded) {
             e.hp -= t.damage;
-            createSparks(e.x, e.y, t.color, 6, e.color);
+            createDamageShards(e.x, e.y, e.color, t.damage, false);
           }
         });
       }
@@ -2386,10 +2383,10 @@ function update(dt) {
       if (dist <= step) {
         if (!p.target.isShielded) {
           p.target.hp -= p.damage;
-          createShockwave(p.target.x, p.target.y, 18, p.color || '#00e5ff');
-          createSparks(p.target.x, p.target.y, p.color || '#00e5ff', 6, p.target.color);
+          createShockwave(p.target.x, p.target.y, 14, p.color || '#00e5ff');
+          createDamageShards(p.target.x, p.target.y, p.target.color, p.damage, false);
         } else {
-          createSparks(p.target.x, p.target.y, p.color || '#00e5ff', 5, '#60a5fa');
+          createDamageShards(p.target.x, p.target.y, '#60a5fa', 10, false);
         }
         projectiles.splice(i, 1);
       } else {
@@ -2405,16 +2402,16 @@ function update(dt) {
       if (tProg >= 1) {
         sfx('explosion');
         let hitEnemyColor = (p.targetRef && enemies.includes(p.targetRef)) ? p.targetRef.color : null;
-        enemies.forEach(e => {
+         enemies.forEach(e => {
           const d = Math.hypot(e.x - p.targetX, e.y - p.targetY);
           if (d <= p.splash && !e.isShielded) {
             if (!hitEnemyColor) hitEnemyColor = e.color;
             const splashDmg = p.damage * (1 - d / (p.splash * 1.3));
             e.hp -= splashDmg;
-            createSparks(e.x, e.y, p.color || '#ff9100', 4, e.color);
+            createDamageShards(e.x, e.y, e.color, splashDmg, false);
           }
         });
-        createExplosion(p.targetX, p.targetY, p.splash, p.color || '#ff9100', hitEnemyColor || p.color || '#ff9100');
+        createExplosion(p.targetX, p.targetY, p.splash, p.color || '#ff9100', '#f05f9f', 'mortar');
         createShockwave(p.targetX, p.targetY, p.splash * 1.15, p.color || '#ff9100');
         projectiles.splice(i, 1);
       }
@@ -2439,10 +2436,16 @@ function update(dt) {
         });
       }
 
-      const killShockRadius = e.isBoss ? 80 : (e.isMiniBoss ? 50 : 32);
+      const killShockRadius = e.isBoss ? 80 : (e.isMiniBoss ? 50 : 26);
       createShockwave(e.x, e.y, killShockRadius, e.color);
-      createExplosion(e.x, e.y, e.isBoss ? 45 : (e.isMiniBoss ? 24 : 18), e.color, e.glow || e.color);
-      createSparks(e.x, e.y, e.color, e.isBoss ? 35 : (e.isMiniBoss ? 20 : 14));
+
+      // Взрыв со вспышкой вызываем ТОЛЬКО для боссов, обычный моб чисто раскалывается!
+      if (e.isBoss || e.isMiniBoss) {
+        createExplosion(e.x, e.y, e.isBoss ? 45 : 22, e.color, e.glow || e.color, 'boss');
+      }
+
+      // Чистый раскол геометрии моба на его собственные кусочки
+      createDamageShards(e.x, e.y, e.color, e.isBoss ? 120 : (e.isMiniBoss ? 60 : 35), true);
       enemies.splice(i, 1);
       updateUI();
     }

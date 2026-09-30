@@ -21,6 +21,93 @@ function createGlowSprite(color) {
   return c;
 }
 
+// Кешированные круглые неоновые диски (заменяют dynamic createRadialGradient на каждой частице)
+const NEON_DISC_SPRITES = Object.create(null);
+function getNeonDiscSprite(color) {
+  if (NEON_DISC_SPRITES[color]) return NEON_DISC_SPRITES[color];
+  const size = 32;
+  const c = document.createElement('canvas');
+  c.width = size;
+  c.height = size;
+  const gCtx = c.getContext('2d');
+  const half = size / 2;
+  const grad = gCtx.createRadialGradient(half, half, 1, half, half, half);
+  grad.addColorStop(0, '#ffffff');
+  grad.addColorStop(0.35, color);
+  grad.addColorStop(0.85, color + '55');
+  grad.addColorStop(1, 'transparent');
+  gCtx.fillStyle = grad;
+  gCtx.beginPath();
+  gCtx.arc(half, half, half, 0, Math.PI * 2);
+  gCtx.fill();
+  NEON_DISC_SPRITES[color] = c;
+  return c;
+}
+
+// --- Кешированные спрайты дыма (контрастный концентрический дым) ---
+let SMOKE_SPRITE = null;
+function getSmokeSprite() {
+  if (SMOKE_SPRITE) return SMOKE_SPRITE;
+  const size = 64;
+  const c = document.createElement('canvas');
+  c.width = size;
+  c.height = size;
+  const sCtx = c.getContext('2d');
+  const half = size / 2;
+  const grad = sCtx.createRadialGradient(half, half, 4, half, half, half);
+  grad.addColorStop(0, 'rgba(48, 54, 76, 0.9)');
+  grad.addColorStop(0.5, 'rgba(28, 32, 48, 0.6)');
+  grad.addColorStop(0.85, 'rgba(15, 18, 28, 0.2)');
+  grad.addColorStop(1, 'transparent');
+  sCtx.fillStyle = grad;
+  sCtx.beginPath();
+  sCtx.arc(half, half, half, 0, Math.PI * 2);
+  sCtx.fill();
+  SMOKE_SPRITE = c;
+  return c;
+}
+
+// --- Кешированные синтвейв-вспышки (Анаморфный блик / Световой крест) ---
+const FLARE_SPRITES = Object.create(null);
+function getFlareSprite(color) {
+  if (FLARE_SPRITES[color]) return FLARE_SPRITES[color];
+  const size = 128;
+  const c = document.createElement('canvas');
+  c.width = size;
+  c.height = size;
+  const fCtx = c.getContext('2d');
+  const half = size / 2;
+
+  // Центральное горячее ядро
+  const rad = fCtx.createRadialGradient(half, half, 2, half, half, 32);
+  rad.addColorStop(0, '#ffffff');
+  rad.addColorStop(0.3, color);
+  rad.addColorStop(1, 'transparent');
+  fCtx.fillStyle = rad;
+  fCtx.beginPath();
+  fCtx.arc(half, half, 32, 0, Math.PI * 2);
+  fCtx.fill();
+
+  // Горизонтальный неоновый луч (Streak Flare)
+  const hGrad = fCtx.createLinearGradient(0, half, size, half);
+  hGrad.addColorStop(0, 'transparent');
+  hGrad.addColorStop(0.5, '#ffffff');
+  hGrad.addColorStop(1, 'transparent');
+  fCtx.fillStyle = hGrad;
+  fCtx.fillRect(0, half - 2, size, 4);
+
+  // Вертикальный тонкий луч
+  const vGrad = fCtx.createLinearGradient(half, 0, half, size);
+  vGrad.addColorStop(0, 'transparent');
+  vGrad.addColorStop(0.5, color);
+  vGrad.addColorStop(1, 'transparent');
+  fCtx.fillStyle = vGrad;
+  fCtx.fillRect(half - 1.5, 0, 3, size);
+
+  FLARE_SPRITES[color] = c;
+  return c;
+}
+
 function getGlowSprite(color) {
   if (!GLOW_SPRITES[color]) {
     GLOW_SPRITES[color] = createGlowSprite(color);
@@ -2023,23 +2110,41 @@ function updateUI() {
   if (selectedTower) updateInspectUI();
 }
 
-function createSparks(x, y, color1, count = 6, color2 = null) {
-  const c1 = color1 || '#00e5ff';
-  const c2 = color2 || c1;
-  const n = perfMode === 'low' ? Math.max(1, Math.round(count * 0.5)) : count;
-  for (let i = 0; i < n; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const speed = 50 + Math.random() * 120;
+function createDamageShards(x, y, color, damage = 16, isDeath = false) {
+  // При попадании: ровно 2-3 осколка. При смерти: 5-7 выразительных кусков
+  const count = isDeath ? (perfMode === 'low' ? 5 : 7) : Math.max(1, Math.min(3, Math.ceil(damage / 25)));
+  const baseSize = isDeath ? 7.0 : Math.max(3.0, Math.min(5.5, 2.0 + damage * 0.06));
+
+  for (let i = 0; i < count; i++) {
+    const angle = (isDeath ? (i * (Math.PI * 2 / count)) : Math.random() * Math.PI * 2) + (Math.random() - 0.5) * 0.4;
+    const speed = isDeath ? (50 + Math.random() * 110) : (30 + Math.random() * 70);
+    const sz = baseSize * (0.8 + Math.random() * 0.5);
+
+    // Острый треугольный осколок ("битое стекло")
+    const pts = [
+      { x: -sz * 0.5, y: -sz * 0.4 },
+      { x: sz * 0.7, y: -sz * 0.1 },
+      { x: (Math.random() - 0.5) * sz * 0.4, y: sz * 0.7 }
+    ];
+
     pushParticle({
       x, y,
       vx: Math.cos(angle) * speed,
       vy: Math.sin(angle) * speed,
-      color: (color2 && i % 2 !== 0) ? c2 : c1,
-      radius: 2 + Math.random() * 2.5,
-      life: 0.22 + Math.random() * 0.22,
-      maxLife: 0.44
+      color: color || '#00e5ff',
+      radius: sz,
+      pts: pts,
+      angle: Math.random() * Math.PI * 2,
+      vRot: (Math.random() - 0.5) * 12,
+      life: isDeath ? (0.35 + Math.random() * 0.15) : (0.2 + Math.random() * 0.12),
+      maxLife: isDeath ? 0.5 : 0.32,
+      isShard: true
     });
   }
+}
+// Оставляем createSparks как совместимую обёртку для внешних вызовов
+function createSparks(x, y, color1, count = 6, color2 = null) {
+  createDamageShards(x, y, color1, count * 5, false);
 }
 
 function createSteamPuff(x, y) {
@@ -2058,21 +2163,107 @@ function createSteamPuff(x, y) {
   });
 }
 
-function createExplosion(x, y, radius, color1 = '#ff9100', color2 = null) {
+function createExplosion(x, y, radius, color1 = '#ff9100', color2 = null, kind = 'standard') {
   const c1 = color1;
-  const c2 = color2 || color1;
-  pushParticle({ x, y, vx: 0, vy: 0, color: c1, radius: radius * 0.4, life: 0.18, maxLife: 0.18, isFlash: true });
-  const n = perfMode === 'low' ? 14 : 28;
-  for (let i = 0; i < n; i++) {
+  const c2 = color2 || (kind === 'mortar' ? '#f05f9f' : '#00e5ff');
+  const isMortar = (kind === 'mortar');
+  const isBoss = (kind === 'boss');
+
+  if (isMortar) {
+    // 1. Для Мортиры: мягкое, прозрачное свечение купола БЕЗ ослепляющей вспышки
+    pushParticle({
+      x, y, vx: 0, vy: 0,
+      color: c1,
+      radius: radius * 0.75,
+      life: 0.15, maxLife: 0.15,
+      isGlowHalo: true,
+      alphaMult: 0.35 // приглушенная прозрачность (не слепит)
+    });
+
+    // 2. Тонкое быстрое полупрозрачное кольцо
+    createShockwave(x, y, radius * 0.75, '#ffaa44');
+
+    // 3. Лаконичные направленные искры (всего 5-6 штук вместо каши)
+    const count = perfMode === 'low' ? 3 : 5;
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 70 + Math.random() * 180;
+      pushParticle({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        color: (i % 2 === 0 ? c1 : c2),
+        radius: 2.8 + Math.random() * 2.2,
+        life: 0.30 + Math.random() * 0.18,
+        maxLife: 0.48,
+        isStreak: true,
+        angle: angle
+      });
+    }
+
+    // 4. Мягкий полупрозрачный дымный след
+    const smokeCount = 2;
+    for (let s = 0; s < smokeCount; s++) {
+      const sAngle = Math.random() * Math.PI * 2;
+      const sDist = Math.random() * 12;
+      const sSpeed = 5 + Math.random() * 16;
+      pushParticle({
+        x: x + Math.cos(sAngle) * sDist,
+        y: y + Math.sin(sAngle) * sDist,
+        vx: Math.cos(sAngle) * sSpeed,
+        vy: Math.sin(sAngle) * sSpeed - 3,
+        radius: 10 + Math.random() * 6,
+        life: 0.65 + Math.random() * 0.3,
+        maxLife: 0.95,
+        isSmoke: true
+      });
+    }
+    return;
+  }
+
+  // Взрывы боссов и стандартные детонации
+  pushParticle({
+    x, y, vx: 0, vy: 0,
+    color: c1,
+    radius: radius * (isBoss ? 1.4 : 0.9),
+    life: 0.18, maxLife: 0.18,
+    isGlowHalo: true,
+    alphaMult: isBoss ? 0.6 : 0.4
+  });
+
+  createShockwave(x, y, radius * 0.8, '#ffffff');
+
+  const count = perfMode === 'low' ? 8 : 14;
+  for (let i = 0; i < count; i++) {
     const angle = Math.random() * Math.PI * 2;
-    const speed = 40 + Math.random() * 150;
+    const speed = 40 + Math.random() * 120;
     pushParticle({
       x, y,
-      vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
-      color: (i % 2 === 0) ? c1 : c2,
-      radius: 3 + Math.random() * 3.5,
-      life: 0.35 + Math.random() * 0.15, maxLife: 0.5
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      color: (i % 2 === 0 ? c1 : c2),
+      radius: 3.0 + Math.random() * 2.5,
+      life: 0.30 + Math.random() * 0.2,
+      maxLife: 0.5,
+      isStreak: false
     });
+  }
+
+  if (isBoss) {
+    for (let s = 0; s < 8; s++) {
+      const sAngle = Math.random() * Math.PI * 2;
+      const sSpeed = 8 + Math.random() * 22;
+      pushParticle({
+        x: x + (Math.random() - 0.5) * 14,
+        y: y + (Math.random() - 0.5) * 14,
+        vx: Math.cos(sAngle) * sSpeed,
+        vy: Math.sin(sAngle) * sSpeed - 4,
+        radius: 14 + Math.random() * 8,
+        life: 0.75 + Math.random() * 0.3,
+        maxLife: 1.05,
+        isSmoke: true
+      });
+    }
   }
 }
 
@@ -2697,6 +2888,53 @@ function drawEnemyModel(e, showHpBar = true) {
     ctx.restore();
   }
 
+// --- Тонкие, резкие процедурные трещины на повреждённом мобе ---
+  const hpRatio = e.hp / e.maxHp;
+  if (hpRatio < 0.75) {
+    ctx.save();
+    const r = e.radius;
+    // Детерминированный угол трещин для конкретного моба (чтобы они не вращались случайно каждый кадр)
+    const seed = Math.sin((e.maxHp || 100) * 12.9898 + (e.baseSpeed || 50) * 78.233);
+    const baseRot = seed * Math.PI;
+
+    ctx.rotate(baseRot);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'miter';
+
+    // 1-я ветка трещин (появляется при < 75% HP)
+    ctx.strokeStyle = '#06070d';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.55, -r * 0.2);
+    ctx.lineTo(-r * 0.15, -r * 0.05);
+    ctx.lineTo(r * 0.1, -r * 0.35);
+    ctx.lineTo(r * 0.6, -r * 0.15);
+    // Боковое ответвление
+    ctx.moveTo(-r * 0.15, -r * 0.05);
+    ctx.lineTo(0, r * 0.35);
+    ctx.stroke();
+
+    // 2-я ветка трещин (дополнительный скол при < 40% HP)
+    if (hpRatio < 0.4) {
+      ctx.beginPath();
+      ctx.moveTo(-r * 0.3, r * 0.5);
+      ctx.lineTo(r * 0.05, r * 0.15);
+      ctx.lineTo(r * 0.5, r * 0.45);
+      ctx.stroke();
+
+      // Неоновый тонкий отблеск из глубины разлома
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 0.6;
+      ctx.beginPath();
+      ctx.moveTo(-r * 0.15, -r * 0.05);
+      ctx.lineTo(r * 0.1, -r * 0.35);
+      ctx.moveTo(-r * 0.3, r * 0.5);
+      ctx.lineTo(r * 0.05, r * 0.15);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
 if (showHpBar && settings.showEnemyHp) {
     ctx.shadowBlur = 0;
     const barW = Math.max(22, e.radius * 2.2);
@@ -2997,38 +3235,93 @@ if (t.type === 'laser' && t.target && t.isLockedOn && t.disabledTimer <= 0) {
     ctx.restore();
   });
 
-  ctx.save();
-  ctx.globalCompositeOperation = 'lighter';
-  particles.forEach(pt => {
-    const prog = pt.life / pt.maxLife;
-    ctx.save();
-    ctx.globalAlpha = prog;
-    if (pt.isSteam) {
-      const growProg = 1 - prog;
+// --- Высокопроизводительный рендер частиц ---
+particles.forEach(pt => {
+    const rawProg = Math.max(0, Math.min(1, pt.life / pt.maxLife));
+
+    if (pt.isSmoke) {
+      ctx.save();
       ctx.globalCompositeOperation = 'source-over';
-      ctx.globalAlpha = prog * 0.55;
+      const smokeAlpha = rawProg > 0.85 ? (1.0 - rawProg) / 0.15 : rawProg / 0.85;
+      ctx.globalAlpha = Math.max(0, Math.min(0.6, smokeAlpha * 0.6));
+      const smokeSprite = getSmokeSprite();
+      const currentR = pt.radius * (1.0 + (1.0 - rawProg) * 1.3);
+      ctx.drawImage(smokeSprite, pt.x - currentR, pt.y - currentR, currentR * 2, currentR * 2);
+      ctx.restore();
+      return; // <-- ЗДЕСЬ ВСЁ ЧИСТО
+    }
+
+    if (pt.isSteam) {
+      ctx.save();
+      ctx.globalCompositeOperation = 'source-over';
+      const growProg = 1.0 - rawProg;
+      ctx.globalAlpha = rawProg * 0.45;
       ctx.fillStyle = pt.color;
       ctx.beginPath();
       ctx.arc(pt.x, pt.y, pt.radius * (0.6 + growProg * 0.9), 0, Math.PI * 2);
       ctx.fill();
-    } else if (pt.isFlash) {
-      const sprite = getGlowSprite(pt.color || '#ffffff');
-      const r = pt.radius * 2;
-      ctx.drawImage(sprite, pt.x - r, pt.y - r, r * 2, r * 2);
-    } else {
+      ctx.restore();
+      return; // <-- ЗДЕСЬ ТОЖЕ
+    }
+
+    // ВОТ ЗДЕСЬ КРИТИЧЕСКИ ВАЖНО:
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+
+    if (pt.isShard) {
+      pt.angle = (pt.angle || 0) + (pt.vRot || 0) * 0.016;
+      ctx.save(); // <-- Вложенный save для трансформации осколка!
+      ctx.translate(pt.x, pt.y);
+      ctx.rotate(pt.angle);
+      ctx.globalAlpha = rawProg * 0.9;
+      ctx.fillStyle = pt.color;
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.0;
+
+      ctx.beginPath();
+      if (pt.pts && pt.pts.length >= 3) {
+        ctx.moveTo(pt.pts[0].x, pt.pts[0].y);
+        ctx.lineTo(pt.pts[1].x, pt.pts[1].y);
+        ctx.lineTo(pt.pts[2].x, pt.pts[2].y);
+      } else {
+        ctx.rect(-pt.radius / 2, -pt.radius / 2, pt.radius, pt.radius);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore(); // <-- Обязательно закрываем поворот осколка!
+
+    } else if (pt.isGlowHalo) {
+      ctx.globalAlpha = rawProg * (pt.alphaMult || 0.4);
+      const glowSprite = getGlowSprite(pt.color || '#ff9100');
+      const r = pt.radius;
+      ctx.drawImage(glowSprite, pt.x - r, pt.y - r, r * 2, r * 2);
+
+    } else if (pt.isStreak) {
+      const easeProg = rawProg * rawProg;
+      ctx.globalAlpha = rawProg * 0.85;
+      ctx.save(); // <-- Вложенный save для поворота шрапнели!
+      ctx.translate(pt.x, pt.y);
+      const velAngle = Math.atan2(pt.vy, pt.vx);
+      ctx.rotate(velAngle);
+      const len = pt.radius * (1.4 + easeProg * 2.2);
+      const width = Math.max(1.2, pt.radius * easeProg * 0.5);
       ctx.fillStyle = pt.color;
       ctx.beginPath();
-      ctx.arc(pt.x, pt.y, pt.radius * prog, 0, Math.PI * 2);
+      ctx.ellipse(0, 0, len, width, 0, 0, Math.PI * 2);
       ctx.fill();
+      ctx.restore(); // <-- Обязательно закрываем поворот шрапнели!
 
-      ctx.fillStyle = '#ffffff';
-      ctx.beginPath();
-      ctx.arc(pt.x, pt.y, (pt.radius * prog) * 0.5, 0, Math.PI * 2);
-      ctx.fill();
+    } else {
+      const easeProg = rawProg * rawProg;
+      ctx.globalAlpha = rawProg;
+      const sprite = getNeonDiscSprite(pt.color || '#00e5ff');
+      const curRadius = pt.radius * (0.4 + easeProg * 0.6);
+      ctx.drawImage(sprite, pt.x - curRadius, pt.y - curRadius, curRadius * 2, curRadius * 2);
     }
-    ctx.restore();
+
+    ctx.restore(); // <-- ГЛАВНЫЙ RESTORE: сбрасывает lighter обратно на стандартный режим!
   });
-  ctx.restore();
 
   if (draggingTower) {
     const c = Math.floor(draggingTower.worldX / TILE_SIZE);

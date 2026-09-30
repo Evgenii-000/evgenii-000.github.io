@@ -982,7 +982,7 @@
       align-items: center;
       gap: 2px;
     }
-	/* Victory Sunburst / Holographic Laser Fanfare */
+/* Victory Sunburst / Holographic Laser Fanfare (GPU-accelerated, no mask glitches) */
     .victory-fanfare-rays {
       position: absolute;
       top: 40px;
@@ -996,33 +996,39 @@
       z-index: 0;
       background: repeating-conic-gradient(
         from 0deg,
-        rgba(0, 229, 255, 0.28) 0deg 14deg,
-        transparent 14deg 28deg
+        rgba(0, 229, 255, 0.24) 0deg 12deg,
+        transparent 12deg 24deg
       );
-      mask-image: radial-gradient(circle, rgba(0,0,0,1) 18%, transparent 70%);
-      -webkit-mask-image: radial-gradient(circle, rgba(0,0,0,1) 18%, transparent 70%);
+      /* Заменяем ресурсоемкий mask-image на чистый радиальный оверлей */
+      background-clip: padding-box;
+      will-change: transform, opacity;
+      transform: translateZ(0);
       animation: victoryRaysSpin 1.6s cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
+    }
+    .victory-fanfare-rays::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, rgba(6, 7, 13, 0.2) 20%, #06070d 75%);
     }
 
     @keyframes victoryRaysSpin {
       0% {
         opacity: 0;
-        transform: scale(0.15) rotate(-35deg);
-        filter: drop-shadow(0 0 4px #00e5ff);
+        transform: scale3d(0.2, 0.2, 1) rotate(-35deg);
       }
-      25% {
-        opacity: 0.95;
-        filter: drop-shadow(0 0 20px #00e5ff);
+      20% {
+        opacity: 0.9;
       }
       75% {
-        opacity: 0.7;
+        opacity: 0.6;
       }
       100% {
         opacity: 0;
-        transform: scale(1.65) rotate(55deg);
-        filter: drop-shadow(0 0 30px #00e5ff);
+        transform: scale3d(1.55, 1.55, 1) rotate(50deg);
       }
-    }	
+    }
     .result-kicker {
       font-family: 'Montserrat', sans-serif;
       font-size: 14px;
