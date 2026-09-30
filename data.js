@@ -275,7 +275,7 @@ function buildTowerIconSvg(type, level = 1, size = 28, angleDeg = 0) {
 
 const TOWER_CONFIGS = {
   gun: { cost: 50, range: 165, damage: 16, fireRate: 0.52, color: '#00e5ff', glow: '#00e5ff', type: 'projectile', costMultiplier: 1.3, damageMultiplier: 1.7, rateMultiplier: 0.8, rangeMultiplier: 1.1, powerDmg: 0.08, powerRate: 0.06, powerRange: 0.04 },
-  laser: { cost: 70, range: 150, dps: 44, color: '#f05f9f', glow: '#f05f9f', type: 'beam', costMultiplier: 1.3, damageMultiplier: 1.85, rangeMultiplier: 1.1, powerDmg: 0.08, powerRate: 0.06, powerRange: 0.04 },
+  laser: { cost: 70, range: 150, dps: 48, color: '#f05f9f', glow: '#f05f9f', type: 'beam', costMultiplier: 1.3, damageMultiplier: 1.85, rangeMultiplier: 1.1, powerDmg: 0.08, powerRate: 0.06, powerRange: 0.04 },
   mortar: { cost: 85, range: 195, damage: 32, splash: 80, fireRate: 1.5, color: '#ff9100', glow: '#ff9100', type: 'mortar', costMultiplier: 1.3, damageMultiplier: 1.6, rateMultiplier: 0.9, rangeMultiplier: 1.1, powerDmg: 0.08, powerRate: 0.06, powerRange: 0.04 },
   tesla: { cost: 75, range: 145, damage: 22, chainTargets: 3, jumpRadius: 90, fireRate: 0.85, color: '#00ffcc', glow: '#00ffcc', type: 'chain', costMultiplier: 1.3, damageMultiplier: 1.55, rateMultiplier: 0.85, rangeMultiplier: 1.1, powerDmg: 0.05, powerRate: 0.04, powerRange: 0.03 },
   // Stasis: скромная база, умеренное замедление, растущий радиус
