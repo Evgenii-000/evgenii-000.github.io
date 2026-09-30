@@ -2111,21 +2111,43 @@ function updateUI() {
 }
 
 function createDamageShards(x, y, color, damage = 16, isDeath = false) {
-  // При попадании: ровно 2-3 осколка. При смерти: 5-7 выразительных кусков
-  const count = isDeath ? (perfMode === 'low' ? 5 : 7) : Math.max(1, Math.min(3, Math.ceil(damage / 25)));
-  const baseSize = isDeath ? 7.0 : Math.max(3.0, Math.min(5.5, 2.0 + damage * 0.06));
+  const count = isDeath ? (perfMode === 'low' ? 5 : 8) : Math.max(1, Math.min(3, Math.ceil(damage / 25)));
+  const baseSize = isDeath ? 7.5 : Math.max(3.2, Math.min(6.0, 2.2 + damage * 0.06));
 
   for (let i = 0; i < count; i++) {
-    const angle = (isDeath ? (i * (Math.PI * 2 / count)) : Math.random() * Math.PI * 2) + (Math.random() - 0.5) * 0.4;
-    const speed = isDeath ? (50 + Math.random() * 110) : (30 + Math.random() * 70);
-    const sz = baseSize * (0.8 + Math.random() * 0.5);
+    const angle = (isDeath ? (i * (Math.PI * 2 / count)) : Math.random() * Math.PI * 2) + (Math.random() - 0.5) * 0.5;
+    const speed = isDeath ? (60 + Math.random() * 120) : (30 + Math.random() * 80);
+    const sz = baseSize * (0.75 + Math.random() * 0.55);
 
-    // Острый треугольный осколок ("битое стекло")
-    const pts = [
-      { x: -sz * 0.5, y: -sz * 0.4 },
-      { x: sz * 0.7, y: -sz * 0.1 },
-      { x: (Math.random() - 0.5) * sz * 0.4, y: sz * 0.7 }
-    ];
+    // Случайная геометрическая форма осколка:
+    // 0 = острый клин, 1 = неправильный четырёхугольник (пластинка), 2 = вытянутая щепка
+    const shapeType = Math.floor(Math.random() * 3);
+    let pts;
+
+    if (shapeType === 0) {
+      // Клин / треугольник
+      pts = [
+        { x: -sz * 0.6, y: -sz * 0.3 },
+        { x: sz * 0.8, y: -sz * 0.1 },
+        { x: (Math.random() - 0.5) * sz * 0.5, y: sz * 0.7 }
+      ];
+    } else if (shapeType === 1) {
+      // Пластинка / четырёхугольник
+      pts = [
+        { x: -sz * 0.5, y: -sz * 0.5 },
+        { x: sz * 0.6, y: -sz * 0.4 },
+        { x: sz * 0.4, y: sz * 0.6 },
+        { x: -sz * 0.5, y: sz * 0.4 }
+      ];
+    } else {
+      // Вытянутая узкая щепка
+      pts = [
+        { x: -sz * 0.8, y: -sz * 0.2 },
+        { x: sz * 0.9, y: -sz * 0.15 },
+        { x: sz * 0.6, y: sz * 0.25 },
+        { x: -sz * 0.7, y: sz * 0.2 }
+      ];
+    }
 
     pushParticle({
       x, y,
@@ -2135,9 +2157,9 @@ function createDamageShards(x, y, color, damage = 16, isDeath = false) {
       radius: sz,
       pts: pts,
       angle: Math.random() * Math.PI * 2,
-      vRot: (Math.random() - 0.5) * 12,
-      life: isDeath ? (0.35 + Math.random() * 0.15) : (0.2 + Math.random() * 0.12),
-      maxLife: isDeath ? 0.5 : 0.32,
+      vRot: (Math.random() - 0.5) * 14,
+      life: isDeath ? (0.35 + Math.random() * 0.2) : (0.22 + Math.random() * 0.14),
+      maxLife: isDeath ? 0.55 : 0.36,
       isShard: true
     });
   }
@@ -2888,50 +2910,65 @@ function drawEnemyModel(e, showHpBar = true) {
     ctx.restore();
   }
 
-// --- Тонкие, резкие процедурные трещины на повреждённом мобе ---
+// --- Процедурные тонкие трещины разлома (эскалация по мере урона) ---
   const hpRatio = e.hp / e.maxHp;
-  if (hpRatio < 0.75) {
+  if (hpRatio < 0.85) {
     ctx.save();
-    const r = e.radius;
-    // Детерминированный угол трещин для конкретного моба (чтобы они не вращались случайно каждый кадр)
-    const seed = Math.sin((e.maxHp || 100) * 12.9898 + (e.baseSpeed || 50) * 78.233);
-    const baseRot = seed * Math.PI;
+    const r = e.radius * 0.88;
 
-    ctx.rotate(baseRot);
+    // Псевдослучайные детерминированные числа от характеристик моба
+    const seed1 = Math.abs(Math.sin((e.maxHp || 100) * 12.9898 + (e.baseSpeed || 50) * 78.233));
+    const seed2 = Math.abs(Math.sin((e.maxHp || 100) * 45.123 + 91.7));
+    const seed3 = Math.abs(Math.sin((e.maxHp || 100) * 73.456 + 13.9));
+
     ctx.lineCap = 'round';
     ctx.lineJoin = 'miter';
-
-    // 1-я ветка трещин (появляется при < 75% HP)
     ctx.strokeStyle = '#06070d';
-    ctx.lineWidth = 1.2;
+    ctx.lineWidth = e.isBoss ? 1.6 : 1.1;
+
+    // 1-я ветка: легкое повреждение (HP < 85%)
+    const a1 = seed1 * Math.PI * 2;
+    const a1_mid = a1 + (seed2 - 0.5) * 1.2;
     ctx.beginPath();
-    ctx.moveTo(-r * 0.55, -r * 0.2);
-    ctx.lineTo(-r * 0.15, -r * 0.05);
-    ctx.lineTo(r * 0.1, -r * 0.35);
-    ctx.lineTo(r * 0.6, -r * 0.15);
-    // Боковое ответвление
-    ctx.moveTo(-r * 0.15, -r * 0.05);
-    ctx.lineTo(0, r * 0.35);
+    ctx.moveTo(Math.cos(a1) * r * 0.7, Math.sin(a1) * r * 0.7);
+    ctx.lineTo(Math.cos(a1_mid) * r * 0.25, Math.sin(a1_mid) * r * 0.25);
+    ctx.lineTo((seed3 - 0.5) * r * 0.4, (seed2 - 0.5) * r * 0.4);
     ctx.stroke();
 
-    // 2-я ветка трещин (дополнительный скол при < 40% HP)
-    if (hpRatio < 0.4) {
+    // Заранее рассчитываем параметры 2-й ветки в общей области видимости
+    const a2 = (seed1 * Math.PI * 2 + Math.PI * 0.7) % (Math.PI * 2);
+    const a2_mid = a2 - (seed3 - 0.5) * 1.4;
+
+    // 2-я ветка: среднее повреждение (HP < 60%)
+    if (hpRatio < 0.6) {
       ctx.beginPath();
-      ctx.moveTo(-r * 0.3, r * 0.5);
-      ctx.lineTo(r * 0.05, r * 0.15);
-      ctx.lineTo(r * 0.5, r * 0.45);
+      ctx.moveTo(Math.cos(a2) * r * 0.8, Math.sin(a2) * r * 0.8);
+      ctx.lineTo(Math.cos(a2_mid) * r * 0.35, Math.sin(a2_mid) * r * 0.35);
+      ctx.lineTo((seed2 - 0.5) * r * 0.3, -(seed1 - 0.5) * r * 0.3);
+      // Маленький скол вбок
+      ctx.lineTo((seed2 - 0.5) * r * 0.6, -(seed3 - 0.5) * r * 0.5);
+      ctx.stroke();
+    }
+
+    // 3-я и 4-я ветки: критическое состояние (HP < 30%) - моб покрыт сетью трещин
+    if (hpRatio < 0.3) {
+      const a3 = (seed1 * Math.PI * 2 + Math.PI * 1.4) % (Math.PI * 2);
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a3) * r * 0.75, Math.sin(a3) * r * 0.75);
+      ctx.lineTo(0, 0);
+      ctx.lineTo((seed1 - 0.5) * r * 0.7, (seed3 - 0.5) * r * 0.7);
       ctx.stroke();
 
-      // Неоновый тонкий отблеск из глубины разлома
+      // Тонкий неоновый отблеск по центру разлома (ядро обнажается)
       ctx.strokeStyle = '#ffffff';
       ctx.lineWidth = 0.6;
       ctx.beginPath();
-      ctx.moveTo(-r * 0.15, -r * 0.05);
-      ctx.lineTo(r * 0.1, -r * 0.35);
-      ctx.moveTo(-r * 0.3, r * 0.5);
-      ctx.lineTo(r * 0.05, r * 0.15);
+      ctx.moveTo(Math.cos(a1_mid) * r * 0.25, Math.sin(a1_mid) * r * 0.25);
+      ctx.lineTo(0, 0);
+      ctx.lineTo(Math.cos(a2_mid) * r * 0.35, Math.sin(a2_mid) * r * 0.35);
       ctx.stroke();
     }
+
     ctx.restore();
   }
 
@@ -3281,8 +3318,9 @@ particles.forEach(pt => {
       ctx.beginPath();
       if (pt.pts && pt.pts.length >= 3) {
         ctx.moveTo(pt.pts[0].x, pt.pts[0].y);
-        ctx.lineTo(pt.pts[1].x, pt.pts[1].y);
-        ctx.lineTo(pt.pts[2].x, pt.pts[2].y);
+        for (let p = 1; p < pt.pts.length; p++) {
+          ctx.lineTo(pt.pts[p].x, pt.pts[p].y);
+        }
       } else {
         ctx.rect(-pt.radius / 2, -pt.radius / 2, pt.radius, pt.radius);
       }
