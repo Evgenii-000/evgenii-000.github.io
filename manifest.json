@@ -4,23 +4,27 @@
   "description": "A synthwave tower defense game with geometric enemies, glowing towers, atmospheric music, and accessible low-to-medium difficulty.",
   "lang": "en",
   "dir": "ltr",
-  "start_url": "./index.html",
-  "scope": "./",
-  "id": "./index.html",
+
+  "start_url": "/index.html",
+  "scope": "/",
+  "id": "/index.html",
+
   "display": "fullscreen",
   "display_override": [
     "fullscreen",
     "standalone",
-    "minimal-ui",
-    "window-controls-overlay"
+    "minimal-ui"
   ],
+
   "orientation": "portrait",
   "background_color": "#0a0a12",
   "theme_color": "#0a0a12",
+
   "categories": [
     "games",
     "entertainment"
   ],
+
   "icons": [
     {
       "src": "icon-192.png",
