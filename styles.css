@@ -2860,6 +2860,11 @@ input:focus,
   gap: 6px;
   backdrop-filter: blur(8px);
   user-select: none;
+  touch-action: none; /* Запрещает системный скролл страницы при перетаскивании */
+  cursor: grab;
+}
+.dev-bar:active {
+  cursor: grabbing;
 }
 .dev-bar.hidden {
   display: none !important;

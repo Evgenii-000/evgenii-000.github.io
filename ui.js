@@ -1058,7 +1058,12 @@ function closeDevMode() {
   isDevExpanded = false;
   
   const bar = document.getElementById('devBar');
-  if (bar) bar.classList.add('hidden');
+  if (bar) {
+    bar.classList.add('hidden');
+    bar.style.left = '';
+    bar.style.top = '';
+    bar.style.transform = '';
+  }
   
   const pane = document.getElementById('devDetailsPane');
   if (pane) pane.classList.add('hidden');
@@ -1090,6 +1095,78 @@ function toggleDevPanelExpand() {
     btn.textContent = isDevExpanded ? '▴' : '▾';
   }
 }
+
+// --- Перетаскивание панели Dev-режима ---
+(function initDevBarDrag() {
+  let isDragging = false;
+  let startX = 0;
+  let startY = 0;
+  let initialLeft = 0;
+  let initialTop = 0;
+
+  function onPointerDown(e) {
+    // Не начинаем драг, если кликнули по кнопке, селектору или инпуту
+    if (['BUTTON', 'SELECT', 'INPUT', 'OPTION'].includes(e.target.tagName)) return;
+    
+    const bar = document.getElementById('devBar');
+    if (!bar) return;
+
+    isDragging = true;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+    const rect = bar.getBoundingClientRect();
+    // При первом захвате переводим абсолютные координаты в пиксели без translateX(-50%)
+    bar.style.transform = 'none';
+    bar.style.left = `${rect.left}px`;
+    bar.style.top = `${rect.top}px`;
+
+    startX = clientX;
+    startY = clientY;
+    initialLeft = rect.left;
+    initialTop = rect.top;
+
+    window.addEventListener('mousemove', onPointerMove, { passive: false });
+    window.addEventListener('mouseup', onPointerUp);
+    window.addEventListener('touchmove', onPointerMove, { passive: false });
+    window.addEventListener('touchend', onPointerUp);
+  }
+
+  function onPointerMove(e) {
+    if (!isDragging) return;
+    if (e.cancelable) e.preventDefault();
+
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+    const dx = clientX - startX;
+    const dy = clientY - startY;
+
+    const bar = document.getElementById('devBar');
+    if (bar) {
+      const nextX = Math.max(0, Math.min(window.innerWidth - bar.offsetWidth, initialLeft + dx));
+      const nextY = Math.max(0, Math.min(window.innerHeight - bar.offsetHeight, initialTop + dy));
+      bar.style.left = `${nextX}px`;
+      bar.style.top = `${nextY}px`;
+    }
+  }
+
+  function onPointerUp() {
+    isDragging = false;
+    window.removeEventListener('mousemove', onPointerMove);
+    window.removeEventListener('mouseup', onPointerUp);
+    window.removeEventListener('touchmove', onPointerMove);
+    window.removeEventListener('touchend', onPointerUp);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const bar = document.getElementById('devBar');
+    if (bar) {
+      bar.addEventListener('mousedown', onPointerDown);
+      bar.addEventListener('touchstart', onPointerDown, { passive: true });
+    }
+  });
+})();
 
 function toggleDevMode(enabled) {
   if (enabled) openDevMode();
