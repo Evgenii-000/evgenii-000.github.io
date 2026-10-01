@@ -338,6 +338,7 @@
 
     /* Floating Dev Controls */
     .dev-mode-toggle {
+	  display: none !important;
       position: fixed;
       top: max(80px, calc(env(safe-area-inset-top) + 68px));
       right: max(16px, env(safe-area-inset-right));
@@ -1018,17 +1019,15 @@
         opacity: 0;
         transform: scale3d(0.2, 0.2, 1) rotate(-35deg);
       }
-      20% {
-        opacity: 0.9;
-      }
-      75% {
-        opacity: 0.6;
+      25% {
+        opacity: 0.85;
       }
       100% {
-        opacity: 0;
-        transform: scale3d(1.55, 1.55, 1) rotate(50deg);
+        opacity: 0.22; /* Не исчезает, а остаётся приглушённым фоновым свечением */
+        transform: scale3d(1.5, 1.5, 1) rotate(45deg);
       }
     }
+
     .result-kicker {
       font-family: 'Montserrat', sans-serif;
       font-size: 14px;
@@ -1269,23 +1268,23 @@
       4%  { transform: translateX(-4px); opacity: 0.6; }
       6%  { transform: translateX(2px); opacity: 0.4; }
     }
-    .defeat-flash {
+.defeat-flash {
       position: absolute;
       inset: 0;
       pointer-events: none;
-      z-index: 2;
+      z-index: 0;
       background: linear-gradient(180deg,
         transparent 0%,
-        rgba(240, 95, 159, 0.0) 42%,
-        rgba(240, 95, 159, 0.45) 50%,
-        rgba(240, 95, 159, 0.0) 58%,
+        rgba(240, 95, 159, 0.05) 30%,
+        rgba(240, 95, 159, 0.18) 50%,
+        rgba(240, 95, 159, 0.05) 70%,
         transparent 100%);
-      animation: defeatSweep 1.15s ease-out 0.15s both;
+      animation: defeatSweep 1.2s ease-out both;
     }
     @keyframes defeatSweep {
       0%   { opacity: 0; transform: translateY(-100%); }
-      25%  { opacity: 1; }
-      100% { opacity: 0; transform: translateY(100%); }
+      30%  { opacity: 1; }
+      100% { opacity: 0.35; transform: translateY(0); } /* Застывает горизонтальным неоновым разломом на фоне */
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1643,12 +1642,12 @@
 
     /* Sell Button */
 .btn-sell {
-      flex: 1;                 /* Слегка увеличиваем базовый приоритет ширины */
+      flex: 1;
       min-width: 0;
       height: 100%;
       border-radius: 18px;
       background: rgba(8, 12, 24, 0.65);
-      border: 1.5px solid rgba(255, 42, 133, 0.45);
+      border: 1.5px solid rgba(240, 95, 159, 0.45); /* Розовый цвет как у кнопки X */
       backdrop-filter: blur(10px);
       display: flex;
       flex-direction: column;
@@ -1657,7 +1656,7 @@
       gap: 2px;
       cursor: pointer;
       transition: all 0.2s ease;
-      padding: 4px 2px;        /* Уменьшаем боковые отступы с 6px до 2px, освобождая место для текста */
+      padding: 4px 2px;
     }
     .btn-sell:hover {
       background: rgba(240, 95, 159, 0.15);
@@ -1850,8 +1849,9 @@
       pointer-events: none;
     }
 
-    .start-screen-top-zone {
-      margin-top: clamp(80px, 14vh, 130px);
+.start-screen-top-zone {
+      /* Опускаем блок заголовка в центр треугольника */
+      margin-top: clamp(140px, 21vh, 190px);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -1871,7 +1871,7 @@
 
     .start-main-title {
       font-family: 'Montserrat', sans-serif;
-      font-size: clamp(36px, 6vw, 44px);
+      font-size: clamp(34px, 5.5vw, 42px);
       font-weight: 900;
       letter-spacing: 3px;
       color: #ffffff;
@@ -1880,7 +1880,8 @@
     }
 
     .start-screen-buttons-zone {
-      margin-top: calc(20vh);
+      /* Позиционируем кнопки сразу под поднятой белой линией горизонта (44vh + отступ) */
+      margin-top: calc(48vh);
       margin-bottom: auto;
       display: flex;
       flex-direction: column;
@@ -2205,9 +2206,12 @@
     .screen-bg-only > .defeat-flash { display: none !important; }
 
     .upgrades-bg {
-      padding-top: max(100px, calc(env(safe-area-inset-top) + 90px)) !important;
-      padding-bottom: max(28px, env(safe-area-inset-bottom)) !important;
+      padding-top: max(76px, calc(env(safe-area-inset-top) + 68px)) !important;
+      padding-bottom: max(18px, env(safe-area-inset-bottom)) !important;
       justify-content: flex-start !important;
+      overflow-y: auto !important;
+      touch-action: pan-y !important;
+      -webkit-overflow-scrolling: touch;
     }
     .upgrades-bg.from-main {
       background: rgba(4, 6, 14, 0.65) !important;
@@ -2247,9 +2251,10 @@
       display: flex;
       flex-direction: column;
       align-items: stretch;
-      gap: 14px;
+      gap: 12px;
       flex: 1;
       min-height: 0;
+      height: 100%;
     }
     .upgrades-row-group-label {
       font-family: 'Montserrat', sans-serif;
@@ -2264,11 +2269,14 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      flex: 1;
+      flex: 1 1 auto;
       min-height: 0;
-      overflow-y: auto;
-      touch-action: pan-y;
-      padding: 2px 2px 4px;
+      overflow-y: auto !important;
+      overflow-x: hidden;
+      touch-action: pan-y !important;
+      -webkit-overflow-scrolling: touch;
+      padding: 4px 4px 12px;
+      pointer-events: auto;
     }
     .upgrade-row-card {
       border-radius: 18px;

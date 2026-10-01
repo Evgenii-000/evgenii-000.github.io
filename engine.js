@@ -142,7 +142,6 @@ function musicResume() {
 function vibrate(type = 'light') {
   if (!settings || !settings.vibrationEnabled) return;
   try {
-    // 1. Проверка плагина Capacitor Haptics
     if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Haptics) {
       const Haptics = window.Capacitor.Plugins.Haptics;
       if (type === 'light') Haptics.impact({ style: 'LIGHT' });
@@ -152,7 +151,6 @@ function vibrate(type = 'light') {
       else if (type === 'error') Haptics.notification({ type: 'ERROR' });
       return;
     }
-    // 2. Fallback на стандартный Web Vibration API
     if (navigator.vibrate) {
       if (type === 'light') navigator.vibrate(15);
       else if (type === 'medium') navigator.vibrate(30);
@@ -163,7 +161,6 @@ function vibrate(type = 'light') {
   } catch (e) {}
 }
 
-// Привязываем к window, чтобы исключить любые ошибки области видимости между файлами:
 window.vibrate = vibrate;
 
 let devMode = false;
@@ -593,7 +590,6 @@ function reallyStartLevel(lvl) {
   updateStartChapterLabel(false);
   document.getElementById('controlsWrapper').classList.remove('hidden');
 
-  // Кнопка волны теперь парит отдельно, снимаем с неё класс hidden при старте уровня
   const waveBtn = document.getElementById('waveBtn');
   if (waveBtn) waveBtn.classList.remove('hidden');
 
@@ -681,7 +677,26 @@ function nextLevel() {
 
 function retryLevel() { reallyStartLevel(currentLevel); }
 
+let devPauseClicks = 0;
+let devPauseClickTimer = null;
+
 function togglePause() {
+  devPauseClicks++;
+  if (devPauseClickTimer) clearTimeout(devPauseClickTimer);
+  devPauseClickTimer = setTimeout(() => {
+    devPauseClicks = 0;
+    devPauseClickTimer = null;
+  }, 1800);
+
+  if (devPauseClicks === 5) {
+    if (typeof setDevTier === 'function') setDevTier(1);
+  } else if (devPauseClicks === 10) {
+    if (typeof setDevTier === 'function') setDevTier(2);
+  } else if (devPauseClicks >= 15) {
+    if (typeof setDevTier === 'function') setDevTier(0);
+    devPauseClicks = 0;
+  }
+
   if (gameState !== 'PLAYING' && gameState !== 'PAUSED') return;
   if (gameState === 'PLAYING') {
     gameState = 'PAUSED';
@@ -811,14 +826,6 @@ function playVictoryFanfare() {
   rays.className = 'victory-fanfare-rays';
   rays.id = 'victoryFanfareRays';
   stack.insertBefore(rays, stack.firstChild);
-
-  // Удаляем строго по системному событию завершения анимации браузером
-  rays.addEventListener('animationend', () => {
-    if (rays && rays.parentNode) {
-      rays.parentNode.removeChild(rays);
-    }
-    victoryFanfareTimer = null;
-  }, { once: true });
 }
 
 function triggerVictory() {
@@ -943,13 +950,6 @@ function replayDefeatFlash() {
   const defeatScreen = document.getElementById('defeatScreen');
   if (!defeatScreen) return;
 
-  // Очищаем предыдущий таймер, если он был активен
-  if (defeatFlashTimeout) {
-    clearTimeout(defeatFlashTimeout);
-    defeatFlashTimeout = null;
-  }
-
-  // Если полосы нет (была удалена после анимации), создаем её заново для разового прогона
   let flash = document.getElementById('defeatFlash');
   if (!flash) {
     flash = document.createElement('div');
@@ -957,29 +957,17 @@ function replayDefeatFlash() {
     flash.id = 'defeatFlash';
     defeatScreen.insertBefore(flash, defeatScreen.firstChild);
   } else {
-    // Перезапуск анимации через замену узла
     const fresh = flash.cloneNode(false);
     flash.parentNode.replaceChild(fresh, flash);
     flash = fresh;
   }
 
-  // Тряска заголовка
   const heading = defeatScreen.querySelector('.result-heading');
   if (heading) {
     heading.classList.remove('fail-shake');
     void heading.offsetWidth;
     heading.classList.add('fail-shake');
   }
-
-  // Ровно через 1.4 секунды (после завершения анимации полосы) удаляем её элемент,
-  // чтобы при уходе в Tech Tree и возврате полоса больше не появлялась
-  defeatFlashTimeout = setTimeout(() => {
-    const el = document.getElementById('defeatFlash');
-    if (el && el.parentNode) {
-      el.parentNode.removeChild(el);
-    }
-    defeatFlashTimeout = null;
-  }, 1400);
 }
 
 function updateDefeatWaveLine() {
@@ -1073,7 +1061,7 @@ function acceptEmergencyRevive() {
       for (let i = enemies.length - 1; i >= 0; i--) {
         const e = enemies[i];
         if (Math.hypot(e.x - basePt.x, e.y - basePt.y) <= 160) {
-          createSparks(e.x, e.y, e.color, 14);
+          createDamageShards(e.x, e.y, e.color, 25, false);
           enemies.splice(i, 1);
         }
       }
@@ -1222,7 +1210,7 @@ function upgradeSelectedTower() {
     }
 
     createShockwave(selectedTower.x, selectedTower.y, 60, selectedTower.color);
-    createSparks(selectedTower.x, selectedTower.y, selectedTower.color, 24);
+    createDamageShards(selectedTower.x, selectedTower.y, selectedTower.color, 40, false);
     updateUI();
 
     if (tutorialActive && tutorialLevel === 2 && tutorialStep === 1) {
@@ -1252,8 +1240,8 @@ function sellSelectedTower() {
   particles = particles.filter(p => Math.hypot(p.x - sx, p.y - sy) > 28);
   deselectTower();
 
-createShockwave(sx, sy, 40, '#f05f9f');
-  createSparks(sx, sy, '#f05f9f', 14);
+  createShockwave(sx, sy, 40, '#f05f9f');
+  createDamageShards(sx, sy, '#f05f9f', 30, false);
   updateUI();
 }
 
@@ -2015,7 +2003,7 @@ function update(dt) {
           }
         }
         createShockwave(e.x, e.y, 50, '#00e5ff');
-        createSparks(e.x, e.y, '#00e5ff', 12);
+        createDamageShards(e.x, e.y, '#00e5ff', 18, false);
       }
     }
 
@@ -2040,7 +2028,7 @@ function update(dt) {
             dashRemaining = 0;
           }
         }
-        createSparks(e.x, e.y, '#fb923c', 16);
+        createDamageShards(e.x, e.y, '#fb923c', 20, false);
       }
     }
 
@@ -2072,7 +2060,7 @@ function update(dt) {
           if (Math.hypot(t.x - e.x, t.y - e.y) <= 180) {
             t.disabledTimer = Math.max(t.disabledTimer || 0, 2.5);
             sfx('steam');
-            createSparks(t.x, t.y, '#fb923c', 8);
+            createDamageShards(t.x, t.y, '#fb923c', 16, false);
           }
         });
       }
@@ -2120,7 +2108,7 @@ function update(dt) {
         const damageToBasePath = getBaseDamageFor(e);
         baseHp = Math.max(0, baseHp - damageToBasePath);
         sfx('baseHit');
-		vibrate('warning');
+        vibrate('warning');
         createShockwave(e.x, e.y, e.isBoss ? 80 : (e.isMiniBoss ? 50 : 35), '#f05f9f');
         enemies.splice(i, 1);
         updateUI();
@@ -2204,7 +2192,7 @@ function update(dt) {
       sfx('laserHit');
       if (!target.isShielded) {
         target.hp -= t.damage * dt;
-        if (Math.random() < 0.3) createSparks(target.x, target.y, t.color, 2, target.color);
+        if (Math.random() < 0.25) createDamageShards(target.x, target.y, target.color, t.damage * dt * 4, false);
       }
     }
 
@@ -2297,7 +2285,7 @@ function update(dt) {
             const boostedDuration = baseDur * (1 + stasisPowerLvl * (TOWER_CONFIGS.stasis.powerDuration || 0));
             e.slowTimer = boostedDuration;
             e.speed = e.baseSpeed * (1 - boostedSlow);
-            createSparks(e.x, e.y, t.color, 4, e.color);
+            createDamageShards(e.x, e.y, t.color, 10, false);
           }
         });
       }
@@ -2324,12 +2312,12 @@ function update(dt) {
           const rampProgress = Math.min(t.melterFireTimer, rampTime) / rampTime;
           const rampMultiplier = Math.pow(rampCap, rampProgress);
           target.hp -= t.damage * rampMultiplier * dt;
-          if (Math.random() < 0.4) createSparks(target.x, target.y, t.color, 3, target.color);
+          if (Math.random() < 0.3) createDamageShards(target.x, target.y, target.color, t.damage * rampMultiplier * dt * 3, false);
         }
         if (t.melterFireTimer >= rampTime) {
           t.melterCoolingTimer = t.melterCooldownTime || rampTime;
           t.melterFireTimer = 0;
-          createSparks(t.x, t.y, '#fb923c', 8);
+          createDamageShards(t.x, t.y, '#fb923c', 25, false);
           for (let s = 0; s < 7; s++) createSteamPuff(t.x, t.y - 9);
         }
       } else {
@@ -2402,7 +2390,7 @@ function update(dt) {
       if (tProg >= 1) {
         sfx('explosion');
         let hitEnemyColor = (p.targetRef && enemies.includes(p.targetRef)) ? p.targetRef.color : null;
-         enemies.forEach(e => {
+        enemies.forEach(e => {
           const d = Math.hypot(e.x - p.targetX, e.y - p.targetY);
           if (d <= p.splash && !e.isShielded) {
             if (!hitEnemyColor) hitEnemyColor = e.color;
@@ -2431,7 +2419,7 @@ function update(dt) {
           if (Math.hypot(t.x - e.x, t.y - e.y) <= 110) {
             t.disabledTimer = Math.max(t.disabledTimer || 0, 3.0);
             sfx('steam');
-            createSparks(t.x, t.y, '#fb923c', 10);
+            createDamageShards(t.x, t.y, '#fb923c', 16, false);
           }
         });
       }
@@ -2439,12 +2427,10 @@ function update(dt) {
       const killShockRadius = e.isBoss ? 80 : (e.isMiniBoss ? 50 : 26);
       createShockwave(e.x, e.y, killShockRadius, e.color);
 
-      // Взрыв со вспышкой вызываем ТОЛЬКО для боссов, обычный моб чисто раскалывается!
       if (e.isBoss || e.isMiniBoss) {
         createExplosion(e.x, e.y, e.isBoss ? 45 : 22, e.color, e.glow || e.color, 'boss');
       }
 
-      // Чистый раскол геометрии моба на его собственные кусочки
       createDamageShards(e.x, e.y, e.color, e.isBoss ? 120 : (e.isMiniBoss ? 60 : 35), true);
       enemies.splice(i, 1);
       updateUI();
@@ -2478,7 +2464,7 @@ function update(dt) {
       if (!lb.targetRef.isShielded && enemies.includes(lb.targetRef)) {
         lb.targetRef.hp -= lb.damage;
       }
-      createSparks(lb.x2, lb.y2, lb.towerColor || lb.color || '#00ffcc', 6, lb.targetRef.color);
+      createDamageShards(lb.x2, lb.y2, lb.targetRef.color, lb.damage, false);
     }
 
     if (lb.life <= 0) lightningBolts.splice(i, 1);

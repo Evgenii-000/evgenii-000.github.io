@@ -930,10 +930,11 @@ function renderLevelsGrid() {
   }
 }
 
-function toggleDevMode(enabled) {
-  devMode = enabled;
-  const checkbox = document.getElementById('devModeCheckbox');
-  if (checkbox && checkbox.checked !== enabled) checkbox.checked = enabled;
+let devTier = 0; // 0 = off, 1 = speed only, 2 = full dev mode
+
+function setDevTier(tier) {
+  devTier = tier % 3;
+  devMode = devTier > 0;
 
   const speedContainer = document.getElementById('speedContainer');
   const livePauseBtn = document.getElementById('livePauseBtn');
@@ -947,12 +948,25 @@ function toggleDevMode(enabled) {
   const goldHalf = document.getElementById('goldHalf');
   const hpHalf = document.getElementById('hpHalf');
 
-  if (devMode) {
-    if (gameState === 'PLAYING' || gameState === 'PAUSED') {
-      if (speedContainer) speedContainer.classList.remove('hidden');
-      if (livePauseBtn) livePauseBtn.classList.remove('hidden');
-      if (devCustomSpawner) devCustomSpawner.classList.remove('hidden');
-    }
+  if (devTier === 1) {
+    // Уровень 1: Только скорость игры
+    if (speedContainer) speedContainer.classList.remove('hidden');
+    if (livePauseBtn) livePauseBtn.classList.remove('hidden');
+    if (devCustomSpawner) devCustomSpawner.classList.add('hidden');
+    if (devClearSaveBtn) devClearSaveBtn.classList.add('hidden');
+    if (devLevelSelect) devLevelSelect.classList.add('hidden');
+    if (devWaveSelect) devWaveSelect.classList.add('hidden');
+    if (levelText) levelText.classList.remove('hidden');
+    if (waveText) waveText.classList.remove('hidden');
+    hudStaticLabels.forEach(el => el.classList.remove('hidden'));
+    if (goldHalf) goldHalf.classList.remove('interactive');
+    if (hpHalf) hpHalf.classList.remove('interactive');
+    showHintToast('Dev: Speed Controls Active');
+  } else if (devTier === 2) {
+    // Уровень 2: Полный Dev Mode (Спавнер, Clear Save, интерактивный HUD)
+    if (speedContainer) speedContainer.classList.remove('hidden');
+    if (livePauseBtn) livePauseBtn.classList.remove('hidden');
+    if (devCustomSpawner) devCustomSpawner.classList.remove('hidden');
     if (devClearSaveBtn) devClearSaveBtn.classList.remove('hidden');
     if (devLevelSelect) devLevelSelect.classList.remove('hidden');
     if (devWaveSelect) devWaveSelect.classList.remove('hidden');
@@ -961,15 +975,17 @@ function toggleDevMode(enabled) {
     hudStaticLabels.forEach(el => el.classList.add('hidden'));
     if (goldHalf) {
       goldHalf.classList.add('interactive');
-      goldHalf.title = "Click: +200 / Hold: set amount (Dev Mode)";
+      goldHalf.title = "Click: +200 / Hold: set amount";
     }
     if (hpHalf) {
       hpHalf.classList.add('interactive');
-      hpHalf.title = "Click: +5 / Hold: set amount (Dev Mode)";
+      hpHalf.title = "Click: +5 / Hold: set amount";
     }
     refreshDevDropdowns();
     initDevResourceHold();
+    showHintToast('Dev: Full Controls Active');
   } else {
+    // Уровень 0: Полностью выключено
     if (speedContainer) speedContainer.classList.add('hidden');
     if (livePauseBtn) livePauseBtn.classList.add('hidden');
     if (devClearSaveBtn) devClearSaveBtn.classList.add('hidden');
@@ -979,6 +995,8 @@ function toggleDevMode(enabled) {
     if (levelText) levelText.classList.remove('hidden');
     if (waveText) waveText.classList.remove('hidden');
     hudStaticLabels.forEach(el => el.classList.remove('hidden'));
+    if (goldHalf) goldHalf.classList.remove('interactive');
+    if (hpHalf) hpHalf.classList.remove('interactive');
     setGameSpeed(1);
     if (speedContainer) speedContainer.value = "1";
     if (isLivePaused) {
@@ -988,11 +1006,16 @@ function toggleDevMode(enabled) {
         livePauseBtn.classList.remove('paused');
       }
     }
+    showHintToast('Dev Mode Disabled');
   }
 
   renderLevelsGrid();
   updateUI();
   updateUpgradeButtonsLock();
+}
+
+function toggleDevMode(enabled) {
+  setDevTier(enabled ? 2 : 0);
 }
 
 function handleClearSaveClick() {
@@ -2353,34 +2376,38 @@ function updateAndDrawStars(w, h, now) {
 
 function drawCosmicNebulaBackground(w, h) {
   const baseGrad = ctx.createLinearGradient(0, 0, 0, h);
-  baseGrad.addColorStop(0, '#0a0718');
-  baseGrad.addColorStop(0.5, '#070a18');
-  baseGrad.addColorStop(1, '#04050c');
+  baseGrad.addColorStop(0, '#060914');
+  baseGrad.addColorStop(0.5, '#050711');
+  baseGrad.addColorStop(1, '#020308');
   ctx.fillStyle = baseGrad;
   ctx.fillRect(0, 0, w, h);
 
   ctx.save();
+  // rad1: приглушённый глубокий индиго вместо яркого фиолетового
   const rad1 = ctx.createRadialGradient(w * 0.25, h * 0.15, 10, w * 0.25, h * 0.15, w * 0.65);
-  rad1.addColorStop(0, 'rgba(120, 40, 190, 0.55)');
+  rad1.addColorStop(0, 'rgba(45, 55, 115, 0.35)');
   rad1.addColorStop(1, 'transparent');
   ctx.fillStyle = rad1;
   ctx.fillRect(0, 0, w, h);
 
+  // rad2: глубокий сине-бирюзовый
   const rad2 = ctx.createRadialGradient(w * 0.85, h * 0.70, 10, w * 0.85, h * 0.70, w * 0.60);
-  rad2.addColorStop(0, 'rgba(0, 120, 160, 0.45)');
+  rad2.addColorStop(0, 'rgba(15, 75, 120, 0.30)');
   rad2.addColorStop(1, 'transparent');
   ctx.fillStyle = rad2;
   ctx.fillRect(0, 0, w, h);
 
+  // rad3: убран ядовитый пурпурно-красный (255, 42, 133), заменён на мягкий нейтрально-синий акцент
   const rad3 = ctx.createRadialGradient(w * 0.55, h * 0.45, 10, w * 0.55, h * 0.45, w * 0.50);
-  rad3.addColorStop(0, 'rgba(255, 42, 133, 0.18)');
+  rad3.addColorStop(0, 'rgba(30, 45, 80, 0.22)');
   rad3.addColorStop(1, 'transparent');
   ctx.fillStyle = rad3;
   ctx.fillRect(0, 0, w, h);
 
+  // Виньетка для глубины
   const vignette = ctx.createRadialGradient(w * 0.5, h * 0.45, w * 0.15, w * 0.5, h * 0.45, w * 0.85);
   vignette.addColorStop(0.4, 'transparent');
-  vignette.addColorStop(1, 'rgba(2, 3, 8, 0.85)');
+  vignette.addColorStop(1, 'rgba(2, 3, 8, 0.90)');
   ctx.fillStyle = vignette;
   ctx.fillRect(0, 0, w, h);
   ctx.restore();
@@ -2426,7 +2453,7 @@ function drawSynthWavePerspectiveScene(now) {
   const w = window.innerWidth;
   const h = window.innerHeight;
   const time = now / 1000;
-  const horizonY = h * 0.51;
+  const horizonY = h * 0.44; // Приподняли горизонт на высоту кнопки
   const floorH = h - horizonY;
   const vpX = w * 0.5;
 
@@ -2801,13 +2828,14 @@ function drawEnemyModel(e, showHpBar = true) {
     ctx.restore();
   }
 
-  if (e.slowTimer > 0) {
-    ctx.strokeStyle = '#38bdf8';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(0, 0, e.radius * 1.25, 0, Math.PI * 2);
-    ctx.stroke();
-  }
+// замороженный круг вокруг моба
+//  if (e.slowTimer > 0) {
+    //ctx.strokeStyle = '#38bdf8';
+    //ctx.lineWidth = 2;
+    //ctx.beginPath();
+    //ctx.arc(0, 0, e.radius * 1.25, 0, Math.PI * 2);
+    //ctx.stroke();
+  //}
 
   if (!isBlinkerShielded) {
     const glowGrad = ctx.createRadialGradient(0, 0, 2, 0, 0, e.radius * 2.5);

@@ -2803,7 +2803,7 @@ const LEVELS_DATA = {
       ]}
     ]
   },
-"21": {
+  "21": {
     "mapId": "L21",
     "startHp": 10,
     "startGold": 160,
@@ -3340,3114 +3340,1088 @@ const LEVELS_DATA = {
   "31": {
     "mapId": "L31",
     "startHp": 10,
-    "startGold": 175,
-    "totalWaves": 8,
-    "unlockedTowers": [
-      "gun",
-      "laser",
-      "mortar",
-      "tesla",
-      "stasis",
-      "melter"
-    ],
+    "startGold": 190,
+    "totalWaves": 10,
+    "unlockedTowers": ["gun", "laser", "mortar", "tesla", "stasis", "melter"],
     "canUpgrade": true,
     "waves": [
       {
         "wave": 1,
+        "delayAfter": 12,
+        "earlyBonus": 65,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 14,
-            "hp": 30,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 1.88,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 3,
-            "hp": 190,
-            "speed": 45,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.18,
-            "hpMult": 1.9,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "grunt", "count": 8, "hp": 65, "hpMult": 1.63, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 3, "bountyMult": 0.43, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 2,
+        "delayAfter": 14,
+        "earlyBonus": 65,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 4,
-            "hp": 494,
-            "speed": 35,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.17,
-            "hpMult": 1.9,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 124,
-            "speed": 73,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.18,
-            "hpMult": 1.91,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "grunt", "count": 8, "hp": 50, "hpMult": 1.25, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 2, "bountyMult": 0.29, "isBoss": false, "isMiniBoss": false },
+          { "type": "goliath", "count": 2, "hp": 450, "hpMult": 1.73, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 6, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 3,
+        "delayAfter": 10,
+        "earlyBonus": 65,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 18,
-            "hp": 30,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 1.88,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 4,
-            "hp": 190,
-            "speed": 45,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.18,
-            "hpMult": 1.9,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "scout", "count": 8, "hp": 40, "hpMult": 1.67, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false },
+          { "type": "swarm", "count": 18, "hp": 25, "hpMult": 1.56, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 2, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 4,
+        "delayAfter": 16,
+        "earlyBonus": 65,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 494,
-            "speed": 35,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.17,
-            "hpMult": 1.9,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 8,
-            "hp": 124,
-            "speed": 73,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.18,
-            "hpMult": 1.91,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "goliath", "count": 2, "hp": 650, "hpMult": 2.5, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 14, "bountyMult": 0.78, "isBoss": false, "isMiniBoss": false },
+          { "type": "tank", "count": 3, "hp": 280, "hpMult": 2.8, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 5, "bountyMult": 0.42, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 5,
+        "delayAfter": 12,
+        "earlyBonus": 65,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 22,
-            "hp": 30,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 1.88,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 5,
-            "hp": 190,
-            "speed": 45,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.18,
-            "hpMult": 1.9,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "grunt", "count": 10, "hp": 85, "hpMult": 2.13, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 3, "bountyMult": 0.43, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 8, "hp": 65, "hpMult": 2.71, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 6,
+        "delayAfter": 8,
+        "earlyBonus": 65,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 7,
-            "hp": 494,
-            "speed": 35,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.17,
-            "hpMult": 1.9,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 9,
-            "hp": 124,
-            "speed": 73,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.18,
-            "hpMult": 1.91,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "swarm", "count": 30, "hp": 40, "hpMult": 2.5, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 7,
+        "delayAfter": 16,
+        "earlyBonus": 65,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 26,
-            "hp": 30,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 1.88,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 190,
-            "speed": 45,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.18,
-            "hpMult": 1.9,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "goliath", "count": 3, "hp": 650, "hpMult": 2.5, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 15, "bountyMult": 0.83, "isBoss": false, "isMiniBoss": false },
+          { "type": "blinker", "count": 4, "hp": 260, "hpMult": 4.0, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 7, "bountyMult": 0.88, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 8,
+        "delayAfter": 14,
+        "earlyBonus": 65,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 8,
-            "hp": 494,
-            "speed": 35,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.17,
-            "hpMult": 1.9,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 11,
-            "hp": 124,
-            "speed": 73,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.18,
-            "hpMult": 1.91,
-            "bountyMult": 1
-          },
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": true,
-            "count": 1,
-            "hp": 950,
-            "speed": 26,
-            "interval": 1.2,
-            "bounty": 45,
-            "speedMult": 0.87,
-            "hpMult": 3.65,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "tank", "count": 4, "hp": 360, "hpMult": 3.6, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 13, "bountyMult": 1.08, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 10, "hp": 80, "hpMult": 3.33, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 9,
+        "delayAfter": 16,
+        "earlyBonus": 65,
+        "spawns": [
+          { "type": "goliath", "count": 3, "hp": 750, "hpMult": 2.88, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 21, "bountyMult": 1.17, "isBoss": false, "isMiniBoss": false },
+          { "type": "grunt", "count": 10, "hp": 120, "hpMult": 3.0, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 3, "bountyMult": 0.43, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 10,
+        "delayAfter": 7,
+        "earlyBonus": 65,
+        "spawns": [
+          { "type": "goliath", "count": 1, "hp": 3200, "hpMult": 12.31, "speed": 26, "speedMult": 0.87, "interval": 1.2, "bounty": 80, "bountyMult": 4.44, "isBoss": false, "isMiniBoss": true }
+        ]
       }
     ]
   },
   "32": {
     "mapId": "L32",
     "startHp": 10,
-    "startGold": 179,
-    "totalWaves": 8,
-    "unlockedTowers": [
-      "gun",
-      "laser",
-      "mortar",
-      "tesla",
-      "stasis",
-      "melter"
-    ],
+    "startGold": 205,
+    "totalWaves": 10,
+    "unlockedTowers": ["gun", "laser", "mortar", "tesla", "stasis", "melter"],
     "canUpgrade": true,
     "waves": [
       {
         "wave": 1,
+        "delayAfter": 10,
+        "earlyBonus": 65,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 14,
-            "hp": 34,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 2.13,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 3,
-            "hp": 211,
-            "speed": 45,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.18,
-            "hpMult": 2.11,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "scout", "count": 8, "hp": 55, "hpMult": 2.29, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 2,
+        "delayAfter": 14,
+        "earlyBonus": 65,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 4,
-            "hp": 549,
-            "speed": 36,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.2,
-            "hpMult": 2.11,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 137,
-            "speed": 74,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.19,
-            "hpMult": 2.11,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "tank", "count": 3, "hp": 320, "hpMult": 3.2, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 6, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false },
+          { "type": "grunt", "count": 8, "hp": 60, "hpMult": 1.5, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 2, "bountyMult": 0.29, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 3,
+        "delayAfter": 14,
+        "earlyBonus": 65,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 18,
-            "hp": 34,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 2.13,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 4,
-            "hp": 211,
-            "speed": 45,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.18,
-            "hpMult": 2.11,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "goliath", "count": 2, "hp": 600, "hpMult": 2.31, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 12, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 8, "hp": 50, "hpMult": 2.08, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 4,
+        "delayAfter": 8,
+        "earlyBonus": 65,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 549,
-            "speed": 36,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.2,
-            "hpMult": 2.11,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 8,
-            "hp": 137,
-            "speed": 74,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.19,
-            "hpMult": 2.11,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "swarm", "count": 24, "hp": 35, "hpMult": 2.19, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 5,
+        "delayAfter": 14,
+        "earlyBonus": 65,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 22,
-            "hp": 34,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 2.13,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 5,
-            "hp": 211,
-            "speed": 45,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.18,
-            "hpMult": 2.11,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "blinker", "count": 3, "hp": 350, "hpMult": 5.38, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 10, "bountyMult": 1.25, "isBoss": false, "isMiniBoss": false },
+          { "type": "grunt", "count": 8, "hp": 90, "hpMult": 2.25, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 3, "bountyMult": 0.43, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 6,
+        "delayAfter": 16,
+        "earlyBonus": 65,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 7,
-            "hp": 549,
-            "speed": 36,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.2,
-            "hpMult": 2.11,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 9,
-            "hp": 137,
-            "speed": 74,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.19,
-            "hpMult": 2.11,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "goliath", "count": 3, "hp": 700, "hpMult": 2.69, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 14, "bountyMult": 0.78, "isBoss": false, "isMiniBoss": false },
+          { "type": "tank", "count": 4, "hp": 380, "hpMult": 3.8, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 5, "bountyMult": 0.42, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 7,
+        "delayAfter": 11,
+        "earlyBonus": 65,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 26,
-            "hp": 34,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 2.13,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 211,
-            "speed": 45,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.18,
-            "hpMult": 2.11,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "scout", "count": 18, "hp": 95, "hpMult": 3.96, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 4, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 8,
+        "delayAfter": 14,
+        "earlyBonus": 65,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 8,
-            "hp": 549,
-            "speed": 36,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.2,
-            "hpMult": 2.11,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 11,
-            "hp": 137,
-            "speed": 74,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.19,
-            "hpMult": 2.11,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": true,
-            "count": 1,
-            "hp": 760,
-            "speed": 53,
-            "interval": 1.2,
-            "bounty": 20,
-            "speedMult": 0.85,
-            "hpMult": 11.69,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "goliath", "count": 3, "hp": 800, "hpMult": 3.08, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 20, "bountyMult": 1.11, "isBoss": false, "isMiniBoss": false },
+          { "type": "swarm", "count": 24, "hp": 50, "hpMult": 3.13, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 9,
+        "delayAfter": 16,
+        "earlyBonus": 65,
+        "spawns": [
+          { "type": "tank", "count": 5, "hp": 440, "hpMult": 4.4, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 12, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false },
+          { "type": "blinker", "count": 5, "hp": 360, "hpMult": 5.54, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 8, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 10,
+        "delayAfter": 7,
+        "earlyBonus": 65,
+        "spawns": [
+          { "type": "goliath", "count": 2, "hp": 900, "hpMult": 3.46, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 15, "bountyMult": 0.83, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 1, "hp": 2200, "hpMult": 91.67, "speed": 94, "speedMult": 0.85, "interval": 1.2, "bounty": 55, "bountyMult": 9.17, "isBoss": false, "isMiniBoss": true }
+        ]
       }
     ]
   },
   "33": {
     "mapId": "L33",
     "startHp": 10,
-    "startGold": 183,
-    "totalWaves": 8,
-    "unlockedTowers": [
-      "gun",
-      "laser",
-      "mortar",
-      "tesla",
-      "stasis",
-      "melter"
-    ],
+    "startGold": 215,
+    "totalWaves": 11,
+    "unlockedTowers": ["gun", "laser", "mortar", "tesla", "stasis", "melter"],
     "canUpgrade": true,
     "waves": [
       {
         "wave": 1,
+        "delayAfter": 12,
+        "earlyBonus": 70,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 14,
-            "hp": 37,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 2.31,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 3,
-            "hp": 232,
-            "speed": 46,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.21,
-            "hpMult": 2.32,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "grunt", "count": 10, "hp": 60, "hpMult": 1.5, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 2, "bountyMult": 0.29, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 2,
+        "delayAfter": 9,
+        "earlyBonus": 70,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 4,
-            "hp": 604,
-            "speed": 36,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.2,
-            "hpMult": 2.32,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 151,
-            "speed": 74,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.19,
-            "hpMult": 2.32,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "swarm", "count": 20, "hp": 30, "hpMult": 1.88, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 2, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false },
+          { "type": "blinker", "count": 3, "hp": 280, "hpMult": 4.31, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 2, "bountyMult": 0.25, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 3,
+        "delayAfter": 14,
+        "earlyBonus": 70,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 18,
-            "hp": 37,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 2.31,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 4,
-            "hp": 232,
-            "speed": 46,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.21,
-            "hpMult": 2.32,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "tank", "count": 4, "hp": 310, "hpMult": 3.1, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 5, "bountyMult": 0.42, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 8, "hp": 60, "hpMult": 2.5, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 1, "bountyMult": 0.17, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 4,
+        "delayAfter": 15,
+        "earlyBonus": 70,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 604,
-            "speed": 36,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.2,
-            "hpMult": 2.32,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 8,
-            "hp": 151,
-            "speed": 74,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.19,
-            "hpMult": 2.32,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "goliath", "count": 2, "hp": 750, "hpMult": 2.88, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 13, "bountyMult": 0.72, "isBoss": false, "isMiniBoss": false },
+          { "type": "grunt", "count": 10, "hp": 80, "hpMult": 2.0, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 1, "bountyMult": 0.14, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 5,
+        "delayAfter": 12,
+        "earlyBonus": 70,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 22,
-            "hp": 37,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 2.31,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 5,
-            "hp": 232,
-            "speed": 46,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.21,
-            "hpMult": 2.32,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "blinker", "count": 4, "hp": 260, "hpMult": 4.0, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 6, "bountyMult": 0.75, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 12, "hp": 55, "hpMult": 2.29, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 6,
+        "delayAfter": 14,
+        "earlyBonus": 70,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 7,
-            "hp": 604,
-            "speed": 36,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.2,
-            "hpMult": 2.32,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 9,
-            "hp": 151,
-            "speed": 74,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.19,
-            "hpMult": 2.32,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "goliath", "count": 3, "hp": 750, "hpMult": 2.88, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 14, "bountyMult": 0.78, "isBoss": false, "isMiniBoss": false },
+          { "type": "swarm", "count": 24, "hp": 55, "hpMult": 3.44, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 7,
+        "delayAfter": 16,
+        "earlyBonus": 70,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 26,
-            "hp": 37,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 2.31,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 232,
-            "speed": 46,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.21,
-            "hpMult": 2.32,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "tank", "count": 5, "hp": 460, "hpMult": 4.6, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 9, "bountyMult": 0.75, "isBoss": false, "isMiniBoss": false },
+          { "type": "blinker", "count": 5, "hp": 380, "hpMult": 5.85, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 5, "bountyMult": 0.63, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 8,
+        "delayAfter": 11,
+        "earlyBonus": 70,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 8,
-            "hp": 604,
-            "speed": 36,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.2,
-            "hpMult": 2.32,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 11,
-            "hp": 151,
-            "speed": 74,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.19,
-            "hpMult": 2.32,
-            "bountyMult": 1
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": true,
-            "count": 1,
-            "hp": 1200,
-            "speed": 32,
-            "interval": 1.2,
-            "bounty": 30,
-            "speedMult": 0.84,
-            "hpMult": 12,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "scout", "count": 20, "hp": 115, "hpMult": 4.79, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 4, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 9,
+        "delayAfter": 16,
+        "earlyBonus": 70,
+        "spawns": [
+          { "type": "goliath", "count": 3, "hp": 900, "hpMult": 3.46, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 24, "bountyMult": 1.33, "isBoss": false, "isMiniBoss": false },
+          { "type": "tank", "count": 4, "hp": 480, "hpMult": 4.8, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 5, "bountyMult": 0.42, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 10,
+        "delayAfter": 9,
+        "earlyBonus": 70,
+        "spawns": [
+          { "type": "swarm", "count": 30, "hp": 60, "hpMult": 3.75, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false },
+          { "type": "blinker", "count": 6, "hp": 400, "hpMult": 6.15, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 7, "bountyMult": 0.88, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 11,
+        "delayAfter": 7,
+        "earlyBonus": 70,
+        "spawns": [
+          { "type": "goliath", "count": 1, "hp": 4200, "hpMult": 16.15, "speed": 26, "speedMult": 0.87, "interval": 1.2, "bounty": 90, "bountyMult": 5.0, "isBoss": false, "isMiniBoss": true }
+        ]
       }
     ]
   },
   "34": {
     "mapId": "L34",
     "startHp": 10,
-    "startGold": 187,
-    "totalWaves": 8,
-    "unlockedTowers": [
-      "gun",
-      "laser",
-      "mortar",
-      "tesla",
-      "stasis",
-      "melter"
-    ],
+    "startGold": 225,
+    "totalWaves": 11,
+    "unlockedTowers": ["gun", "laser", "mortar", "tesla", "stasis", "melter"],
     "canUpgrade": true,
     "waves": [
       {
         "wave": 1,
+        "delayAfter": 14,
+        "earlyBonus": 70,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 14,
-            "hp": 41,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 2.56,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 3,
-            "hp": 254,
-            "speed": 46,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.21,
-            "hpMult": 2.54,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "tank", "count": 3, "hp": 240, "hpMult": 2.4, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 8, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 2,
+        "delayAfter": 12,
+        "earlyBonus": 70,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 4,
-            "hp": 660,
-            "speed": 36,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.2,
-            "hpMult": 2.54,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 165,
-            "speed": 75,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.21,
-            "hpMult": 2.54,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "scout", "count": 8, "hp": 65, "hpMult": 2.71, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false },
+          { "type": "grunt", "count": 8, "hp": 75, "hpMult": 1.88, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 1, "bountyMult": 0.14, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 3,
+        "delayAfter": 16,
+        "earlyBonus": 70,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 18,
-            "hp": 41,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 2.56,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 4,
-            "hp": 254,
-            "speed": 46,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.21,
-            "hpMult": 2.54,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "goliath", "count": 3, "hp": 700, "hpMult": 2.69, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 11, "bountyMult": 0.61, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 4,
+        "delayAfter": 8,
+        "earlyBonus": 70,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 660,
-            "speed": 36,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.2,
-            "hpMult": 2.54,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 8,
-            "hp": 165,
-            "speed": 75,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.21,
-            "hpMult": 2.54,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "blinker", "count": 3, "hp": 320, "hpMult": 4.92, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 7, "bountyMult": 0.88, "isBoss": false, "isMiniBoss": false },
+          { "type": "swarm", "count": 20, "hp": 40, "hpMult": 2.5, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 2, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 5,
+        "delayAfter": 16,
+        "earlyBonus": 70,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 22,
-            "hp": 41,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 2.56,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 5,
-            "hp": 254,
-            "speed": 46,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.21,
-            "hpMult": 2.54,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "tank", "count": 4, "hp": 420, "hpMult": 4.2, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 7, "bountyMult": 0.58, "isBoss": false, "isMiniBoss": false },
+          { "type": "goliath", "count": 2, "hp": 850, "hpMult": 3.27, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 10, "bountyMult": 0.56, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 6,
+        "delayAfter": 12,
+        "earlyBonus": 70,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 7,
-            "hp": 660,
-            "speed": 36,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.2,
-            "hpMult": 2.54,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 9,
-            "hp": 165,
-            "speed": 75,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.21,
-            "hpMult": 2.54,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "scout", "count": 15, "hp": 110, "hpMult": 4.58, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false },
+          { "type": "blinker", "count": 4, "hp": 360, "hpMult": 5.54, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 4, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 7,
+        "delayAfter": 16,
+        "earlyBonus": 70,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 26,
-            "hp": 41,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 2.56,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 254,
-            "speed": 46,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.21,
-            "hpMult": 2.54,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "goliath", "count": 3, "hp": 950, "hpMult": 3.65, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 18, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false },
+          { "type": "grunt", "count": 12, "hp": 140, "hpMult": 3.5, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 2, "bountyMult": 0.29, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 8,
+        "delayAfter": 8,
+        "earlyBonus": 70,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 8,
-            "hp": 660,
-            "speed": 36,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.2,
-            "hpMult": 2.54,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 11,
-            "hp": 165,
-            "speed": 75,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.21,
-            "hpMult": 2.54,
-            "bountyMult": 1
-          },
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": true,
-            "count": 1,
-            "hp": 1150,
-            "speed": 26,
-            "interval": 1.2,
-            "bounty": 45,
-            "speedMult": 0.87,
-            "hpMult": 4.42,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "swarm", "count": 36, "hp": 60, "hpMult": 3.75, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 4, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 9,
+        "delayAfter": 14,
+        "earlyBonus": 70,
+        "spawns": [
+          { "type": "tank", "count": 6, "hp": 520, "hpMult": 5.2, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 11, "bountyMult": 0.92, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 12, "hp": 120, "hpMult": 5.0, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 10,
+        "delayAfter": 16,
+        "earlyBonus": 70,
+        "spawns": [
+          { "type": "goliath", "count": 3, "hp": 1100, "hpMult": 4.23, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 24, "bountyMult": 1.33, "isBoss": false, "isMiniBoss": false },
+          { "type": "blinker", "count": 5, "hp": 440, "hpMult": 6.77, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 8, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 11,
+        "delayAfter": 7,
+        "earlyBonus": 70,
+        "spawns": [
+          { "type": "tank", "count": 1, "hp": 4600, "hpMult": 46.0, "speed": 32, "speedMult": 0.84, "interval": 1.2, "bounty": 95, "bountyMult": 7.92, "isBoss": false, "isMiniBoss": true }
+        ]
       }
     ]
   },
   "35": {
     "mapId": "L35",
     "startHp": 10,
-    "startGold": 191,
-    "totalWaves": 8,
-    "unlockedTowers": [
-      "gun",
-      "laser",
-      "mortar",
-      "tesla",
-      "stasis",
-      "melter"
-    ],
+    "startGold": 240,
+    "totalWaves": 11,
+    "unlockedTowers": ["gun", "laser", "mortar", "tesla", "stasis", "melter"],
     "canUpgrade": true,
     "waves": [
       {
         "wave": 1,
+        "delayAfter": 12,
+        "earlyBonus": 75,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 14,
-            "hp": 44,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 2.75,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 3,
-            "hp": 275,
-            "speed": 46,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.21,
-            "hpMult": 2.75,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "blinker", "count": 4, "hp": 220, "hpMult": 3.38, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 6, "bountyMult": 0.75, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 2,
+        "delayAfter": 12,
+        "earlyBonus": 75,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 4,
-            "hp": 715,
-            "speed": 36,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.2,
-            "hpMult": 2.75,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 179,
-            "speed": 75,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.21,
-            "hpMult": 2.75,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "grunt", "count": 10, "hp": 80, "hpMult": 2.0, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 2, "bountyMult": 0.29, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 8, "hp": 70, "hpMult": 2.92, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 1, "bountyMult": 0.17, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 3,
+        "delayAfter": 16,
+        "earlyBonus": 75,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 18,
-            "hp": 44,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 2.75,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 4,
-            "hp": 275,
-            "speed": 46,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.21,
-            "hpMult": 2.75,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "goliath", "count": 3, "hp": 750, "hpMult": 2.88, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 8, "bountyMult": 0.44, "isBoss": false, "isMiniBoss": false },
+          { "type": "tank", "count": 4, "hp": 360, "hpMult": 3.6, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 3, "bountyMult": 0.25, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 4,
+        "delayAfter": 8,
+        "earlyBonus": 75,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 715,
-            "speed": 36,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.2,
-            "hpMult": 2.75,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 8,
-            "hp": 179,
-            "speed": 75,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.21,
-            "hpMult": 2.75,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "swarm", "count": 28, "hp": 45, "hpMult": 2.81, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 5,
+        "delayAfter": 16,
+        "earlyBonus": 75,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 22,
-            "hp": 44,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 2.75,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 5,
-            "hp": 275,
-            "speed": 46,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.21,
-            "hpMult": 2.75,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "blinker", "count": 4, "hp": 350, "hpMult": 5.38, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 7, "bountyMult": 0.88, "isBoss": false, "isMiniBoss": false },
+          { "type": "goliath", "count": 2, "hp": 950, "hpMult": 3.65, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 13, "bountyMult": 0.72, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 6,
+        "delayAfter": 11,
+        "earlyBonus": 75,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 7,
-            "hp": 715,
-            "speed": 36,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.2,
-            "hpMult": 2.75,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 9,
-            "hp": 179,
-            "speed": 75,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.21,
-            "hpMult": 2.75,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "scout", "count": 18, "hp": 120, "hpMult": 5.0, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 4, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 7,
+        "delayAfter": 14,
+        "earlyBonus": 75,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 26,
-            "hp": 44,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 2.75,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 275,
-            "speed": 46,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.21,
-            "hpMult": 2.75,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "tank", "count": 5, "hp": 540, "hpMult": 5.4, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 11, "bountyMult": 0.92, "isBoss": false, "isMiniBoss": false },
+          { "type": "swarm", "count": 26, "hp": 65, "hpMult": 4.06, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 8,
+        "delayAfter": 16,
+        "earlyBonus": 75,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 8,
-            "hp": 715,
-            "speed": 36,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.2,
-            "hpMult": 2.75,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 11,
-            "hp": 179,
-            "speed": 75,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.21,
-            "hpMult": 2.75,
-            "bountyMult": 1
-          },
-          {
-            "type": "scout",
-            "isBoss": false,
-            "isMiniBoss": true,
-            "count": 1,
-            "hp": 880,
-            "speed": 94,
-            "interval": 1.2,
-            "bounty": 15,
-            "speedMult": 0.85,
-            "hpMult": 36.67,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "goliath", "count": 3, "hp": 1150, "hpMult": 4.42, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 24, "bountyMult": 1.33, "isBoss": false, "isMiniBoss": false },
+          { "type": "grunt", "count": 14, "hp": 160, "hpMult": 4.0, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 1, "bountyMult": 0.14, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 9,
+        "delayAfter": 12,
+        "earlyBonus": 75,
+        "spawns": [
+          { "type": "blinker", "count": 6, "hp": 480, "hpMult": 7.38, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 11, "bountyMult": 1.38, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 14, "hp": 130, "hpMult": 5.42, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 10,
+        "delayAfter": 16,
+        "earlyBonus": 75,
+        "spawns": [
+          { "type": "goliath", "count": 4, "hp": 1100, "hpMult": 4.23, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 23, "bountyMult": 1.28, "isBoss": false, "isMiniBoss": false },
+          { "type": "tank", "count": 5, "hp": 500, "hpMult": 5.0, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 6, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 11,
+        "delayAfter": 7,
+        "earlyBonus": 75,
+        "spawns": [
+          { "type": "blinker", "count": 1, "hp": 4800, "hpMult": 73.85, "speed": 53, "speedMult": 0.85, "interval": 1.2, "bounty": 100, "bountyMult": 12.5, "isBoss": false, "isMiniBoss": true }
+        ]
       }
     ]
   },
   "36": {
     "mapId": "L36",
     "startHp": 10,
-    "startGold": 195,
-    "totalWaves": 8,
-    "unlockedTowers": [
-      "gun",
-      "laser",
-      "mortar",
-      "tesla",
-      "stasis",
-      "melter"
-    ],
+    "startGold": 255,
+    "totalWaves": 12,
+    "unlockedTowers": ["gun", "laser", "mortar", "tesla", "stasis", "melter"],
     "canUpgrade": true,
     "waves": [
       {
         "wave": 1,
+        "delayAfter": 8,
+        "earlyBonus": 75,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 14,
-            "hp": 47,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 2.94,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 3,
-            "hp": 296,
-            "speed": 47,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.24,
-            "hpMult": 2.96,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "swarm", "count": 16, "hp": 35, "hpMult": 2.19, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 2, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 2,
+        "delayAfter": 10,
+        "earlyBonus": 75,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 4,
-            "hp": 770,
-            "speed": 37,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.23,
-            "hpMult": 2.96,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 193,
-            "speed": 76,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.23,
-            "hpMult": 2.97,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "scout", "count": 10, "hp": 95, "hpMult": 3.96, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 3,
+        "delayAfter": 8,
+        "earlyBonus": 75,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 18,
-            "hp": 47,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 2.94,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 4,
-            "hp": 296,
-            "speed": 47,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.24,
-            "hpMult": 2.96,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "swarm", "count": 20, "hp": 40, "hpMult": 2.5, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 2, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 8, "hp": 75, "hpMult": 3.13, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 1, "bountyMult": 0.17, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 4,
+        "delayAfter": 9,
+        "earlyBonus": 75,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 770,
-            "speed": 37,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.23,
-            "hpMult": 2.96,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 8,
-            "hp": 193,
-            "speed": 76,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.23,
-            "hpMult": 2.97,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "tank", "count": 2, "hp": 350, "hpMult": 3.5, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 6, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false },
+          { "type": "swarm", "count": 30, "hp": 45, "hpMult": 2.81, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 5,
+        "delayAfter": 10,
+        "earlyBonus": 75,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 22,
-            "hp": 47,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 2.94,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 5,
-            "hp": 296,
-            "speed": 47,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.24,
-            "hpMult": 2.96,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "scout", "count": 18, "hp": 90, "hpMult": 3.75, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 6,
+        "delayAfter": 8,
+        "earlyBonus": 75,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 7,
-            "hp": 770,
-            "speed": 37,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.23,
-            "hpMult": 2.96,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 9,
-            "hp": 193,
-            "speed": 76,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.23,
-            "hpMult": 2.97,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "swarm", "count": 40, "hp": 55, "hpMult": 3.44, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 4, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 7,
+        "delayAfter": 11,
+        "earlyBonus": 75,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 26,
-            "hp": 47,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 2.94,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 296,
-            "speed": 47,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.24,
-            "hpMult": 2.96,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "blinker", "count": 5, "hp": 480, "hpMult": 7.38, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 7, "bountyMult": 0.88, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 14, "hp": 135, "hpMult": 5.63, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 8,
+        "delayAfter": 10,
+        "earlyBonus": 75,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 8,
-            "hp": 770,
-            "speed": 37,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.23,
-            "hpMult": 2.96,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 11,
-            "hp": 193,
-            "speed": 76,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.23,
-            "hpMult": 2.97,
-            "bountyMult": 1
-          },
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": true,
-            "count": 1,
-            "hp": 1350,
-            "speed": 26,
-            "interval": 1.2,
-            "bounty": 45,
-            "speedMult": 0.87,
-            "hpMult": 5.19,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "swarm", "count": 36, "hp": 70, "hpMult": 4.38, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 4, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false },
+          { "type": "tank", "count": 4, "hp": 580, "hpMult": 5.8, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 11, "bountyMult": 0.92, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 9,
+        "delayAfter": 10,
+        "earlyBonus": 75,
+        "spawns": [
+          { "type": "scout", "count": 24, "hp": 145, "hpMult": 6.04, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 4, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 10,
+        "delayAfter": 8,
+        "earlyBonus": 75,
+        "spawns": [
+          { "type": "swarm", "count": 50, "hp": 75, "hpMult": 4.69, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 5, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 11,
+        "delayAfter": 10,
+        "earlyBonus": 75,
+        "spawns": [
+          { "type": "goliath", "count": 2, "hp": 1400, "hpMult": 5.38, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 38, "bountyMult": 2.11, "isBoss": false, "isMiniBoss": false },
+          { "type": "swarm", "count": 30, "hp": 75, "hpMult": 4.69, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 12,
+        "delayAfter": 7,
+        "earlyBonus": 75,
+        "spawns": [
+          { "type": "scout", "count": 12, "hp": 140, "hpMult": 5.83, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 4, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false },
+          { "type": "swarm", "count": 1, "hp": 3800, "hpMult": 237.5, "speed": 145, "speedMult": 0.85, "interval": 1.2, "bounty": 57, "bountyMult": 19.0, "isBoss": false, "isMiniBoss": true }
+        ]
       }
     ]
   },
   "37": {
     "mapId": "L37",
     "startHp": 10,
-    "startGold": 199,
-    "totalWaves": 8,
-    "unlockedTowers": [
-      "gun",
-      "laser",
-      "mortar",
-      "tesla",
-      "stasis",
-      "melter"
-    ],
+    "startGold": 270,
+    "totalWaves": 12,
+    "unlockedTowers": ["gun", "laser", "mortar", "tesla", "stasis", "melter"],
     "canUpgrade": true,
     "waves": [
       {
         "wave": 1,
+        "delayAfter": 12,
+        "earlyBonus": 80,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 15,
-            "hp": 51,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 3.19,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 3,
-            "hp": 318,
-            "speed": 47,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.24,
-            "hpMult": 3.18,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "grunt", "count": 8, "hp": 110, "hpMult": 2.75, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 2, "bountyMult": 0.29, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 8, "hp": 90, "hpMult": 3.75, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 1, "bountyMult": 0.17, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 2,
+        "delayAfter": 16,
+        "earlyBonus": 80,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 5,
-            "hp": 826,
-            "speed": 37,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.23,
-            "hpMult": 3.18,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 206,
-            "speed": 76,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.23,
-            "hpMult": 3.17,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "goliath", "count": 2, "hp": 800, "hpMult": 3.08, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 10, "bountyMult": 0.56, "isBoss": false, "isMiniBoss": false },
+          { "type": "blinker", "count": 4, "hp": 380, "hpMult": 5.85, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 2, "bountyMult": 0.25, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 3,
+        "delayAfter": 14,
+        "earlyBonus": 80,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 19,
-            "hp": 51,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 3.19,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 4,
-            "hp": 318,
-            "speed": 47,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.24,
-            "hpMult": 3.18,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "tank", "count": 4, "hp": 380, "hpMult": 3.8, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 6, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 10, "hp": 85, "hpMult": 3.54, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 1, "bountyMult": 0.17, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 4,
+        "delayAfter": 14,
+        "earlyBonus": 80,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 826,
-            "speed": 37,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.23,
-            "hpMult": 3.18,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 8,
-            "hp": 206,
-            "speed": 76,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.23,
-            "hpMult": 3.17,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "goliath", "count": 2, "hp": 950, "hpMult": 3.65, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 14, "bountyMult": 0.78, "isBoss": false, "isMiniBoss": false },
+          { "type": "swarm", "count": 24, "hp": 55, "hpMult": 3.44, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 5,
+        "delayAfter": 12,
+        "earlyBonus": 80,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 23,
-            "hp": 51,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 3.19,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 5,
-            "hp": 318,
-            "speed": 47,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.24,
-            "hpMult": 3.18,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "blinker", "count": 4, "hp": 420, "hpMult": 6.46, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 9, "bountyMult": 1.13, "isBoss": false, "isMiniBoss": false },
+          { "type": "grunt", "count": 10, "hp": 140, "hpMult": 3.5, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 1, "bountyMult": 0.14, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 6,
+        "delayAfter": 16,
+        "earlyBonus": 80,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 7,
-            "hp": 826,
-            "speed": 37,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.23,
-            "hpMult": 3.18,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 10,
-            "hp": 206,
-            "speed": 76,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.23,
-            "hpMult": 3.17,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "goliath", "count": 3, "hp": 1050, "hpMult": 4.04, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 15, "bountyMult": 0.83, "isBoss": false, "isMiniBoss": false },
+          { "type": "tank", "count": 5, "hp": 560, "hpMult": 5.6, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 3, "bountyMult": 0.25, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 7,
+        "delayAfter": 11,
+        "earlyBonus": 80,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 27,
-            "hp": 51,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 3.19,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 318,
-            "speed": 47,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.24,
-            "hpMult": 3.18,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "scout", "count": 16, "hp": 140, "hpMult": 5.83, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false },
+          { "type": "swarm", "count": 30, "hp": 75, "hpMult": 4.69, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 8,
+        "delayAfter": 16,
+        "earlyBonus": 80,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 8,
-            "hp": 826,
-            "speed": 37,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.23,
-            "hpMult": 3.18,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 11,
-            "hp": 206,
-            "speed": 76,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.23,
-            "hpMult": 3.17,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": true,
-            "count": 1,
-            "hp": 880,
-            "speed": 53,
-            "interval": 1.2,
-            "bounty": 20,
-            "speedMult": 0.85,
-            "hpMult": 13.54,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "goliath", "count": 3, "hp": 1250, "hpMult": 4.81, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 22, "bountyMult": 1.22, "isBoss": false, "isMiniBoss": false },
+          { "type": "blinker", "count": 6, "hp": 460, "hpMult": 7.08, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 3, "bountyMult": 0.38, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 9,
+        "delayAfter": 16,
+        "earlyBonus": 80,
+        "spawns": [
+          { "type": "tank", "count": 6, "hp": 620, "hpMult": 6.2, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 14, "bountyMult": 1.17, "isBoss": false, "isMiniBoss": false },
+          { "type": "grunt", "count": 14, "hp": 180, "hpMult": 4.5, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 1, "bountyMult": 0.14, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 10,
+        "delayAfter": 14,
+        "earlyBonus": 80,
+        "spawns": [
+          { "type": "goliath", "count": 3, "hp": 1450, "hpMult": 5.58, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 30, "bountyMult": 1.67, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 16, "hp": 160, "hpMult": 6.67, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 11,
+        "delayAfter": 9,
+        "earlyBonus": 80,
+        "spawns": [
+          { "type": "blinker", "count": 6, "hp": 520, "hpMult": 8.0, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 15, "bountyMult": 1.88, "isBoss": false, "isMiniBoss": false },
+          { "type": "swarm", "count": 36, "hp": 85, "hpMult": 5.31, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 4, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 12,
+        "delayAfter": 7,
+        "earlyBonus": 80,
+        "spawns": [
+          { "type": "goliath", "count": 2, "hp": 1300, "hpMult": 5.0, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 25, "bountyMult": 1.39, "isBoss": false, "isMiniBoss": false },
+          { "type": "blinker", "count": 1, "hp": 4500, "hpMult": 69.23, "speed": 53, "speedMult": 0.85, "interval": 1.2, "bounty": 60, "bountyMult": 7.5, "isBoss": false, "isMiniBoss": true }
+        ]
       }
     ]
   },
   "38": {
     "mapId": "L38",
     "startHp": 10,
-    "startGold": 203,
-    "totalWaves": 8,
-    "unlockedTowers": [
-      "gun",
-      "laser",
-      "mortar",
-      "tesla",
-      "stasis",
-      "melter"
-    ],
+    "startGold": 165,
+    "totalWaves": 12,
+    "unlockedTowers": ["gun", "laser", "mortar", "tesla", "stasis", "melter"],
     "canUpgrade": true,
     "waves": [
       {
         "wave": 1,
+        "delayAfter": 8,
+        "earlyBonus": 40,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 15,
-            "hp": 54,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 3.38,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 3,
-            "hp": 339,
-            "speed": 47,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.24,
-            "hpMult": 3.39,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "swarm", "count": 20, "hp": 30, "hpMult": 1.88, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 2, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 2,
+        "delayAfter": 12,
+        "earlyBonus": 40,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 5,
-            "hp": 881,
-            "speed": 37,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.23,
-            "hpMult": 3.39,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 220,
-            "speed": 77,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.24,
-            "hpMult": 3.38,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "grunt", "count": 10, "hp": 85, "hpMult": 2.13, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 0, "bountyMult": 0.0, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 3,
+        "delayAfter": 10,
+        "earlyBonus": 40,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 19,
-            "hp": 54,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 3.38,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 4,
-            "hp": 339,
-            "speed": 47,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.24,
-            "hpMult": 3.39,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "scout", "count": 12, "hp": 110, "hpMult": 4.58, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 4, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 4,
+        "delayAfter": 16,
+        "earlyBonus": 40,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 881,
-            "speed": 37,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.23,
-            "hpMult": 3.39,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 8,
-            "hp": 220,
-            "speed": 77,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.24,
-            "hpMult": 3.38,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "goliath", "count": 2, "hp": 900, "hpMult": 3.46, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 0, "bountyMult": 0.0, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 5,
+        "delayAfter": 8,
+        "earlyBonus": 40,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 23,
-            "hp": 54,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 3.38,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 5,
-            "hp": 339,
-            "speed": 47,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.24,
-            "hpMult": 3.39,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "swarm", "count": 32, "hp": 45, "hpMult": 2.81, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 6,
+        "delayAfter": 16,
+        "earlyBonus": 40,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 7,
-            "hp": 881,
-            "speed": 37,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.23,
-            "hpMult": 3.39,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 10,
-            "hp": 220,
-            "speed": 77,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.24,
-            "hpMult": 3.38,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "tank", "count": 5, "hp": 520, "hpMult": 5.2, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 0, "bountyMult": 0.0, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 7,
+        "delayAfter": 12,
+        "earlyBonus": 40,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 27,
-            "hp": 54,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 3.38,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 339,
-            "speed": 47,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.24,
-            "hpMult": 3.39,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "blinker", "count": 5, "hp": 420, "hpMult": 6.46, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 15, "bountyMult": 1.88, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 12, "hp": 130, "hpMult": 5.42, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 8,
+        "delayAfter": 16,
+        "earlyBonus": 40,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 8,
-            "hp": 881,
-            "speed": 37,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.23,
-            "hpMult": 3.39,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 11,
-            "hp": 220,
-            "speed": 77,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.24,
-            "hpMult": 3.38,
-            "bountyMult": 1
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": true,
-            "count": 1,
-            "hp": 1450,
-            "speed": 32,
-            "interval": 1.2,
-            "bounty": 30,
-            "speedMult": 0.84,
-            "hpMult": 14.5,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "goliath", "count": 3, "hp": 1200, "hpMult": 4.62, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 0, "bountyMult": 0.0, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 9,
+        "delayAfter": 8,
+        "earlyBonus": 40,
+        "spawns": [
+          { "type": "swarm", "count": 40, "hp": 70, "hpMult": 4.38, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 4, "bounty": 3, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 10,
+        "delayAfter": 16,
+        "earlyBonus": 40,
+        "spawns": [
+          { "type": "goliath", "count": 3, "hp": 1250, "hpMult": 4.81, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 0, "bountyMult": 0.0, "isBoss": false, "isMiniBoss": false },
+          { "type": "tank", "count": 5, "hp": 550, "hpMult": 5.5, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 0, "bountyMult": 0.0, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 11,
+        "delayAfter": 12,
+        "earlyBonus": 40,
+        "spawns": [
+          { "type": "blinker", "count": 8, "hp": 450, "hpMult": 6.92, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 23, "bountyMult": 2.88, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 12,
+        "delayAfter": 7,
+        "earlyBonus": 40,
+        "spawns": [
+          { "type": "goliath", "count": 1, "hp": 5800, "hpMult": 22.31, "speed": 26, "speedMult": 0.87, "interval": 1.2, "bounty": 120, "bountyMult": 6.67, "isBoss": false, "isMiniBoss": true }
+        ]
       }
     ]
   },
   "39": {
     "mapId": "L39",
     "startHp": 10,
-    "startGold": 207,
-    "totalWaves": 8,
-    "unlockedTowers": [
-      "gun",
-      "laser",
-      "mortar",
-      "tesla",
-      "stasis",
-      "melter"
-    ],
+    "startGold": 285,
+    "totalWaves": 13,
+    "unlockedTowers": ["gun", "laser", "mortar", "tesla", "stasis", "melter"],
     "canUpgrade": true,
     "waves": [
       {
         "wave": 1,
+        "delayAfter": 16,
+        "earlyBonus": 85,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 15,
-            "hp": 58,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 3.63,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 3,
-            "hp": 360,
-            "speed": 48,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.26,
-            "hpMult": 3.6,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "tank", "count": 3, "hp": 480, "hpMult": 4.8, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 40, "bountyMult": 3.33, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 2,
+        "delayAfter": 16,
+        "earlyBonus": 85,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 5,
-            "hp": 936,
-            "speed": 38,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.27,
-            "hpMult": 3.6,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 234,
-            "speed": 78,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.26,
-            "hpMult": 3.6,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "tank", "count": 4, "hp": 550, "hpMult": 5.5, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 21, "bountyMult": 1.75, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 3,
+        "delayAfter": 18,
+        "earlyBonus": 85,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 19,
-            "hp": 58,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 3.63,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 4,
-            "hp": 360,
-            "speed": 48,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.26,
-            "hpMult": 3.6,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "goliath", "count": 2, "hp": 1350, "hpMult": 5.19, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 40, "bountyMult": 2.22, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 4,
+        "delayAfter": 16,
+        "earlyBonus": 85,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 936,
-            "speed": 38,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.27,
-            "hpMult": 3.6,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 8,
-            "hp": 234,
-            "speed": 78,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.26,
-            "hpMult": 3.6,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "tank", "count": 5, "hp": 700, "hpMult": 7.0, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 15, "bountyMult": 1.25, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 5,
+        "delayAfter": 18,
+        "earlyBonus": 85,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 23,
-            "hp": 58,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 3.63,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 5,
-            "hp": 360,
-            "speed": 48,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.26,
-            "hpMult": 3.6,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "goliath", "count": 3, "hp": 1500, "hpMult": 5.77, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 25, "bountyMult": 1.39, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 6,
+        "delayAfter": 18,
+        "earlyBonus": 85,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 7,
-            "hp": 936,
-            "speed": 38,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.27,
-            "hpMult": 3.6,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 10,
-            "hp": 234,
-            "speed": 78,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.26,
-            "hpMult": 3.6,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "tank", "count": 4, "hp": 650, "hpMult": 6.5, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 8, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false },
+          { "type": "goliath", "count": 2, "hp": 1500, "hpMult": 5.77, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 19, "bountyMult": 1.06, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 7,
+        "delayAfter": 18,
+        "earlyBonus": 85,
         "spawns": [
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 27,
-            "hp": 58,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 3.63,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 360,
-            "speed": 48,
-            "interval": 1.215,
-            "bounty": 12,
-            "speedMult": 1.26,
-            "hpMult": 3.6,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "goliath", "count": 4, "hp": 1650, "hpMult": 6.35, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 19, "bountyMult": 1.06, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 8,
+        "delayAfter": 18,
+        "earlyBonus": 85,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 8,
-            "hp": 936,
-            "speed": 38,
-            "interval": 1.6,
-            "bounty": 18,
-            "speedMult": 1.27,
-            "hpMult": 3.6,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 11,
-            "hp": 234,
-            "speed": 78,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.26,
-            "hpMult": 3.6,
-            "bountyMult": 1
-          },
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": true,
-            "count": 1,
-            "hp": 1600,
-            "speed": 26,
-            "interval": 1.2,
-            "bounty": 45,
-            "speedMult": 0.87,
-            "hpMult": 6.15,
-            "bountyMult": 1
-          }
-        ],
-        "delayAfter": 5
+          { "type": "tank", "count": 6, "hp": 750, "hpMult": 7.5, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 13, "bountyMult": 1.08, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 9,
+        "delayAfter": 18,
+        "earlyBonus": 85,
+        "spawns": [
+          { "type": "goliath", "count": 4, "hp": 1800, "hpMult": 6.92, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 20, "bountyMult": 1.11, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 10,
+        "delayAfter": 18,
+        "earlyBonus": 85,
+        "spawns": [
+          { "type": "tank", "count": 7, "hp": 800, "hpMult": 8.0, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 12, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 11,
+        "delayAfter": 18,
+        "earlyBonus": 85,
+        "spawns": [
+          { "type": "goliath", "count": 4, "hp": 2100, "hpMult": 8.08, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 23, "bountyMult": 1.28, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 12,
+        "delayAfter": 18,
+        "earlyBonus": 85,
+        "spawns": [
+          { "type": "tank", "count": 5, "hp": 800, "hpMult": 8.0, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 7, "bountyMult": 0.58, "isBoss": false, "isMiniBoss": false },
+          { "type": "goliath", "count": 3, "hp": 2000, "hpMult": 7.69, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 20, "bountyMult": 1.11, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 13,
+        "delayAfter": 7,
+        "earlyBonus": 85,
+        "spawns": [
+          { "type": "goliath", "count": 1, "hp": 11500, "hpMult": 44.23, "speed": 26, "speedMult": 0.87, "interval": 1.2, "bounty": 110, "bountyMult": 6.11, "isBoss": false, "isMiniBoss": true }
+        ]
       }
     ]
   },
   "40": {
     "mapId": "L40",
     "startHp": 10,
-    "startGold": 220,
-    "totalWaves": 10,
-    "unlockedTowers": [
-      "gun",
-      "laser",
-      "mortar",
-      "tesla",
-      "stasis",
-      "melter"
-    ],
+    "startGold": 300,
+    "totalWaves": 13,
+    "unlockedTowers": ["gun", "laser", "mortar", "tesla", "stasis", "melter"],
     "canUpgrade": true,
     "waves": [
       {
         "wave": 1,
+        "delayAfter": 12,
+        "earlyBonus": 90,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 2,
-            "hp": 1092,
-            "speed": 38,
-            "interval": 1.53,
-            "bounty": 18,
-            "speedMult": 1.27,
-            "hpMult": 4.2,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 4,
-            "hp": 273,
-            "speed": 78,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.26,
-            "hpMult": 4.2,
-            "bountyMult": 1
-          },
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 12,
-            "hp": 67,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 2,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 4.19,
-            "bountyMult": 1.61
-          }
-        ],
-        "delayAfter": 5
+          { "type": "grunt", "count": 8, "hp": 120, "hpMult": 3.0, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 2, "bountyMult": 0.29, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 8, "hp": 95, "hpMult": 3.96, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 1, "bountyMult": 0.17, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 2,
+        "delayAfter": 14,
+        "earlyBonus": 90,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 2,
-            "hp": 1092,
-            "speed": 38,
-            "interval": 1.53,
-            "bounty": 18,
-            "speedMult": 1.27,
-            "hpMult": 4.2,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 5,
-            "hp": 273,
-            "speed": 78,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.26,
-            "hpMult": 4.2,
-            "bountyMult": 1
-          },
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 14,
-            "hp": 67,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 2,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 4.19,
-            "bountyMult": 1.61
-          }
-        ],
-        "delayAfter": 5
+          { "type": "tank", "count": 4, "hp": 420, "hpMult": 4.2, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 5, "bountyMult": 0.42, "isBoss": false, "isMiniBoss": false },
+          { "type": "blinker", "count": 4, "hp": 360, "hpMult": 5.54, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 2, "bountyMult": 0.25, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 3,
+        "delayAfter": 16,
+        "earlyBonus": 90,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 3,
-            "hp": 1092,
-            "speed": 38,
-            "interval": 1.53,
-            "bounty": 18,
-            "speedMult": 1.27,
-            "hpMult": 4.2,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 5,
-            "hp": 273,
-            "speed": 78,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.26,
-            "hpMult": 4.2,
-            "bountyMult": 1
-          },
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 16,
-            "hp": 67,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 3,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 4.19,
-            "bountyMult": 1.61
-          }
-        ],
-        "delayAfter": 5
+          { "type": "goliath", "count": 3, "hp": 1100, "hpMult": 4.23, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 12, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 4,
+        "delayAfter": 8,
+        "earlyBonus": 90,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 3,
-            "hp": 1092,
-            "speed": 38,
-            "interval": 1.53,
-            "bounty": 18,
-            "speedMult": 1.27,
-            "hpMult": 4.2,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 273,
-            "speed": 78,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.26,
-            "hpMult": 4.2,
-            "bountyMult": 1
-          },
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 18,
-            "hp": 67,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 3,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 4.19,
-            "bountyMult": 1.61
-          }
-        ],
-        "delayAfter": 5
+          { "type": "swarm", "count": 30, "hp": 60, "hpMult": 3.75, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 5,
+        "delayAfter": 14,
+        "earlyBonus": 90,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 4,
-            "hp": 1092,
-            "speed": 38,
-            "interval": 1.53,
-            "bounty": 18,
-            "speedMult": 1.27,
-            "hpMult": 4.2,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 273,
-            "speed": 78,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.26,
-            "hpMult": 4.2,
-            "bountyMult": 1
-          },
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 20,
-            "hp": 67,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 3,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 4.19,
-            "bountyMult": 1.61
-          }
-        ],
-        "delayAfter": 5
+          { "type": "goliath", "count": 2, "hp": 1250, "hpMult": 4.81, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 18, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 10, "hp": 115, "hpMult": 4.79, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 1, "bountyMult": 0.17, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 6,
+        "delayAfter": 12,
+        "earlyBonus": 90,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 4,
-            "hp": 1092,
-            "speed": 38,
-            "interval": 1.53,
-            "bounty": 18,
-            "speedMult": 1.27,
-            "hpMult": 4.2,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 7,
-            "hp": 273,
-            "speed": 78,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.26,
-            "hpMult": 4.2,
-            "bountyMult": 1
-          },
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 22,
-            "hp": 67,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 4.19,
-            "bountyMult": 1.61
-          }
-        ],
-        "delayAfter": 5
+          { "type": "blinker", "count": 5, "hp": 440, "hpMult": 6.77, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 8, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false },
+          { "type": "swarm", "count": 26, "hp": 75, "hpMult": 4.69, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 7,
+        "delayAfter": 16,
+        "earlyBonus": 90,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 4,
-            "hp": 1092,
-            "speed": 38,
-            "interval": 1.53,
-            "bounty": 18,
-            "speedMult": 1.27,
-            "hpMult": 4.2,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 7,
-            "hp": 273,
-            "speed": 78,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.26,
-            "hpMult": 4.2,
-            "bountyMult": 1
-          },
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 24,
-            "hp": 67,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 4.19,
-            "bountyMult": 1.61
-          }
-        ],
-        "delayAfter": 5
+          { "type": "tank", "count": 5, "hp": 650, "hpMult": 6.5, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 8, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false },
+          { "type": "goliath", "count": 2, "hp": 1500, "hpMult": 5.77, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 16, "bountyMult": 0.89, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 8,
+        "delayAfter": 11,
+        "earlyBonus": 90,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 5,
-            "hp": 1092,
-            "speed": 38,
-            "interval": 1.53,
-            "bounty": 18,
-            "speedMult": 1.27,
-            "hpMult": 4.2,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 8,
-            "hp": 273,
-            "speed": 78,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.26,
-            "hpMult": 4.2,
-            "bountyMult": 1
-          },
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 26,
-            "hp": 67,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 4.19,
-            "bountyMult": 1.61
-          }
-        ],
-        "delayAfter": 5
+          { "type": "scout", "count": 20, "hp": 165, "hpMult": 6.88, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 4, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 9,
+        "delayAfter": 16,
+        "earlyBonus": 90,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 5,
-            "hp": 1092,
-            "speed": 38,
-            "interval": 1.53,
-            "bounty": 18,
-            "speedMult": 1.27,
-            "hpMult": 4.2,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 8,
-            "hp": 273,
-            "speed": 78,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.26,
-            "hpMult": 4.2,
-            "bountyMult": 1
-          },
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 28,
-            "hp": 67,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 4.19,
-            "bountyMult": 1.61
-          }
-        ],
-        "delayAfter": 5
+          { "type": "goliath", "count": 3, "hp": 1400, "hpMult": 5.38, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 23, "bountyMult": 1.28, "isBoss": false, "isMiniBoss": false },
+          { "type": "blinker", "count": 6, "hp": 520, "hpMult": 8.0, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 5, "bountyMult": 0.63, "isBoss": false, "isMiniBoss": false }
+        ]
       },
       {
         "wave": 10,
+        "delayAfter": 12,
+        "earlyBonus": 90,
         "spawns": [
-          {
-            "type": "goliath",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 1092,
-            "speed": 38,
-            "interval": 1.53,
-            "bounty": 18,
-            "speedMult": 1.27,
-            "hpMult": 4.2,
-            "bountyMult": 1
-          },
-          {
-            "type": "blinker",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 8,
-            "hp": 273,
-            "speed": 78,
-            "interval": 0.688,
-            "bounty": 8,
-            "speedMult": 1.26,
-            "hpMult": 4.2,
-            "bountyMult": 1
-          },
-          {
-            "type": "tank",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 6,
-            "hp": 420,
-            "speed": 48,
-            "interval": 1.2,
-            "bounty": 12,
-            "speedMult": 1.26,
-            "hpMult": 4.2,
-            "bountyMult": 1
-          },
-          {
-            "type": "swarm",
-            "isBoss": false,
-            "isMiniBoss": false,
-            "count": 24,
-            "hp": 67,
-            "speed": 170,
-            "interval": 0.15,
-            "clumps": 4,
-            "bounty": 3,
-            "speedMult": 1.43,
-            "hpMult": 4.19,
-            "bountyMult": 1.61
-          },
-          {
-            "type": "titan_core",
-            "isBoss": true,
-            "isMiniBoss": false,
-            "count": 1,
-            "hp": 10000,
-            "speed": 28,
-            "interval": 1.2,
-            "bounty": 110,
-            "speedMult": 1,
-            "hpMult": 1.72,
-            "bountyMult": 0.2
-          }
-        ],
-        "delayAfter": 5
-      }
+          { "type": "tank", "count": 6, "hp": 680, "hpMult": 6.8, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 12, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false },
+          { "type": "swarm", "count": 36, "hp": 95, "hpMult": 5.94, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 4, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 11,
+        "delayAfter": 18,
+        "earlyBonus": 90,
+        "spawns": [
+          { "type": "goliath", "count": 4, "hp": 1550, "hpMult": 5.96, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 34, "bountyMult": 1.89, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 12,
+        "delayAfter": 14,
+        "earlyBonus": 90,
+        "spawns": [
+          { "type": "blinker", "count": 7, "hp": 550, "hpMult": 8.46, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 14, "bountyMult": 1.75, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 16, "hp": 175, "hpMult": 7.29, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
+        ]
+      },
+      {
+        "wave": 13,
+        "delayAfter": 7,
+        "earlyBonus": 90,
+        "spawns": [
+          { "type": "goliath", "count": 2, "hp": 1400, "hpMult": 5.38, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 20, "bountyMult": 1.11, "isBoss": false, "isMiniBoss": false },
+          { "type": "blinker", "count": 4, "hp": 500, "hpMult": 7.69, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 10, "bountyMult": 1.25, "isBoss": false, "isMiniBoss": false },
+          { "type": "titan_core", "count": 1, "hp": 10000, "hpMult": 1.72, "speed": 28, "speedMult": 1.0, "interval": 1.2, "bounty": 50, "bountyMult": 0.45, "isBoss": true, "isMiniBoss": false }
+      ]}
     ]
   },
   "41": {
@@ -9569,79 +7543,6 @@ for (let lvl = 5; lvl <= 10; lvl++) {
   LEVELS_DATA[lvl].unlockedTowers = ['gun', 'laser', 'mortar'];
 }
 
-const SECTOR_3_MINIBOSSES = [
-  { type: 'blinker', hp: 380 }, { type: 'scout', hp: 580 }, { type: 'tank', hp: 950 },
-  { type: 'blinker', hp: 440 }, { type: 'grunt', hp: 750 }, { type: 'tank', hp: 420 },
-  { type: 'blinker', hp: 520 }, { type: 'tank', hp: 1100 }, { type: 'blinker', hp: 600 }
-];
-const SECTOR_3_MAPS = ['L21', 'L22', 'L23', 'L24', 'L25', 'L26', 'L27', 'L28', 'L29'];
-
-
-const SECTOR_4_MINIBOSSES = [
-  { type: 'goliath', hp: 950 }, { type: 'blinker', hp: 760 }, { type: 'tank', hp: 1200 },
-  { type: 'goliath', hp: 1150 }, { type: 'scout', hp: 880 }, { type: 'goliath', hp: 1350 },
-  { type: 'blinker', hp: 880 }, { type: 'tank', hp: 1450 }, { type: 'goliath', hp: 1600 }
-];
-const SECTOR_4_MAPS = ['L31', 'L32', 'L33', 'L34', 'L35', 'L36', 'L37', 'L38', 'L39'];
-
-for (let lvl = 31; lvl <= 39; lvl++) {
-  const mapKey = SECTOR_4_MAPS[lvl - 31];
-  const mb = SECTOR_4_MINIBOSSES[lvl - 31];
-  const waves = [];
-  const lvlHpMult = 1.9 + (lvl - 31) * 0.2125; // 1.9 at L31 -> 3.6 at L39
-  const lvlSpeedMult = getLevelSpeedMult(lvl);
-  const countBonus = getLevelCountBonus(lvl);
-  for (let w = 1; w <= 8; w++) {
-    const spawns = [];
-    const count = 9 + w * 2 + countBonus;
-    if (w % 2 === 0) {
-      spawns.push(createEnemySpawn('goliath', Math.max(1, Math.floor(count * 0.3)), { hpMult: lvlHpMult, speedMult: lvlSpeedMult, interval: 1.6 }));
-      spawns.push(createEnemySpawn('blinker', Math.floor(count * 0.4), { hpMult: lvlHpMult, speedMult: lvlSpeedMult, interval: 0.688 }));
-    } else {
-      spawns.push(createEnemySpawn('swarm', count, { hpMult: lvlHpMult, interval: 0.15, clumps: swarmClumpsFor(lvl, w) }));
-      spawns.push(createEnemySpawn('tank', Math.max(1, Math.floor(count * 0.25)), { hpMult: lvlHpMult, speedMult: lvlSpeedMult, interval: 1.215 }));
-    }
-    if (w === 8) {
-      spawns.push(createEnemySpawn(mb.type, 1, { isMiniBoss: true, hp: mb.hp, interval: 1.2 }));
-    }
-    waves.push({ wave: w, spawns });
-  }
-  LEVELS_DATA[lvl] = {
-    mapId: mapKey, startHp: 10, startGold: 175 + (lvl - 31) * 4, totalWaves: 8,
-    unlockedTowers: ['gun', 'laser', 'mortar', 'tesla', 'stasis', 'melter'], canUpgrade: true, waves
-  };
-}
-
-LEVELS_DATA[40] = {
-  mapId: 'L40', startHp: 10, startGold: 220, totalWaves: 10,
-  unlockedTowers: ['gun', 'laser', 'mortar', 'tesla', 'stasis', 'melter'], canUpgrade: true,
-  waves: (function() {
-    const wArr = [];
-    const lvlHpMult = 4.2;
-    const lvlSpeedMult = getLevelSpeedMult(40);
-    for (let w = 1; w <= 9; w++) {
-      wArr.push({
-        wave: w,
-        spawns: [
-          createEnemySpawn('goliath', 2 + Math.floor(w * 0.4), { hpMult: lvlHpMult, speedMult: lvlSpeedMult, interval: 1.53 }),
-          createEnemySpawn('blinker', 4 + Math.floor(w * 0.5), { hpMult: lvlHpMult, speedMult: lvlSpeedMult, interval: 0.688 }),
-          createEnemySpawn('swarm', 10 + w * 2, { hpMult: lvlHpMult, interval: 0.15, clumps: Math.min(4, 2 + Math.floor(w / 3)) })
-        ]
-      });
-    }
-    wArr.push({
-      wave: 10,
-      spawns: [
-        createEnemySpawn('goliath', 6, { hpMult: lvlHpMult, speedMult: lvlSpeedMult, interval: 1.53 }),
-        createEnemySpawn('blinker', 8, { hpMult: lvlHpMult, speedMult: lvlSpeedMult, interval: 0.688 }),
-        createEnemySpawn('tank', 6, { hpMult: lvlHpMult, speedMult: lvlSpeedMult, interval: 1.2 }),
-        createEnemySpawn('swarm', 24, { hpMult: lvlHpMult, interval: 0.15, clumps: 4 }),
-        { type: 'titan_core', isBoss: true, isMiniBoss: false, count: 1, hp: 10000, speed: 28, interval: 1.2, bounty: 110 }
-      ]
-    });
-    return wArr;
-  })()
-};
 
 const SECTOR_5_MINIBOSSES = [
   { type: 'emp_bomber', hp: 1100 }, { type: 'goliath', hp: 1650 }, { type: 'blinker', hp: 920 },
