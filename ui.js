@@ -21,6 +21,71 @@ function createGlowSprite(color) {
   return c;
 }
 
+// --- Кэш статической сетки и дорожки (Offscreen Canvas) ---
+let offscreenGridCanvas = null;
+let offscreenGridDirty = true;
+
+function invalidateGridCache() {
+  offscreenGridDirty = true;
+}
+
+function updateOffscreenGrid() {
+  if (!offscreenGridCanvas) {
+    offscreenGridCanvas = document.createElement('canvas');
+  }
+  
+  const w = COLS * TILE_SIZE;
+  const h = ROWS * TILE_SIZE;
+  
+  if (offscreenGridCanvas.width !== w || offscreenGridCanvas.height !== h) {
+    offscreenGridCanvas.width = w;
+    offscreenGridCanvas.height = h;
+  }
+  
+  const oCtx = offscreenGridCanvas.getContext('2d');
+  oCtx.clearRect(0, 0, w, h);
+  
+  // 1. Отрисовка базовой сетки ячеек
+  for (let r = 0; r < ROWS; r++) {
+    for (let c = 0; c < COLS; c++) {
+      const cellVal = grid[r] ? grid[r][c] : 0;
+      oCtx.fillStyle = (cellVal === 1) ? 'rgba(16, 26, 52, 0.50)' : (cellVal === 3 ? 'rgba(0, 0, 0, 0.75)' : 'rgba(10, 14, 26, 0.35)');
+      oCtx.fillRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+      oCtx.strokeStyle = (cellVal === 1) ? 'rgba(35, 60, 110, 0.60)' : (cellVal === 3 ? 'rgba(0, 0, 0, 0.90)' : 'rgba(20, 32, 58, 0.40)');
+      oCtx.lineWidth = 1;
+      oCtx.strokeRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    }
+  }
+
+  // 2. Отрисовка статических боковых направляющих/рельсов дорожки
+  oCtx.save();
+  oCtx.strokeStyle = 'rgba(0, 229, 255, 0.22)';
+  oCtx.lineWidth = 1.5;
+  
+  if (typeof pathCells !== 'undefined' && Array.isArray(pathCells)) {
+    pathCells.forEach(cell => {
+      if (cell.rails) {
+        cell.rails.forEach(rail => {
+          oCtx.beginPath();
+          oCtx.moveTo(rail.x1, rail.y1);
+          oCtx.lineTo(rail.x2, rail.y2);
+          oCtx.stroke();
+        });
+      }
+      if (cell.turnPivot && cell.turnAngles && cell.turnRadii) {
+        cell.turnRadii.forEach(rad => {
+          oCtx.beginPath();
+          oCtx.arc(cell.turnPivot.x, cell.turnPivot.y, rad, cell.turnAngles.start, cell.turnAngles.end, cell.turnAngles.anticlockwise);
+          oCtx.stroke();
+        });
+      }
+    });
+  }
+  oCtx.restore();
+
+  offscreenGridDirty = false;
+}
+
 // Кешированные круглые неоновые диски (заменяют dynamic createRadialGradient на каждой частице)
 const NEON_DISC_SPRITES = Object.create(null);
 function getNeonDiscSprite(color) {
@@ -169,7 +234,6 @@ function resizeCanvasAndCamera() {
   FIELD_WIDTH = COLS * TILE_SIZE;
   FIELD_HEIGHT = ROWS * TILE_SIZE;
 
-  // Динамически замеряем высоту верхней плашки ресурсов и нижней панели управления
   const topHudEl = document.getElementById('topHud');
   const bottomEl = document.getElementById('controlsWrapper');
   const topH = (topHudEl && !topHudEl.classList.contains('hidden'))
@@ -179,29 +243,34 @@ function resizeCanvasAndCamera() {
     ? bottomEl.getBoundingClientRect().height
     : 110;
 
-  // Безопасный вертикальный коридор строго между интерфейсными плашками
+  // Безопасный вертикальный коридор строго между плашками интерфейса
   const usableHeight = Math.max(220, window.innerHeight - topH - bottomH);
 
-  // Добавляем по 1 клетке (TILE_SIZE = 70px) виртуального поля с каждой стороны
+  // 1. БАЗОВЫЙ МАСШТАБ (по умолчанию): вписывает карту ровно в видимую область, как и было
+  baseZoom = Math.min(window.innerWidth / FIELD_WIDTH, usableHeight / FIELD_HEIGHT);
+
+  // 2. МИНИМАЛЬНЫЙ ЗУМ (для ручного отдаления): позволяет игроку отдалить карту на ~1 клетку с каждой стороны
   const PADDING_CELLS = 1;
   const paddedWidth = FIELD_WIDTH + (TILE_SIZE * PADDING_CELLS * 2);
   const paddedHeight = FIELD_HEIGHT + (TILE_SIZE * PADDING_CELLS * 2);
+  minZoom = Math.min(window.innerWidth / paddedWidth, usableHeight / paddedHeight);
 
-  // Базовый масштаб аккуратно вписывает поле вместе с бордюром в 1 клетку
-  baseZoom = Math.min(window.innerWidth / paddedWidth, usableHeight / paddedHeight);
-  // Разрешаем отдалять карту ещё немного (на 10% свободнее)
-  minZoom = baseZoom * 0.90;
+  // Максимальное приближение
   maxZoom = Math.max(1.8, baseZoom * 2.2);
 
-  if (camZoom < minZoom || !camZoom) camZoom = baseZoom;
+  // При старте или сбросе уровня ставим базовый привычный масштаб
+  if (!camZoom || camZoom < minZoom) {
+    camZoom = baseZoom;
+  }
   if (camZoom > maxZoom) camZoom = maxZoom;
 
-  // Центрируем камеру ровно посередине между верхней и нижней плашками интерфейса
+  // Центрируем камеру в рабочей зоне между HUD и панелью башен
   const targetCenterY = topH + (usableHeight / 2);
   camX = (window.innerWidth / 2) - (FIELD_WIDTH * camZoom / 2);
   camY = targetCenterY - (FIELD_HEIGHT * camZoom / 2);
-
+  
   clampCamera();
+  invalidateGridCache();
 }
 
 function clampCamera() {
@@ -963,92 +1032,68 @@ function renderLevelsGrid() {
   }
 }
 
-let devTier = 0; // 0 = off, 1 = speed only, 2 = full dev mode
+// --- DEV MODE CONTROLS ---
+let isDevModeActive = false;
+let isDevExpanded = false;
 
-function setDevTier(tier) {
-  devTier = tier % 3;
-  devMode = devTier > 0;
-
-  const speedContainer = document.getElementById('speedContainer');
-  const livePauseBtn = document.getElementById('livePauseBtn');
-  const devClearSaveBtn = document.getElementById('devClearSaveBtn');
-  const devLevelSelect = document.getElementById('devLevelSelect');
-  const devWaveSelect = document.getElementById('devWaveSelect');
-  const devCustomSpawner = document.getElementById('devCustomSpawner');
-  const levelText = document.getElementById('levelText');
-  const waveText = document.getElementById('waveText');
-  const hudStaticLabels = Array.from(document.querySelectorAll('.hud-static-label'));
+function openDevMode() {
+  isDevModeActive = true;
+  devMode = true;
+  const bar = document.getElementById('devBar');
+  if (bar) bar.classList.remove('hidden');
+  
+  // HUD-ресурсы делаем интерактивными для дебага
   const goldHalf = document.getElementById('goldHalf');
   const hpHalf = document.getElementById('hpHalf');
+  if (goldHalf) goldHalf.classList.add('interactive');
+  if (hpHalf) hpHalf.classList.add('interactive');
+  if (typeof initDevResourceHold === 'function') initDevResourceHold();
+  
+  showHintToast('Dev Mode: Enabled');
+}
 
-  if (devTier === 1) {
-    // Уровень 1: Только скорость игры
-    if (speedContainer) speedContainer.classList.remove('hidden');
-    if (livePauseBtn) livePauseBtn.classList.remove('hidden');
-    if (devCustomSpawner) devCustomSpawner.classList.add('hidden');
-    if (devClearSaveBtn) devClearSaveBtn.classList.add('hidden');
-    if (devLevelSelect) devLevelSelect.classList.add('hidden');
-    if (devWaveSelect) devWaveSelect.classList.add('hidden');
-    if (levelText) levelText.classList.remove('hidden');
-    if (waveText) waveText.classList.remove('hidden');
-    hudStaticLabels.forEach(el => el.classList.remove('hidden'));
-    if (goldHalf) goldHalf.classList.remove('interactive');
-    if (hpHalf) hpHalf.classList.remove('interactive');
-    showHintToast('Dev: Speed Controls Active');
-  } else if (devTier === 2) {
-    // Уровень 2: Полный Dev Mode (Спавнер, Clear Save, интерактивный HUD)
-    if (speedContainer) speedContainer.classList.remove('hidden');
-    if (livePauseBtn) livePauseBtn.classList.remove('hidden');
-    if (devCustomSpawner) devCustomSpawner.classList.remove('hidden');
-    if (devClearSaveBtn) devClearSaveBtn.classList.remove('hidden');
-    if (devLevelSelect) devLevelSelect.classList.remove('hidden');
-    if (devWaveSelect) devWaveSelect.classList.remove('hidden');
-    if (levelText) levelText.classList.add('hidden');
-    if (waveText) waveText.classList.add('hidden');
-    hudStaticLabels.forEach(el => el.classList.add('hidden'));
-    if (goldHalf) {
-      goldHalf.classList.add('interactive');
-      goldHalf.title = "Click: +200 / Hold: set amount";
-    }
-    if (hpHalf) {
-      hpHalf.classList.add('interactive');
-      hpHalf.title = "Click: +5 / Hold: set amount";
-    }
-    refreshDevDropdowns();
-    initDevResourceHold();
-    showHintToast('Dev: Full Controls Active');
-  } else {
-    // Уровень 0: Полностью выключено
-    if (speedContainer) speedContainer.classList.add('hidden');
-    if (livePauseBtn) livePauseBtn.classList.add('hidden');
-    if (devClearSaveBtn) devClearSaveBtn.classList.add('hidden');
-    if (devLevelSelect) devLevelSelect.classList.add('hidden');
-    if (devWaveSelect) devWaveSelect.classList.add('hidden');
-    if (devCustomSpawner) devCustomSpawner.classList.add('hidden');
-    if (levelText) levelText.classList.remove('hidden');
-    if (waveText) waveText.classList.remove('hidden');
-    hudStaticLabels.forEach(el => el.classList.remove('hidden'));
-    if (goldHalf) goldHalf.classList.remove('interactive');
-    if (hpHalf) hpHalf.classList.remove('interactive');
-    setGameSpeed(1);
-    if (speedContainer) speedContainer.value = "1";
-    if (isLivePaused) {
-      isLivePaused = false;
-      if (livePauseBtn) {
-        livePauseBtn.innerHTML = '<span>⏸ Pause</span>';
-        livePauseBtn.classList.remove('paused');
-      }
-    }
-    showHintToast('Dev Mode Disabled');
+function closeDevMode() {
+  isDevModeActive = false;
+  devMode = false;
+  isDevExpanded = false;
+  
+  const bar = document.getElementById('devBar');
+  if (bar) bar.classList.add('hidden');
+  
+  const pane = document.getElementById('devDetailsPane');
+  if (pane) pane.classList.add('hidden');
+  
+  const btn = document.getElementById('devExpandBtn');
+  if (btn) btn.textContent = '▾';
+
+  const goldHalf = document.getElementById('goldHalf');
+  const hpHalf = document.getElementById('hpHalf');
+  if (goldHalf) goldHalf.classList.remove('interactive');
+  if (hpHalf) hpHalf.classList.remove('interactive');
+
+  setGameSpeed(1);
+  const speedSel = document.getElementById('speedContainer');
+  if (speedSel) speedSel.value = "1";
+
+  showHintToast('Dev Mode: Disabled');
+}
+
+function toggleDevPanelExpand() {
+  isDevExpanded = !isDevExpanded;
+  const pane = document.getElementById('devDetailsPane');
+  const btn = document.getElementById('devExpandBtn');
+  if (pane) {
+    if (isDevExpanded) pane.classList.remove('hidden');
+    else pane.classList.add('hidden');
   }
-
-  renderLevelsGrid();
-  updateUI();
-  updateUpgradeButtonsLock();
+  if (btn) {
+    btn.textContent = isDevExpanded ? '▴' : '▾';
+  }
 }
 
 function toggleDevMode(enabled) {
-  setDevTier(enabled ? 2 : 0);
+  if (enabled) openDevMode();
+  else closeDevMode();
 }
 
 function handleClearSaveClick() {
@@ -2790,15 +2835,23 @@ function drawPathRails(now) {
   ctx.save();
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
-  ctx.strokeStyle = 'rgba(0, 229, 255, 0.45)';
-  setGlow('#00e5ff', 4);
-  ctx.lineWidth = 2.0;
-  ctx.setLineDash([10, 8]);
-  ctx.lineDashOffset = dashOffset;
 
+  // Слой 1: Мягкая статичная неоновая подложка (без медленного setGlow/shadowBlur)
+  ctx.strokeStyle = 'rgba(0, 229, 255, 0.18)';
+  ctx.lineWidth = 3.5;
   for (let i = 1; i < totalCells - 1; i++) {
     renderCellRails(pathCells[i]);
   }
+
+  // Слой 2: Чёткий анимированный бегущий неоновый пунктир
+  ctx.strokeStyle = 'rgba(165, 243, 252, 0.85)';
+  ctx.lineWidth = 1.8;
+  ctx.setLineDash([10, 8]);
+  ctx.lineDashOffset = dashOffset;
+  for (let i = 1; i < totalCells - 1; i++) {
+    renderCellRails(pathCells[i]);
+  }
+
   ctx.restore();
 }
 
@@ -3277,6 +3330,25 @@ function render(now) {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
+// --- FPS Counter для Dev Mode ---
+  if (isDevModeActive) {
+    if (!window._fpsLastTime) {
+      window._fpsLastTime = now;
+      window._fpsFrames = 0;
+    }
+    window._fpsFrames++;
+    if (now - window._fpsLastTime >= 500) {
+      const currentFps = Math.round((window._fpsFrames * 1000) / (now - window._fpsLastTime));
+      const badge = document.getElementById('devFpsBadge');
+      if (badge) {
+        badge.textContent = `FPS: ${currentFps}`;
+        badge.style.color = currentFps >= 50 ? '#39ff14' : (currentFps >= 30 ? '#ffb703' : '#ff2a6d');
+      }
+      window._fpsFrames = 0;
+      window._fpsLastTime = now;
+    }
+  }
+
   const isUpgradesFromCombat = (gameState === 'UPGRADES' && (upgradesPreviousSource === 'victory' || upgradesPreviousSource === 'defeat'));
   const isSettingsFromCombat = (gameState === 'SETTINGS' && settingsPreviousSource === 'pause');
 
@@ -3295,19 +3367,11 @@ function render(now) {
   ctx.translate(camX, camY);
   ctx.scale(camZoom, camZoom);
 
-for (let r = 0; r < ROWS; r++) {
-    for (let c = 0; c < COLS; c++) {
-      const cellVal = grid[r] ? grid[r][c] : 0;
-      // cellVal === 1: путь мобов (холодный глубокий индиго вместо красно-фиолетового)
-      // cellVal === 3: заблокированные ячейки
-      // остальные: обычные свободные клетки поля (тёмно-синеватые)
-      ctx.fillStyle = (cellVal === 1) ? 'rgba(16, 26, 52, 0.50)' : (cellVal === 3 ? 'rgba(0, 0, 0, 0.75)' : 'rgba(10, 14, 26, 0.35)');
-      ctx.fillRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-      ctx.strokeStyle = (cellVal === 1) ? 'rgba(35, 60, 110, 0.60)' : (cellVal === 3 ? 'rgba(0, 0, 0, 0.90)' : 'rgba(20, 32, 58, 0.40)');
-      ctx.lineWidth = 1;
-      ctx.strokeRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-    }
+// Быстрая отрисовка запечённой сетки поля из оффскрин-буфера
+  if (offscreenGridDirty || !offscreenGridCanvas) {
+    updateOffscreenGrid();
   }
+  ctx.drawImage(offscreenGridCanvas, 0, 0);
 
   drawPathRails(now);
   drawPathPortals();

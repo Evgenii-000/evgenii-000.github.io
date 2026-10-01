@@ -310,57 +310,47 @@
   <span>🗑 Clear Save</span>
 </button>
 
-<!-- Custom Spawner (Dev Mode) -->
-<div class="dev-custom-spawner hidden" id="devCustomSpawner" style="position: fixed; top: max(212px, calc(env(safe-area-inset-top) + 200px)); right: max(16px, env(safe-area-inset-right)); width: 205px; background: rgba(12, 16, 29, 0.94); border: 1.5px solid #00e5ff; border-radius: 10px; padding: 12px; z-index: 9999; backdrop-filter: blur(8px); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.75), 0 0 12px rgba(0, 229, 255, 0.25); display: flex; flex-direction: column; gap: 10px; font-family: 'Montserrat', sans-serif; pointer-events: auto;">
-  <div style="font-size: 11px; font-weight: 900; color: #00e5ff; text-align: center; letter-spacing: 1px;">CUSTOM SPAWN</div>
-  
-  <div style="display: flex; justify-content: space-between; align-items: center;">
-    <span style="font-size: 10px; color: #8ef3ff; font-weight: 700;">Mob</span>
-    <select id="devSpawnType" onfocus="suppressBackgroundPause(1500)" onchange="suppressBackgroundPause(1500)" onblur="suppressBackgroundPause()" style="background: #090c17; color: #fff; border: 1px solid #283354; border-radius: 4px; font-size: 10px; font-family: inherit; padding: 3px; width: 125px; outline: none;">
-      <option value="grunt">Grunt</option>
-      <option value="scout">Scout</option>
-      <option value="tank">Tank</option>
-      <option value="swarm">Swarm</option>
-      <option value="blinker">Blinker</option>
-      <option value="goliath">Goliath</option>
-      <option value="emp_bomber">EMP Bomber</option>
-      <option value="hive_empress">Hive Empress</option>
-      <option value="chronos_warp">Chronos Warp</option>
-      <option value="titan_core">Titan Core</option>
-      <option value="emp_overlord">EMP Overlord</option>
-    </select>
-  </div>
-  
-  <div style="display: flex; justify-content: space-between; align-items: center;">
-    <span style="font-size: 10px; color: #8ef3ff; font-weight: 700;">Count</span>
-    <input type="number" id="devSpawnCount" value="1" min="1" onfocus="suppressBackgroundPause(1500)" onchange="suppressBackgroundPause(1500)" onblur="suppressBackgroundPause()" style="background: #090c17; color: #fff; border: 1px solid #283354; border-radius: 4px; font-size: 10px; font-family: inherit; padding: 3px; width: 50px; text-align: center; outline: none;">
-  </div>
-  
-  <div style="display: flex; justify-content: space-between; align-items: center;">
-    <span style="font-size: 10px; color: #8ef3ff; font-weight: 700;">Interval</span>
-    <input type="number" id="devSpawnInterval" value="0.5" step="0.1" min="0" onfocus="suppressBackgroundPause(1500)" onchange="suppressBackgroundPause(1500)" onblur="suppressBackgroundPause()" style="background: #090c17; color: #fff; border: 1px solid #283354; border-radius: 4px; font-size: 10px; font-family: inherit; padding: 3px; width: 50px; text-align: center; outline: none;">
-  </div>
-  
-  <div style="display: flex; justify-content: space-between; align-items: center;">
-    <span style="font-size: 10px; color: #8ef3ff; font-weight: 700;">HP</span>
-    <div style="display: flex; gap: 4px; align-items: center;">
-      <input type="number" id="devSpawnHpMult" value="1.0" step="0.1" min="0.1" title="Множитель HP" onfocus="suppressBackgroundPause(1500)" onchange="suppressBackgroundPause(1500)" onblur="suppressBackgroundPause()" style="background: #090c17; color: #fff; border: 1px solid #283354; border-radius: 4px; font-size: 10px; font-family: inherit; padding: 3px; width: 44px; text-align: center; outline: none;">
-      <span style="font-size: 9px; color: #8ef3ff;">x</span>
-      <input type="number" id="devSpawnHpAbs" value="40" min="1" title="Абсолютное HP" onfocus="suppressBackgroundPause(1500)" onchange="suppressBackgroundPause(1500)" onblur="suppressBackgroundPause()" style="background: #090c17; color: #fff; border: 1px solid #283354; border-radius: 4px; font-size: 10px; font-family: inherit; padding: 3px; width: 54px; text-align: center; outline: none;">
+<!-- Dev Mode Bar (Compact + Expandable) -->
+  <div class="dev-bar hidden" id="devBar">
+    <div class="dev-bar-top">
+      <div class="dev-fps-badge" id="devFpsBadge">FPS: 60</div>
+      
+      <select id="speedContainer" class="dev-speed-select" onchange="setGameSpeed(parseFloat(this.value))">
+        <option value="1">1x</option>
+        <option value="1.5">1.5x</option>
+        <option value="2">2x</option>
+        <option value="4">4x</option>
+        <option value="8">8x</option>
+      </select>
+
+      <button type="button" class="dev-icon-btn" id="devExpandBtn" onclick="toggleDevPanelExpand()" title="Details">▾</button>
+      <button type="button" class="dev-icon-btn dev-close-btn" onclick="closeDevMode()" title="Close Dev Mode">✕</button>
+    </div>
+
+    <!-- Выпадающая часть с полными инструментами -->
+    <div class="dev-details-pane hidden" id="devDetailsPane">
+      <div class="dev-actions-row">
+        <button type="button" class="dev-btn dev-danger-btn" id="devClearSaveBtn" onclick="handleClearSaveClick()">CLEAR SAVE</button>
+      </div>
+
+      <div class="dev-spawner-sub" id="devCustomSpawner">
+        <div class="dev-sub-title">SPAWNER</div>
+        <div class="dev-spawner-grid">
+          <select id="devSpawnType">
+            <option value="grunt">Grunt</option>
+            <option value="scout">Scout</option>
+            <option value="tank">Tank</option>
+            <option value="swarm">Swarm</option>
+            <option value="blinker">Blinker</option>
+            <option value="goliath">Goliath</option>
+            <option value="boss">Boss</option>
+          </select>
+          <input type="number" id="devSpawnCount" min="1" max="50" value="5" title="Count">
+          <button type="button" class="dev-btn" onclick="devSpawnCustomEnemies()">SPAWN</button>
+        </div>
+      </div>
     </div>
   </div>
-  
-  <div style="display: flex; justify-content: space-between; align-items: center;">
-    <span style="font-size: 10px; color: #8ef3ff; font-weight: 700;">Speed</span>
-    <div style="display: flex; gap: 4px; align-items: center;">
-      <input type="number" id="devSpawnSpeedMult" value="1.0" step="0.1" min="0.1" title="Множитель скорости" onfocus="suppressBackgroundPause(1500)" onchange="suppressBackgroundPause(1500)" onblur="suppressBackgroundPause()" style="background: #090c17; color: #fff; border: 1px solid #283354; border-radius: 4px; font-size: 10px; font-family: inherit; padding: 3px; width: 44px; text-align: center; outline: none;">
-      <span style="font-size: 9px; color: #8ef3ff;">x</span>
-      <input type="number" id="devSpawnSpeedAbs" value="55" min="1" title="Абсолютная скорость (px/s)" onfocus="suppressBackgroundPause(1500)" onchange="suppressBackgroundPause(1500)" onblur="suppressBackgroundPause()" style="background: #090c17; color: #fff; border: 1px solid #283354; border-radius: 4px; font-size: 10px; font-family: inherit; padding: 3px; width: 54px; text-align: center; outline: none;">
-    </div>
-  </div>
-  
-  <button onclick="handleDevSpawnClick()" onmousedown="this.style.transform='scale(0.96)'" onmouseup="this.style.transform='none'" onmouseleave="this.style.transform='none'" style="background: linear-gradient(rgba(0, 229, 255, 0.28), rgba(0, 229, 255, 0.06)), rgba(8, 12, 24, 0.92); border: 1px solid #00e5ff; color: #fff; border-radius: 6px; padding: 8px; font-family: inherit; font-weight: 900; font-size: 11px; cursor: pointer; text-transform: uppercase; margin-top: 4px; transition: all 0.2s ease;">SPAWN</button>
-</div>
 
 <!-- Start Screen -->
 <div class="overlay-screen transparent-bg" id="startScreen">
@@ -688,8 +678,8 @@
     <button class="result-btn seq-in seq-d2" id="defeatRetryBtn" onclick="retryLevel()"><span>RETRY</span></button>
     <button class="result-btn seq-in seq-d2" id="defeatUpgradesBtn" onclick="showUpgradesScreen('defeat')"><span>TECH TREE</span></button>
     <button class="result-btn seq-in seq-d2" id="defeatLevelsBtn" onclick="showLevelSelectFromGame()"><span>LEVELS</span></button>
-    <button class="result-btn seq-in seq-d3" onclick="showShopScreen('defeat')"><span>GIFTS & SHOP</span></button>
-    <button class="result-btn seq-in seq-d3" onclick="showSettings('defeat')"><span>SETTINGS</span></button>
+    <button class="result-btn seq-in seq-d3" id="defeatShopBtn" onclick="showShopScreen('defeat')"><span>GIFTS & SHOP</span></button>
+    <button class="result-btn seq-in seq-d3" id="defeatSettingsBtn" onclick="showSettings('defeat')"><span>SETTINGS</span></button>
     <div class="loadout-anchor seq-in seq-d3" id="loadoutAnchor-defeat"></div>
   </div>
 </div>

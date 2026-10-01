@@ -701,20 +701,18 @@ function togglePause() {
     devPauseClickTimer = null;
   }, 1800);
 
-  if (devPauseClicks === 5) {
-    if (typeof setDevTier === 'function') setDevTier(1);
-  } else if (devPauseClicks === 10) {
-    if (typeof setDevTier === 'function') setDevTier(2);
-  } else if (devPauseClicks >= 15) {
-    if (typeof setDevTier === 'function') setDevTier(0);
+  // Ровно 5 нажатий открывают дев-мод
+  if (devPauseClicks >= 5) {
     devPauseClicks = 0;
+    if (typeof openDevMode === 'function') {
+      openDevMode();
+    }
   }
 
   if (gameState !== 'PLAYING' && gameState !== 'PAUSED') return;
   if (gameState === 'PLAYING') {
     gameState = 'PAUSED';
     sfxStopBeams();
-  
     document.getElementById('pauseScreen').classList.remove('hidden');
     showLoadoutWidgetIn('loadoutAnchor-pause');
   } else {
@@ -949,14 +947,20 @@ function triggerDefeat() {
   gameState = 'DEFEAT';
 
   const reviveBtn = document.getElementById('reviveBtn');
+  const skipBtn = document.getElementById('reviveSkipBtn');
   const retryBtn = document.getElementById('defeatRetryBtn');
   const upgBtn = document.getElementById('defeatUpgradesBtn');
   const levelsBtn = document.getElementById('defeatLevelsBtn');
+  const shopBtn = document.getElementById('defeatShopBtn');
+  const settingsBtn = document.getElementById('defeatSettingsBtn');
 
   if (reviveBtn) reviveBtn.classList.add('hidden');
+  if (skipBtn) skipBtn.classList.add('hidden');
   if (retryBtn) retryBtn.classList.remove('hidden');
   if (upgBtn) upgBtn.classList.remove('hidden');
   if (levelsBtn) levelsBtn.classList.remove('hidden');
+  if (shopBtn) shopBtn.classList.remove('hidden');
+  if (settingsBtn) settingsBtn.classList.remove('hidden');
 
   updateUpgradeButtonsLock();
   updateDefeatWaveLine();
@@ -1012,7 +1016,10 @@ function triggerEmergencyRevivePrompt() {
   const retryBtn = document.getElementById('defeatRetryBtn');
   const upgBtn = document.getElementById('defeatUpgradesBtn');
   const levelsBtn = document.getElementById('defeatLevelsBtn');
+  const shopBtn = document.getElementById('defeatShopBtn');
+  const settingsBtn = document.getElementById('defeatSettingsBtn');
 
+  // Видна ТОЛЬКО кнопка Revive
   if (reviveBtn) {
     reviveBtn.classList.remove('hidden');
     setReviveBtnLabel(reviveRemainingSeconds);
@@ -1021,6 +1028,8 @@ function triggerEmergencyRevivePrompt() {
   if (retryBtn) retryBtn.classList.add('hidden');
   if (upgBtn) upgBtn.classList.add('hidden');
   if (levelsBtn) levelsBtn.classList.add('hidden');
+  if (shopBtn) shopBtn.classList.add('hidden');
+  if (settingsBtn) settingsBtn.classList.add('hidden');
 
   updateDefeatWaveLine();
   const loadoutWidget = document.getElementById('loadoutWidget');
@@ -1028,11 +1037,12 @@ function triggerEmergencyRevivePrompt() {
   document.getElementById('defeatScreen').classList.remove('hidden');
   replayDefeatFlash();
 
+  // Кнопка Skip появляется ровно через 1 секунду
   if (reviveSkipShowTimer) clearTimeout(reviveSkipShowTimer);
   reviveSkipShowTimer = setTimeout(() => {
     reviveSkipShowTimer = null;
     if (skipBtn) skipBtn.classList.remove('hidden');
-  }, 500);
+  }, 1000);
 
   if (reviveTimerInterval) clearInterval(reviveTimerInterval);
   reviveTimerInterval = setInterval(() => {
@@ -1054,11 +1064,17 @@ function finishRevivePromptWindow() {
   const retryBtn = document.getElementById('defeatRetryBtn');
   const upgBtn = document.getElementById('defeatUpgradesBtn');
   const levelsBtn = document.getElementById('defeatLevelsBtn');
+  const shopBtn = document.getElementById('defeatShopBtn');
+  const settingsBtn = document.getElementById('defeatSettingsBtn');
+
   if (reviveBtn) reviveBtn.classList.add('hidden');
   if (skipBtn) skipBtn.classList.add('hidden');
   if (retryBtn) retryBtn.classList.remove('hidden');
   if (upgBtn) upgBtn.classList.remove('hidden');
   if (levelsBtn) levelsBtn.classList.remove('hidden');
+  if (shopBtn) shopBtn.classList.remove('hidden');
+  if (settingsBtn) settingsBtn.classList.remove('hidden');
+
   updateUpgradeButtonsLock();
   showLoadoutWidgetIn('loadoutAnchor-defeat');
 }
