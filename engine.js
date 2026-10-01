@@ -199,6 +199,12 @@ let upgradesPreviousSource = 'main';
 let lastVictoryDiamondsReward = 2;
 let hasClaimedX2ThisLevel = false;
 
+// --- Gifts & Shop State ---
+let noAdsPurchased = false;
+let dailyGiftsClaimedDate = '';
+let dailyGiftsClaimedCount = 0; // 0, 1, 2 или 3 в день
+let shopPreviousSource = 'start'; // откуда пришли в магазин: 'start', 'victory', 'defeat'
+
 let reviveUsedThisMatch = false;
 let reviveTimerInterval = null;
 let reviveRemainingSeconds = 3;
@@ -230,7 +236,10 @@ function serializeSaveData() {
     upgradeTreeData: Object.assign({}, upgradeTreeData),
     selectedLoadout,
     settings,
-    tutorialSeen
+    tutorialSeen,
+	noAdsPurchased,
+    dailyGiftsClaimedDate,
+    dailyGiftsClaimedCount
   };
 }
 
@@ -265,6 +274,10 @@ function loadGame() {
     return false;
   }
   if (!data || typeof data !== 'object') return false;
+
+  if (typeof data.noAdsPurchased === 'boolean') noAdsPurchased = data.noAdsPurchased;
+  if (typeof data.dailyGiftsClaimedDate === 'string') dailyGiftsClaimedDate = data.dailyGiftsClaimedDate;
+  if (typeof data.dailyGiftsClaimedCount === 'number') dailyGiftsClaimedCount = data.dailyGiftsClaimedCount;
 
   if (typeof data.diamonds === 'number' && data.diamonds >= 0) diamonds = data.diamonds;
   if (typeof data.maxUnlockedLevel === 'number' && data.maxUnlockedLevel >= 1) {
@@ -730,6 +743,11 @@ function handleHardwareBack() {
   const upgradesEl = document.getElementById('upgradesScreen');
   const settingsEl = document.getElementById('settingsScreen');
   const levelsEl = document.getElementById('levelsScreen');
+  const shopEl = document.getElementById('shopScreen');
+  if (shopEl && !shopEl.classList.contains('hidden')) {
+    closeShopScreen();
+    return;
+  }
 
   if (upgradesEl && !upgradesEl.classList.contains('hidden')) {
     closeUpgradesScreen();
@@ -790,11 +808,8 @@ function calculateLevelStarsAndReward(lvl, currentHp, startingHp) {
 function claimX2Reward() {
   if (hasClaimedX2ThisLevel) return;
   const claimBtn = document.getElementById('claimX2Btn');
-  const adOverlay = document.getElementById('adSimOverlay');
-  if (adOverlay) adOverlay.classList.remove('hidden');
 
-  setTimeout(() => {
-    if (adOverlay) adOverlay.classList.add('hidden');
+  const executeGrant = () => {
     hasClaimedX2ThisLevel = true;
     diamonds += lastVictoryDiamondsReward;
     updateDiamondUI();
@@ -802,8 +817,20 @@ function claimX2Reward() {
       claimBtn.disabled = true;
       claimBtn.innerHTML = '<span>CLAIMED</span>';
     }
+    sfx('reward');
     saveGame();
-  }, 1000);
+  };
+
+  if (!noAdsPurchased) {
+    const adOverlay = document.getElementById('adSimOverlay');
+    if (adOverlay) adOverlay.classList.remove('hidden');
+    setTimeout(() => {
+      if (adOverlay) adOverlay.classList.add('hidden');
+      executeGrant();
+    }, 1000);
+  } else {
+    executeGrant();
+  }
 }
 
 let victoryFanfareTimer = null;
@@ -1045,11 +1072,8 @@ function acceptEmergencyRevive() {
   if (reviveTimerInterval) { clearInterval(reviveTimerInterval); reviveTimerInterval = null; }
   if (reviveSkipShowTimer) { clearTimeout(reviveSkipShowTimer); reviveSkipShowTimer = null; }
   document.getElementById('defeatScreen').classList.add('hidden');
-  const adOverlay = document.getElementById('adSimOverlay');
-  if (adOverlay) adOverlay.classList.remove('hidden');
 
-  setTimeout(() => {
-    if (adOverlay) adOverlay.classList.add('hidden');
+  const executeRevive = () => {
     baseHp = Math.max(3, Math.round(baseHp + 3));
     reviveUsedThisMatch = true;
     updateUI();
@@ -1068,7 +1092,18 @@ function acceptEmergencyRevive() {
     }
     gameState = 'PLAYING';
     lastTime = performance.now();
-  }, 1000);
+  };
+
+  if (!noAdsPurchased) {
+    const adOverlay = document.getElementById('adSimOverlay');
+    if (adOverlay) adOverlay.classList.remove('hidden');
+    setTimeout(() => {
+      if (adOverlay) adOverlay.classList.add('hidden');
+      executeRevive();
+    }, 1000);
+  } else {
+    executeRevive();
+  }
 }
 
 function buildTowerAt(type, c, r) {
@@ -1645,6 +1680,10 @@ function handleClearSaveClick() {
   tutorialSeen.l2 = false;
   tutorialSeen.l3 = false;
   hasClaimedX2ThisLevel = false;
+  
+  noAdsPurchased = false;
+  dailyGiftsClaimedDate = '';
+  dailyGiftsClaimedCount = 0;
 
   showStartScreen();
   renderLevelsGrid();
@@ -1744,6 +1783,87 @@ function toggleLivePause() {
   } else {
     btn.innerHTML = '<span>⏸ Pause</span>';
     btn.classList.remove('paused');
+  }
+}
+
+function getTodayDateString() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function checkDailyGiftReset() {
+  const today = getTodayDateString();
+  if (dailyGiftsClaimedDate !== today) {
+    dailyGiftsClaimedDate = today;
+    dailyGiftsClaimedCount = 0;
+    saveGameSoon();
+  }
+}
+
+function claimDailyGiftsPack() {
+  checkDailyGiftReset();
+  if (dailyGiftsClaimedCount >= 3) {
+    showHintToast('Daily limit reached (3/3)');
+    return;
+  }
+
+  const needsAd = dailyGiftsClaimedCount > 0 && !noAdsPurchased;
+
+  const grantGift = () => {
+    dailyGiftsClaimedCount++;
+    diamonds += 5;
+    updateDiamondUI();
+    saveGame();
+    sfx('reward');
+    renderShopScreen();
+    showHintToast('+5 Diamonds claimed!');
+  };
+
+  if (needsAd) {
+    const adOverlay = document.getElementById('adSimOverlay');
+    if (adOverlay) adOverlay.classList.remove('hidden');
+    setTimeout(() => {
+      if (adOverlay) adOverlay.classList.add('hidden');
+      grantGift();
+    }, 1000);
+  } else {
+    grantGift();
+  }
+}
+
+// Заглушка покупок (симуляция Google Play Billing)
+function buyShopIAP(productId) {
+  sfx('confirm');
+  if (productId === 'no_ads') {
+    if (noAdsPurchased) {
+      showHintToast('Already purchased!');
+      return;
+    }
+    noAdsPurchased = true;
+    saveGame();
+    renderShopScreen();
+    showHintToast('No Voluntary Ads unlocked!');
+  } else if (productId === 'diamonds_50') {
+    diamonds += 50;
+    updateDiamondUI();
+    saveGame();
+    sfx('reward');
+    renderShopScreen();
+    showHintToast('+50 Diamonds purchased!');
+  } else if (productId === 'diamonds_100') {
+    diamonds += 100;
+    updateDiamondUI();
+    saveGame();
+    sfx('reward');
+    renderShopScreen();
+    showHintToast('+100 Diamonds purchased!');
+  } else if (productId === 'diamonds_500') {
+    diamonds += 500;
+    updateDiamondUI();
+    saveGame();
+    sfx('reward');
+    renderShopScreen();
+    showHintToast('+500 Diamonds purchased!');
   }
 }
 

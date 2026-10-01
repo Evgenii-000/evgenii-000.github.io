@@ -1250,6 +1250,12 @@ function closeSettings() {
   if (settingsPreviousSource === 'pause') {
     document.getElementById('pauseScreen').classList.remove('hidden');
     gameState = 'PAUSED';
+  } else if (settingsPreviousSource === 'victory') {
+    document.getElementById('victoryScreen').classList.remove('hidden');
+    gameState = 'VICTORY';
+  } else if (settingsPreviousSource === 'defeat') {
+    document.getElementById('defeatScreen').classList.remove('hidden');
+    gameState = 'DEFEAT';
   } else {
     document.getElementById('startScreen').classList.remove('hidden');
     gameState = 'START';
@@ -1446,6 +1452,7 @@ function renderLoadoutWidgetGrid() {
 }
 
 function toggleLoadoutWidgetTower(type) {
+  sfx('tap');
   const idx = selectedLoadout.indexOf(type);
   if (idx !== -1) {
     selectedLoadout.splice(idx, 1);
@@ -1681,6 +1688,114 @@ function closeUpgradesScreen() {
   } else {
     document.getElementById('startScreen').classList.remove('hidden');
     gameState = 'START';
+  }
+}
+
+function showShopScreen(fromSource) {
+  if (!fromSource) {
+    if (gameState === 'VICTORY') fromSource = 'victory';
+    else if (gameState === 'DEFEAT') fromSource = 'defeat';
+    else fromSource = 'start';
+  }
+  shopPreviousSource = fromSource;
+
+  const bgScreenId = fromSource === 'victory' ? 'victoryScreen'
+    : (fromSource === 'defeat' ? 'defeatScreen' : 'startScreen');
+
+  ['startScreen', 'victoryScreen', 'defeatScreen', 'levelsScreen', 'pauseScreen', 'settingsScreen', 'upgradesScreen']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('screen-bg-only');
+      if (id === bgScreenId) {
+        el.classList.remove('hidden');
+        el.classList.add('screen-bg-only');
+      } else {
+        el.classList.add('hidden');
+      }
+    });
+
+  const controlsWrapper = document.getElementById('controlsWrapper');
+  if (controlsWrapper) controlsWrapper.classList.add('hidden');
+  const waveBtn = document.getElementById('waveBtn');
+  if (waveBtn) waveBtn.classList.add('hidden');
+  const topHud = document.getElementById('topHud');
+  if (topHud) topHud.classList.add('hidden');
+
+  const shopEl = document.getElementById('shopScreen');
+  const isResultBg = (bgScreenId === 'victoryScreen' || bgScreenId === 'defeatScreen');
+  shopEl.classList.toggle('from-result', isResultBg);
+  shopEl.classList.toggle('from-main', !isResultBg);
+  shopEl.classList.remove('hidden');
+  gameState = 'SHOP';
+
+  renderShopScreen();
+}
+
+function closeShopScreen() {
+  document.getElementById('shopScreen').classList.add('hidden');
+
+  const topHud = document.getElementById('topHud');
+  if (topHud) topHud.classList.remove('hidden');
+
+  ['startScreen', 'victoryScreen', 'defeatScreen'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('screen-bg-only');
+  });
+
+  if (shopPreviousSource === 'victory') {
+    document.getElementById('victoryScreen').classList.remove('hidden');
+    gameState = 'VICTORY';
+  } else if (shopPreviousSource === 'defeat') {
+    document.getElementById('defeatScreen').classList.remove('hidden');
+    gameState = 'DEFEAT';
+  } else {
+    document.getElementById('startScreen').classList.remove('hidden');
+    gameState = 'START';
+  }
+}
+
+function renderShopScreen() {
+  checkDailyGiftReset();
+  const diamondLabel = document.getElementById('shopDiamondVal');
+  if (diamondLabel) diamondLabel.textContent = diamonds;
+
+  // Отрисовка статуса ежедневных подарков
+  const giftSub = document.getElementById('dailyGiftSubText');
+  const giftBtn = document.getElementById('dailyGiftClaimBtn');
+
+  if (giftSub) {
+    giftSub.textContent = `Claimed today: ${dailyGiftsClaimedCount}/3 packs`;
+  }
+
+  if (giftBtn) {
+    if (dailyGiftsClaimedCount >= 3) {
+      giftBtn.disabled = true;
+      giftBtn.className = 'shop-item-btn shop-btn-claimed';
+      giftBtn.innerHTML = '<span>CLAIMED</span>';
+    } else if (dailyGiftsClaimedCount === 0 || noAdsPurchased) {
+      giftBtn.disabled = false;
+      giftBtn.className = 'shop-item-btn shop-btn-free';
+      giftBtn.innerHTML = '<span>FREE</span>';
+    } else {
+      giftBtn.disabled = false;
+      giftBtn.className = 'shop-item-btn shop-btn-ad';
+      giftBtn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="flex:none;"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zM8 15l7-4-7-4v8z"/></svg><span>WATCH AD</span>';
+    }
+  }
+
+  // Отрисовка кнопки No Ads
+  const noAdsBtn = document.getElementById('noAdsBuyBtn');
+  if (noAdsBtn) {
+    if (noAdsPurchased) {
+      noAdsBtn.disabled = true;
+      noAdsBtn.className = 'shop-item-btn shop-btn-claimed';
+      noAdsBtn.innerHTML = '<span>OWNED</span>';
+    } else {
+      noAdsBtn.disabled = false;
+      noAdsBtn.className = 'shop-item-btn shop-btn-buy';
+      noAdsBtn.innerHTML = '<span>$1.99</span>';
+    }
   }
 }
 
@@ -3165,8 +3280,10 @@ function render(now) {
   const isUpgradesFromCombat = (gameState === 'UPGRADES' && (upgradesPreviousSource === 'victory' || upgradesPreviousSource === 'defeat'));
   const isSettingsFromCombat = (gameState === 'SETTINGS' && settingsPreviousSource === 'pause');
 
-  if ((gameState === 'START' || gameState === 'SETTINGS' || gameState === 'LEVELS' || gameState === 'UPGRADES') 
-      && !isUpgradesFromCombat && !isSettingsFromCombat) {
+  const isShopFromCombat = (gameState === 'SHOP' && (shopPreviousSource === 'victory' || shopPreviousSource === 'defeat'));
+
+  if ((gameState === 'START' || gameState === 'SETTINGS' || gameState === 'LEVELS' || gameState === 'UPGRADES' || gameState === 'SHOP') 
+      && !isUpgradesFromCombat && !isSettingsFromCombat && !isShopFromCombat) {
     drawSynthWavePerspectiveScene(now);
     return;
   }
