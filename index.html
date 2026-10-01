@@ -1,0 +1,671 @@
+<!-- Version: v2.12.0 -->
+<!-- Changelog v2.12.0: volume sliders, diagnostics, perf + test fixes. -->
+<!-- - Sound and Music on/off switches replaced by volume sliders (0-100%, 0 -->
+<!--   shows as OFF and mutes). One control covers both "quieter" and "off". -->
+<!--   applySfxVolume/applyMusicVolume also keep the boolean enabled flag in sync, -->
+<!--   which is deliberate: at zero, audio.js and music.js must short-circuit all -->
+<!--   their work rather than synthesise silence every frame, and that boolean is -->
+<!--   what older saves carry. Migration: a save without volumes falls back to -->
+<!--   100/70 (from enabled=true) or 0 (from enabled=false). -->
+<!-- - New in-browser diagnostics, no dev mode needed. F12 then: diag() for a full -->
+<!--   report, diag.audio(), diag.game(), diag.silent() (walks the exact chain -->
+<!--   that can mute the game and names the first real culprit), diag.fix() -->
+<!--   (force-wakes the audio graph and restarts the music bed), diag.testSound(). -->
+<!--   Each probe is individually wrapped so a broken subsystem reports as broken -->
+<!--   instead of throwing and hiding the rest of the report. -->
+<!-- - Perf: update() and updateWaveCircle() run 60x/s and were doing 5 -->
+<!--   document.getElementById calls per frame for nodes that never change. Added -->
+<!--   a memoised el() lookup (falls back to a fresh query if a node is ever -->
+<!--   detached). -->
+<!-- - Fixed a stale assertion in smoke-audio.js: the "empty category is silent" -->
+<!--   test re-evaluated music.js and assumed the fresh instance had no tracks. -->
+<!--   That stopped being true once TRACKS was filled with real filenames, so it -->
+<!--   was failing for the wrong reason. It now empties the lists explicitly via -->
+<!--   _tracks(). This was a broken TEST, not broken code. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Synth Wave Defense</title>
+  <link rel="stylesheet" href="fonts.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="./manifest.json">
+</head>
+<body>
+
+<!-- Loading screen: the very first thing painted, before any game code runs. -->
+<!-- The synthwave field behind it is the same canvas scene the menus use, so -->
+<!-- the transition into the main menu is just this overlay fading out. -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="loading-inner">
+    <div class="loading-word">Loading<span class="loading-dots" id="loadingDots"></span></div>
+  </div>
+</div>
+
+<!-- CRASH SAFETY NET -->
+<div id="crashFallbackScreen" style="display:none; position:fixed; inset:0; z-index:999999; background:#06070d; color:#f1f5f9; flex-direction:column; align-items:center; justify-content:center; text-align:center; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; padding:24px;">
+  <div style="font-size:42px; margin-bottom:14px;">😵</div>
+  <div style="font-size:20px; font-weight:800; margin-bottom:10px; color:#00e5ff;">Sorry, we'll fix it!</div>
+  <div style="font-size:14px; color:#94a3b8; max-width:320px; line-height:1.5; margin-bottom:22px;">
+    Something went wrong and the game couldn't continue. Please try closing and reopening the app.
+  </div>
+  <button onclick="location.reload()" style="background:#00e5ff; color:#06070d; border:none; padding:13px 30px; border-radius:10px; font-weight:800; font-size:14px; cursor:pointer;">RELOAD</button>
+</div>
+<script>
+(function () {
+  window.__gameBooted = false;
+  var ERROR_LOG_KEY = 'sectorDefenseTD_crash_log';
+  var reportedCount = 0;
+  var reportedSignatures = {};
+
+  function logLocally(info) {
+    try {
+      var existing = JSON.parse(localStorage.getItem(ERROR_LOG_KEY) || '[]');
+      existing.push(info);
+      if (existing.length > 20) existing = existing.slice(existing.length - 20);
+      localStorage.setItem(ERROR_LOG_KEY, JSON.stringify(existing));
+    } catch (e) { }
+  }
+
+  function showFallbackScreen() {
+    var el = document.getElementById('crashFallbackScreen');
+    if (el) el.style.display = 'flex';
+  }
+
+  function tryRecoverToMenu() {
+    try {
+      if (window.__gameBooted && typeof showStartScreen === 'function') {
+        if (typeof gameState !== 'undefined') gameState = 'START';
+        showStartScreen();
+        return true;
+      }
+    } catch (e) { }
+    return false;
+  }
+
+  function handleFailure(message, source, lineno, colno, errorObj) {
+    if (reportedCount >= 8) return;
+    var sig = String(message || '') + '@' + (lineno || 0);
+    if (reportedSignatures[sig]) return;
+    reportedSignatures[sig] = true;
+    reportedCount++;
+
+    var info = {
+      message: String(message || 'Unknown error'),
+      source: String(source || ''),
+      lineno: lineno || 0,
+      colno: colno || 0,
+      stack: (errorObj && errorObj.stack) ? String(errorObj.stack).slice(0, 2000) : '',
+      booted: !!window.__gameBooted,
+      ts: new Date().toISOString(),
+      ua: navigator.userAgent
+    };
+    logLocally(info);
+
+    if (typeof window.reportErrorToWebhook === 'function') {
+      try { window.reportErrorToWebhook(info); } catch (e) { }
+    }
+
+    var recovered = window.__gameBooted ? tryRecoverToMenu() : false;
+    if (!recovered) showFallbackScreen();
+  }
+
+  window.onerror = function (message, source, lineno, colno, errorObj) {
+    handleFailure(message, source, lineno, colno, errorObj);
+    return false;
+  };
+  window.addEventListener('unhandledrejection', function (ev) {
+    var reason = ev && ev.reason;
+    handleFailure(reason && reason.message ? reason.message : String(reason), 'promise', 0, 0, reason);
+  });
+})();
+</script>
+<script src="telemetry.js"></script>
+<script src="sfx-manifest.js"></script>
+<script src="audio.js"></script>
+<script src="music.js"></script>
+
+<canvas id="gameCanvas"></canvas>
+
+<!-- Top HUD Bar (Visual Direction 3H: one frosted capsule, icons on glass) -->
+<!-- Dev mode is deliberately unchanged behaviourally: tapping a resource still -->
+<!-- edits it, and LVL / wave still open their dropdowns. Only the chrome moved. -->
+<div class="hud-top-bar" id="topHud">
+  <div class="hud-left-group">
+    <div class="badge-half" id="hudDiamondBadge" onclick="handleDevDiamondClick()">
+      <div class="hud-icon" style="filter: drop-shadow(0 0 7px rgba(0,229,255,.85));">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2.2" stroke-linejoin="round">
+          <polygon points="6 3 18 3 22 9 12 22 2 9" fill="rgba(0,229,255,.25)" />
+          <polyline points="2 9 12 13 22 9" />
+          <line x1="12" y1="22" x2="12" y2="13" />
+        </svg>
+      </div>
+      <span class="stat-val-text" id="globalDiamondsVal">10</span>
+    </div>
+
+    <div class="hud-capsule-extra hidden" id="econHpSplitBadge">
+      <div class="badge-divider"></div>
+      <div class="badge-half" id="goldHalf" onclick="handleDevGoldClick()">
+        <div class="hud-icon" style="filter: drop-shadow(0 0 7px rgba(255,145,0,.8));">
+          <svg width="15" height="15" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="11" fill="#ff9100" />
+            <text x="12" y="17.5" font-size="16" font-weight="900" fill="#000000" text-anchor="middle" font-family="Montserrat, sans-serif">$</text>
+          </svg>
+        </div>
+        <span class="stat-val-text" id="goldVal">100</span>
+      </div>
+
+      <div class="badge-divider"></div>
+
+<div class="badge-half" id="hpHalf" onclick="handleDevHpClick()">
+        <div class="hud-icon" style="filter: drop-shadow(0 0 7px rgba(240,95,159,.9));">
+          <div style="width:13px; height:12px; background:#f05f9f; clip-path:polygon(50% 100%, 4% 42%, 4% 18%, 26% 2%, 50% 20%, 74% 2%, 96% 18%, 96% 42%);"></div>
+        </div>
+        <span class="stat-val-text" id="hpVal">10</span>
+      </div>
+    </div>
+  </div>
+
+  <span class="hud-chapter-label hidden" id="startChapterLabel">CHAPTER 1</span>
+
+  <div class="hud-right-group hidden" id="hudRightGroup">
+    <div class="hud-split-badge" id="levelWaveSplitBadge">
+      <div class="badge-half" id="levelHalf">
+        <span class="match-val-text hud-static-label">LVL</span>
+        <span class="match-val-text" id="levelText">1</span>
+        <select id="devLevelSelect" class="hud-select-dropdown hidden" onchange="startSpecificLevel(parseInt(this.value, 10))"></select>
+      </div>
+
+      <span class="match-val-text hud-static-label">·</span>
+
+      <div class="badge-half" id="waveHalf">
+        <span class="match-val-text" id="waveText">1/2</span>
+        <select id="devWaveSelect" class="hud-select-dropdown hidden" onchange="devJumpToWave(parseInt(this.value, 10))"></select>
+      </div>
+    </div>
+    <button class="hud-pause-btn" onclick="togglePause()" title="Pause Menu">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+        <rect x="7" y="4" width="3.5" height="16" rx="1.75" />
+        <rect x="13.5" y="4" width="3.5" height="16" rx="1.75" />
+      </svg>
+    </button>
+  </div>
+</div>
+
+<!-- Incoming Boss / Mini-Boss Notification Banner -->
+<div class="incoming-alert-banner" id="incomingAlertBanner">
+  <span class="incoming-alert-text" id="incomingAlertText">Boss Incoming</span>
+</div>
+
+<!-- New Tower Unlocked Banner -->
+<div class="new-tower-banner" id="newTowerBanner">
+  <div class="new-tower-icon" id="newTowerBannerIcon"></div>
+  <div class="new-tower-texts">
+    <span class="new-tower-title">New Tower Unlocked</span>
+    <span class="new-tower-name" id="newTowerBannerName">Laser</span>
+    <span class="new-tower-sub">More will unlock as you progress</span>
+  </div>
+</div>
+
+<!-- Controls & Build UI Layer -->
+<div class="ui-layer">
+  <div></div>
+
+  <!-- Кнопка Go вынесена из controls-wrapper, чтобы не обрезаться overflow:hidden -->
+  <button class="action-btn floating-wave-btn" id="waveBtn" onclick="triggerManualWave()">
+    <div class="wave-circle-wrap">
+      <svg class="wave-circle-svg" width="78" height="78" viewBox="0 0 78 78">
+        <circle class="wave-circle-bg" cx="39" cy="39" r="33" fill="none" />
+        <circle class="wave-circle-prog" id="waveCircleProg" cx="39" cy="39" r="33" fill="none" stroke-dasharray="207.35" stroke-dashoffset="207.35" />
+      </svg>
+      <span class="wave-btn-label" id="waveBtnText">Go</span>
+      <span class="wave-go-bonus" id="waveGoBonus">+<svg width="9" height="9" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#ff9100"/><text x="12" y="17.5" font-size="16" font-weight="900" fill="#0a0e1c" text-anchor="middle" font-family="Montserrat, sans-serif">$</text></svg><span id="waveGoBonusVal">0</span></span>
+    </div>
+  </button>
+
+  <div class="controls-wrapper hidden" id="controlsWrapper">
+    <div class="cancel-zone-overlay hidden" id="cancelZoneOverlay">
+      <span class="cancel-zone-text">CANCEL</span>
+    </div>
+
+    <!-- Панель постройки: только слоты башен -->
+    <div class="controls-panel" id="buildPanel"></div>
+
+    <!-- Inspector Panel (Visual Direction 3G) -->
+    <div class="controls-panel hidden" id="inspectPanel">
+      <div class="selected-info">
+       <div class="selected-icon-box" id="inspectIconBox"></div>
+       <div class="selected-texts">
+        <span class="selected-title" id="inspectName">Gatling</span>
+        <span class="selected-lvl-text" id="inspectLvlText">LVL 1</span>
+        <div class="selected-level-bars" id="inspectLevelBars">
+         <div class="level-bar-seg" id="lvlBar1"></div>
+         <div class="level-bar-seg" id="lvlBar2"></div>
+        <div class="level-bar-seg" id="lvlBar3"></div>
+       </div>
+      </div>
+    </div>
+
+      <button class="btn-upgrade" id="inspectUpgradeBtn" onclick="upgradeSelectedTower()">
+        <span class="upg-btn-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="20" x2="12" y2="6"></line><polyline points="5 13 12 6 19 13"></polyline>
+          </svg>
+          <span id="inspectUpgradeStatus">UPGRADE</span>
+        </span>
+        <span class="cost" id="inspectUpgradeCost">
+          <span class="cost-icon" id="inspectUpgradeCostIcon">
+            <svg width="13" height="13" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#ff9100" /><text x="12" y="17.5" font-size="16" font-weight="900" fill="#000" text-anchor="middle" font-family="Montserrat, sans-serif">$</text></svg>
+          </span>
+          <span id="inspectUpgradeCostVal">65</span>
+        </span>
+      </button>
+
+      <button class="btn-sell" id="inspectSellBtn" onclick="sellSelectedTower()">
+        <span class="sell-btn-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ff8fb0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          <span id="inspectSellTitle">SELL</span>
+        </span>
+        <span class="cost" id="inspectSellVal">
+          <span class="cost-icon">
+            <svg width="12" height="12" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#ff9100" /><text x="12" y="17.5" font-size="16" font-weight="900" fill="#000" text-anchor="middle" font-family="Montserrat, sans-serif">$</text></svg>
+          </span>
+          <span id="inspectSellValText">35</span>
+        </span>
+      </button>
+
+      <!-- Кнопка закрытия инспектора (✖) -->
+      <button class="btn-close-inspect" id="inspectCloseBtn" onclick="deselectTower()" title="Close">
+        <svg viewBox="0 0 24 24" fill="none">
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+          <line x1="6" y1="18" x2="18" y2="6"></line>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Persistent Dev Mode Controls -->
+<label class="dev-mode-toggle" id="devModeToggle">
+  <input type="checkbox" id="devModeCheckbox" onchange="toggleDevMode(this.checked)">
+  <span>DEV MODE</span>
+</label>
+
+<select id="speedContainer" class="dev-speed-floating hidden" onchange="setGameSpeed(parseFloat(this.value))">
+  <option value="1">1x</option>
+  <option value="1.5">1.5x</option>
+  <option value="2">2x</option>
+  <option value="4">4x</option>
+  <option value="8">8x</option>
+</select>
+
+<button class="dev-live-pause-floating hidden" id="livePauseBtn" onclick="toggleLivePause()">
+  <span>⏸ Pause</span>
+</button>
+
+<button class="dev-clearsave-floating hidden" id="devClearSaveBtn" onclick="handleClearSaveClick()" title="Wipe localStorage and reset all progress to a fresh install">
+  <span>🗑 Clear Save</span>
+</button>
+
+<!-- Custom Spawner (Dev Mode) -->
+<div class="dev-custom-spawner hidden" id="devCustomSpawner" style="position: fixed; top: max(212px, calc(env(safe-area-inset-top) + 200px)); right: max(16px, env(safe-area-inset-right)); width: 205px; background: rgba(12, 16, 29, 0.94); border: 1.5px solid #00e5ff; border-radius: 10px; padding: 12px; z-index: 9999; backdrop-filter: blur(8px); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.75), 0 0 12px rgba(0, 229, 255, 0.25); display: flex; flex-direction: column; gap: 10px; font-family: 'Montserrat', sans-serif; pointer-events: auto;">
+  <div style="font-size: 11px; font-weight: 900; color: #00e5ff; text-align: center; letter-spacing: 1px;">CUSTOM SPAWN</div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <span style="font-size: 10px; color: #8ef3ff; font-weight: 700;">Mob</span>
+    <select id="devSpawnType" onfocus="suppressBackgroundPause(1500)" onchange="suppressBackgroundPause(1500)" onblur="suppressBackgroundPause()" style="background: #090c17; color: #fff; border: 1px solid #283354; border-radius: 4px; font-size: 10px; font-family: inherit; padding: 3px; width: 125px; outline: none;">
+      <option value="grunt">Grunt</option>
+      <option value="scout">Scout</option>
+      <option value="tank">Tank</option>
+      <option value="swarm">Swarm</option>
+      <option value="blinker">Blinker</option>
+      <option value="goliath">Goliath</option>
+      <option value="emp_bomber">EMP Bomber</option>
+      <option value="hive_empress">Hive Empress</option>
+      <option value="chronos_warp">Chronos Warp</option>
+      <option value="titan_core">Titan Core</option>
+      <option value="emp_overlord">EMP Overlord</option>
+    </select>
+  </div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <span style="font-size: 10px; color: #8ef3ff; font-weight: 700;">Count</span>
+    <input type="number" id="devSpawnCount" value="1" min="1" onfocus="suppressBackgroundPause(1500)" onchange="suppressBackgroundPause(1500)" onblur="suppressBackgroundPause()" style="background: #090c17; color: #fff; border: 1px solid #283354; border-radius: 4px; font-size: 10px; font-family: inherit; padding: 3px; width: 50px; text-align: center; outline: none;">
+  </div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <span style="font-size: 10px; color: #8ef3ff; font-weight: 700;">Interval</span>
+    <input type="number" id="devSpawnInterval" value="0.5" step="0.1" min="0" onfocus="suppressBackgroundPause(1500)" onchange="suppressBackgroundPause(1500)" onblur="suppressBackgroundPause()" style="background: #090c17; color: #fff; border: 1px solid #283354; border-radius: 4px; font-size: 10px; font-family: inherit; padding: 3px; width: 50px; text-align: center; outline: none;">
+  </div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <span style="font-size: 10px; color: #8ef3ff; font-weight: 700;">HP</span>
+    <div style="display: flex; gap: 4px; align-items: center;">
+      <input type="number" id="devSpawnHpMult" value="1.0" step="0.1" min="0.1" title="Множитель HP" onfocus="suppressBackgroundPause(1500)" onchange="suppressBackgroundPause(1500)" onblur="suppressBackgroundPause()" style="background: #090c17; color: #fff; border: 1px solid #283354; border-radius: 4px; font-size: 10px; font-family: inherit; padding: 3px; width: 44px; text-align: center; outline: none;">
+      <span style="font-size: 9px; color: #8ef3ff;">x</span>
+      <input type="number" id="devSpawnHpAbs" value="40" min="1" title="Абсолютное HP" onfocus="suppressBackgroundPause(1500)" onchange="suppressBackgroundPause(1500)" onblur="suppressBackgroundPause()" style="background: #090c17; color: #fff; border: 1px solid #283354; border-radius: 4px; font-size: 10px; font-family: inherit; padding: 3px; width: 54px; text-align: center; outline: none;">
+    </div>
+  </div>
+  
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <span style="font-size: 10px; color: #8ef3ff; font-weight: 700;">Speed</span>
+    <div style="display: flex; gap: 4px; align-items: center;">
+      <input type="number" id="devSpawnSpeedMult" value="1.0" step="0.1" min="0.1" title="Множитель скорости" onfocus="suppressBackgroundPause(1500)" onchange="suppressBackgroundPause(1500)" onblur="suppressBackgroundPause()" style="background: #090c17; color: #fff; border: 1px solid #283354; border-radius: 4px; font-size: 10px; font-family: inherit; padding: 3px; width: 44px; text-align: center; outline: none;">
+      <span style="font-size: 9px; color: #8ef3ff;">x</span>
+      <input type="number" id="devSpawnSpeedAbs" value="55" min="1" title="Абсолютная скорость (px/s)" onfocus="suppressBackgroundPause(1500)" onchange="suppressBackgroundPause(1500)" onblur="suppressBackgroundPause()" style="background: #090c17; color: #fff; border: 1px solid #283354; border-radius: 4px; font-size: 10px; font-family: inherit; padding: 3px; width: 54px; text-align: center; outline: none;">
+    </div>
+  </div>
+  
+  <button onclick="handleDevSpawnClick()" onmousedown="this.style.transform='scale(0.96)'" onmouseup="this.style.transform='none'" onmouseleave="this.style.transform='none'" style="background: linear-gradient(rgba(0, 229, 255, 0.28), rgba(0, 229, 255, 0.06)), rgba(8, 12, 24, 0.92); border: 1px solid #00e5ff; color: #fff; border-radius: 6px; padding: 8px; font-family: inherit; font-weight: 900; font-size: 11px; cursor: pointer; text-transform: uppercase; margin-top: 4px; transition: all 0.2s ease;">SPAWN</button>
+</div>
+
+<!-- Start Screen -->
+<div class="overlay-screen transparent-bg" id="startScreen">
+  <div class="start-screen-container">
+    <div class="start-screen-top-zone seq-in" style="animation-delay:.18s;">
+      <div class="start-sub-title">Synth Wave</div>
+      <div class="start-main-title">Defense</div>
+    </div>
+
+    <div class="start-screen-buttons-zone">
+      <button class="menu-btn-primary-capsule seq-in" style="animation-delay:.30s;" onclick="showLevelSelect()"><span>START</span></button>
+      <button class="menu-btn-glass-capsule seq-in" style="animation-delay:.38s;" id="mainUpgradesBtn" onclick="showUpgradesScreen('main')"><span>TECH TREE</span></button>
+      <button class="menu-btn-glass-capsule seq-in" style="animation-delay:.46s;" onclick="showSettings()"><span>SETTINGS</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Upgrades Screen -->
+<div class="overlay-screen transparent-bg upgrades-bg hidden" id="upgradesScreen">
+  <div class="upgrades-content-col">
+   <div class="upgrades-top-bar">
+    <div class="levels-top-diamonds">
+     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2.2" stroke-linejoin="round">
+       <polygon points="6 3 18 3 22 9 12 22 2 9" fill="rgba(0,229,255,.25)"/>
+       <polyline points="2 9 12 13 22 9"/><line x1="12" y1="22" x2="12" y2="13"/>
+     </svg>
+     <span id="upgradesDiamondVal">0</span>
+   </div>
+  <span class="upgrades-top-label">TECH TREE</span>
+</div>
+    <div class="upgrades-row-list" id="upgradesTreeBody"></div>
+    <button class="menu-btn-glass-capsule upgrades-back-btn" onclick="closeUpgradesScreen()"><span>BACK</span></button>
+  </div>
+</div>
+
+<!-- Settings Screen -->
+<div class="overlay-screen hidden" id="settingsScreen">
+  <div class="menu-title">SETTINGS</div>
+  <div class="settings-box">
+    <div class="setting-row">
+      <span>Enemy Health Bar</span>
+      <label class="switch">
+        <input type="checkbox" id="settingShowHp" checked onchange="toggleSettingHp(this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="setting-row">
+      <span>Performance Mode</span>
+      <label class="switch">
+        <input type="checkbox" id="settingPerfMode" onchange="toggleSettingPerf(this.checked)">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="setting-row">
+  <span>Vibration</span>
+  <label class="switch">
+    <input type="checkbox" id="settingVibration" checked onchange="toggleSettingVibration(this.checked)">
+    <span class="slider"></span>
+  </label>
+</div>
+    <div class="setting-row setting-row-slider">
+      <div class="setting-slider-head">
+        <span>Music Audio</span>
+        <span class="setting-slider-val" id="musicVolLabel">70%</span>
+      </div>
+      <input type="range" class="vol-range" id="settingMusicVol" min="0" max="100" step="5" value="70"
+             oninput="setMusicVolume(this.value)">
+    </div>
+    <div class="setting-row setting-row-slider">
+      <div class="setting-slider-head">
+        <span>Sound Effects</span>
+        <span class="setting-slider-val" id="sfxVolLabel">100%</span>
+      </div>
+      <input type="range" class="vol-range" id="settingSfxVol" min="0" max="100" step="5" value="100"
+             oninput="setSfxVolume(this.value)">
+    </div>
+  </div>
+  <button class="menu-btn" onclick="closeSettings()"><span>BACK</span></button>
+</div>
+
+<!-- Levels Selection Screen -->
+<div class="overlay-screen levels-bg hidden" id="levelsScreen">
+  <div class="levels-top-bar">
+    <div class="levels-top-diamonds">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2.2" stroke-linejoin="round">
+        <polygon points="6 3 18 3 22 9 12 22 2 9" fill="rgba(0,229,255,.25)"/>
+        <polyline points="2 9 12 13 22 9"/><line x1="12" y1="22" x2="12" y2="13"/>
+      </svg>
+      <span id="levelsDiamondVal">128</span>
+    </div>
+    <span class="levels-top-chapter" id="levelsTopChapter">CHAPTER 1</span>
+  </div>
+
+  <div class="levels-header-zone">
+    <div class="levels-subtitle">Select</div>
+    <div class="levels-title">Level</div>
+    <div class="level-part-navigator">
+      <button class="part-nav-btn" id="partNavPrev" onclick="navLevelSection(-1)">❮</button>
+      <span class="part-nav-label" id="partNavLabel">CHAPTER 1</span>
+      <button class="part-nav-btn" id="partNavNext" onclick="navLevelSection(1)">❯</button>
+    </div>
+  </div>
+
+  <div class="levels-grid" id="levelsGrid"></div>
+  
+  <div class="loadout-anchor" id="loadoutAnchor-levels" style="margin-top: 10px;"></div>
+
+  <button class="menu-btn-glass-capsule" style="margin-top: auto; margin-bottom: 24px; min-height: 48px;" onclick="showStartScreen()"><span>BACK</span></button>
+</div>
+
+<!-- Shared "Towers Selected" loadout widget -->
+<div class="loadout-widget hidden" id="loadoutWidget">
+  <div class="loadout-widget-header" onclick="toggleLoadoutWidgetExpanded()">
+    <span class="loadout-widget-label">Towers Selected <span class="loadout-widget-count" id="loadoutWidgetCount">0/3</span></span>
+    <div class="loadout-widget-mini-icons" id="loadoutWidgetMiniIcons"></div>
+  </div>
+  <div class="loadout-widget-expanded hidden" id="loadoutWidgetExpanded">
+    <div class="loadout-grid" id="loadoutWidgetGrid"></div>
+  </div>
+</div>
+
+<!-- Pause Screen (Visual Direction 9A language) -->
+<div class="overlay-screen result-screen hidden" id="pauseScreen">
+  <div class="result-stack">
+    <div class="result-heading seq-in">
+      <div class="result-kicker">Game</div>
+      <div class="result-title">Paused</div>
+    </div>
+    <button class="result-btn result-btn-primary seq-in seq-d1" onclick="togglePause()"><span>RESUME</span></button>
+    <button class="result-btn seq-in seq-d2" onclick="retryLevel()"><span>RETRY</span></button>
+    <button class="result-btn seq-in seq-d2" onclick="showLevelSelectFromGame()"><span>LEVELS</span></button>
+    <button class="result-btn seq-in seq-d3" onclick="showSettings('pause')"><span>SETTINGS</span></button>
+    <div class="loadout-anchor seq-in seq-d4" id="loadoutAnchor-pause"></div>
+  </div>
+</div>
+
+<!-- Milestone Screens: shown BEFORE the victory screen after every level that -->
+<!-- is a multiple of 10. Steps are built in ui.js (buildMilestoneSteps) -- the -->
+<!-- sector-complete and loadout-intro steps only appear once, at level 10, -->
+<!-- while the new-tower step repeats every 10 levels. -->
+<div class="overlay-screen result-screen hidden" id="milestoneScreen">
+  <div class="result-stack">
+    <div class="result-heading seq-in">
+      <div class="result-kicker" id="milestoneKicker">Sector</div>
+      <div class="result-title" id="milestoneTitle">Complete</div>
+    </div>
+    <div class="milestone-art hidden" id="milestoneArt"></div>
+    <div class="milestone-body seq-in seq-d1" id="milestoneBody"></div>
+    <div class="milestone-embed hidden seq-in seq-d2" id="milestoneEmbed">
+      <div class="milestone-embed-grid" id="milestoneLoadoutGrid"></div>
+      <div class="milestone-embed-hint" id="milestoneEmbedHint">Tap a tower to swap it in</div>
+    </div>
+    <button class="result-btn result-btn-primary seq-in seq-d3" id="milestoneOkBtn" onclick="advanceMilestone()"><span>OK</span></button>
+  </div>
+</div>
+
+<!-- Victory Screen (Visual Direction 9A) -->
+<div class="overlay-screen result-screen hidden" id="victoryScreen">
+  <div class="result-stack">
+    <div class="result-heading seq-in">
+      <div class="result-kicker">Level</div>
+      <div class="result-title">Completed</div>
+    </div>
+    <div class="result-stars-row" id="victoryStarsRow"></div>
+    <div class="result-reward-chip seq-in seq-d3" id="victoryRewardBox">
+      <span class="reward-amount" id="victoryRewardVal">+2</span>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2.2" stroke-linejoin="round">
+        <polygon points="6 3 18 3 22 9 12 22 2 9" fill="rgba(0,229,255,.25)"/>
+        <polyline points="2 9 12 13 22 9"/><line x1="12" y1="22" x2="12" y2="13"/>
+      </svg>
+      <span class="reward-label" id="victoryRewardBadgeType">DIAMONDS</span>
+    </div>
+    <button class="result-btn result-btn-primary seq-in seq-d4" id="claimX2Btn" onclick="claimX2Reward()">
+      <svg width="15" height="15" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="3" fill="none" stroke="#ffffff" stroke-width="2"/><polygon points="10,9 16,12 10,15" fill="#ffffff"/></svg>
+      <span>CLAIM x2</span>
+    </button>
+    <button class="result-btn seq-in seq-d5" onclick="nextLevel()"><span>NEXT LEVEL</span></button>
+    <button class="result-btn seq-in seq-d5" id="victoryUpgradesBtn" onclick="showUpgradesScreen('victory')"><span>TECH TREE</span></button>
+    <button class="result-btn seq-in seq-d5" onclick="retryLevel()"><span>RETRY</span></button>
+    <button class="result-btn seq-in seq-d5" onclick="showLevelSelectFromGame()"><span>LEVELS</span></button>
+    <div class="loadout-anchor seq-in seq-d6" id="loadoutAnchor-victory"></div>
+  </div>
+</div>
+
+<div class="overlay-screen hidden" id="adSimOverlay">
+  <div class="menu-title" style="font-size: 22px;">AD PLAYING...</div>
+</div>
+
+<!-- Defeat Screen (Visual Direction 9B, and 9E while the revive window is open) -->
+<div class="overlay-screen result-screen is-fail hidden" id="defeatScreen">
+  <div class="defeat-flash" id="defeatFlash"></div>
+  <div class="result-stack">
+    <div class="result-heading fail-shake">
+      <div class="result-kicker">Level</div>
+      <div class="result-title" data-text="Failed">Failed</div>
+    </div>
+    <div class="result-subline seq-in seq-d1" id="defeatWaveLine">WAVE 1 OF 1 REACHED</div>
+    <button class="result-btn result-btn-primary hidden" id="reviveBtn" onclick="acceptEmergencyRevive()">
+      <svg width="15" height="15" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="3" fill="none" stroke="#ffffff" stroke-width="2"/><polygon points="10,9 16,12 10,15" fill="#ffffff"/></svg>
+      <span id="reviveBtnLabel">REVIVE (3s)</span>
+    </button>
+    <button class="result-skip-btn hidden" id="reviveSkipBtn" onclick="skipEmergencyRevive()">Skip</button>
+    <button class="result-btn seq-in seq-d2" id="defeatRetryBtn" onclick="retryLevel()"><span>RETRY</span></button>
+    <button class="result-btn seq-in seq-d2" id="defeatUpgradesBtn" onclick="showUpgradesScreen('defeat')"><span>TECH TREE</span></button>
+    <button class="result-btn seq-in seq-d2" id="defeatLevelsBtn" onclick="showLevelSelectFromGame()"><span>LEVELS</span></button>
+    <div class="loadout-anchor seq-in seq-d3" id="loadoutAnchor-defeat"></div>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script src="engine.js"></script>
+<script src="ui.js"></script>
+<script>
+// Bootstrap
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) forcePauseForBackground();
+  else musicResume();
+});
+window.addEventListener('blur', forcePauseForBackground);
+document.addEventListener('pause', forcePauseForBackground, false);
+window.addEventListener('pagehide', saveGame);
+
+document.addEventListener('backbutton', (e) => {
+  if (e && e.preventDefault) e.preventDefault();
+  handleHardwareBack();
+}, false);
+if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App && typeof window.Capacitor.Plugins.App.addListener === 'function') {
+  window.Capacitor.Plugins.App.addListener('backButton', handleHardwareBack);
+}
+history.pushState({ sectorDefenseTD: true }, '');
+window.addEventListener('popstate', () => {
+  handleHardwareBack();
+  history.pushState({ sectorDefenseTD: true }, '');
+});
+
+const devCheckboxEl = document.getElementById('devModeCheckbox');
+const initialDevState = devCheckboxEl ? devCheckboxEl.checked : false;
+
+const LOADING_DOT_MS = 220;
+const LOADING_MIN_MS = LOADING_DOT_MS * 3;
+const loadingStartedAt = Date.now();
+let loadingDotCount = 0;
+const loadingDotsEl = document.getElementById('loadingDots');
+const loadingDotTimer = setInterval(() => {
+  loadingDotCount = (loadingDotCount % 3) + 1;
+  if (loadingDotsEl) loadingDotsEl.textContent = '.'.repeat(loadingDotCount);
+}, LOADING_DOT_MS);
+
+function finishLoading() {
+  clearInterval(loadingDotTimer);
+  if (loadingDotsEl) loadingDotsEl.textContent = '...';
+  const screen = document.getElementById('loadingScreen');
+  if (screen) {
+    screen.classList.add('fading');
+    setTimeout(() => screen.classList.add('hidden'), 420);
+  }
+}
+
+loadGame();
+applySfxVolume(settings.sfxVolume != null ? settings.sfxVolume : (settings.sfxEnabled === false ? 0 : 100), false);
+try { 
+  if (typeof SFX !== 'undefined' && SFX) {
+    SFX.installUiHooks();
+    SFX.autoload();
+  } 
+} catch (e) {}
+try { if (typeof SFX !== 'undefined' && SFX) SFX.autoload(); } catch (e) {}
+applyMusicVolume(settings.musicVolume != null ? settings.musicVolume : (settings.musicEnabled === false ? 0 : 70), false);
+document.addEventListener('pointerdown', musicUnlock, { once: true, capture: true });
+if (settings.perfModeOverride === 'low' || settings.perfModeOverride === 'high') {
+  perfMode = settings.perfModeOverride;
+  perfDecided = true;
+}
+initBuildPanel();
+toggleDevMode(initialDevState);
+updateDiamondUI();
+showStartScreen();
+
+window.__gameBooted = true;
+safeTrack('app_launch', {});
+
+requestAnimationFrame(gameLoop);
+
+setTimeout(finishLoading, Math.max(0, LOADING_MIN_MS - (Date.now() - loadingStartedAt)));
+</script>
+
+<!-- First-run tutorial overlay -->
+<div class="tutorial-layer hidden" id="tutorialLayer">
+  <div class="tutorial-spotlight hidden" id="tutorialSpotlight"></div>
+  <div class="tutorial-drop-ring hidden" id="tutorialDropRing"></div>
+  <div class="tutorial-field-highlight hidden" id="tutorialFieldHighlight"></div>
+  <div class="tutorial-tap-pulse hidden" id="tutorialTapPulse">
+    <span class="tap-ring r1"></span>
+    <span class="tap-ring r2"></span>
+  </div>
+  <div class="tutorial-pointer hidden" id="tutorialPointer">
+    <svg width="28" height="28" viewBox="0 0 28 28">
+      <circle cx="14" cy="14" r="10" fill="none" stroke="#00e5ff" stroke-width="1.5" opacity="0.5" />
+      <circle cx="14" cy="14" r="6" fill="#00e5ff" />
+    </svg>
+  </div>
+  <div class="tutorial-bubble hidden" id="tutorialBubble"><span id="tutorialBubbleText"></span></div>
+</div>
+<button class="tutorial-skip-btn hidden" id="tutorialSkipBtn" onclick="skipTutorial()">Skip Tutorial</button>
+
+<div class="hint-toast" id="hintToast"></div>
+</body>
+</html>
