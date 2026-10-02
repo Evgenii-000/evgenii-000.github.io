@@ -866,6 +866,39 @@ function promptDevHp() {
   }
 }
 
+function devPromptLevelSelect() {
+  if (!devMode) return;
+  devInputOpen = true;
+  const val = prompt(`Select Level (1 - ${TOTAL_LEVELS}):`, currentLevel);
+  devInputOpen = false;
+  suppressBackgroundPause();
+
+  if (val !== null) {
+    const lvl = parseInt(val, 10);
+    if (!isNaN(lvl) && lvl >= 1 && lvl <= TOTAL_LEVELS) {
+      startSpecificLevel(lvl);
+    }
+  }
+}
+
+function devPromptWaveSelect() {
+  if (!devMode) return;
+  const lvlConfig = (typeof LEVELS_DATA !== 'undefined') ? LEVELS_DATA[currentLevel] : null;
+  const maxW = lvlConfig ? lvlConfig.totalWaves : 10;
+
+  devInputOpen = true;
+  const val = prompt(`Select Wave (1 - ${maxW}):`, wave);
+  devInputOpen = false;
+  suppressBackgroundPause();
+
+  if (val !== null) {
+    const targetW = parseInt(val, 10);
+    if (!isNaN(targetW) && targetW >= 1 && targetW <= maxW) {
+      devJumpToWave(targetW);
+    }
+  }
+}
+
 function initDevResourceHold() {
   const setupHold = (id, promptFn) => {
     const el = document.getElementById(id);
@@ -1139,6 +1172,18 @@ function openDevMode() {
   if (goldHalf) goldHalf.classList.add('interactive');
   if (hpHalf) hpHalf.classList.add('interactive');
   if (typeof initDevResourceHold === 'function') initDevResourceHold();
+
+  // Навешиваем клик на существующие надписи уровня и волны
+  const levelEl = document.getElementById('levelText');
+  const waveEl = document.getElementById('waveText');
+  if (levelEl) {
+    levelEl.style.cursor = 'pointer';
+    levelEl.onclick = devPromptLevelSelect;
+  }
+  if (waveEl) {
+    waveEl.style.cursor = 'pointer';
+    waveEl.onclick = devPromptWaveSelect;
+  }
   
   showHintToast('Dev Mode: Enabled');
 }
@@ -1167,9 +1212,17 @@ function closeDevMode() {
   if (goldHalf) goldHalf.classList.remove('interactive');
   if (hpHalf) hpHalf.classList.remove('interactive');
 
+const levelEl = document.getElementById('levelText');
+  const waveEl = document.getElementById('waveText');
+  if (levelEl) {
+    levelEl.style.cursor = '';
+    levelEl.onclick = null;
+  }
+  if (waveEl) {
+    waveEl.style.cursor = '';
+    waveEl.onclick = null;
+  }
   setGameSpeed(1);
-  const speedSel = document.getElementById('speedContainer');
-  if (speedSel) speedSel.value = "1";
 
   showHintToast('Dev Mode: Disabled');
 }
@@ -1345,11 +1398,60 @@ function devJumpToWave(targetWave) {
   startWave();
 }
 
-function setGameSpeed(speed) { gameTimeScale = speed; }
+
+//все по скорости в дев режиме-------------
+const DEV_SPEED_STEPS = [1, 1.5, 2, 4, 8];
+
+function stepDevSpeed(direction) {
+  // Находим все возможные варианты селектора скорости
+  const selects = document.querySelectorAll('#speedContainer, .dev-speed-select, .dev-bar select');
+  if (!selects || selects.length === 0) return;
+
+  const sel = selects[0];
+
+  // 1. Считываем текущую позицию
+  let curIndex = sel.selectedIndex;
+
+  // Если selectedIndex не определен корректно, ищем по значению
+  if (curIndex === -1 || isNaN(curIndex)) {
+    const currentVal = parseFloat(sel.value) || (typeof gameTimeScale !== 'undefined' ? gameTimeScale : 1);
+    curIndex = DEV_SPEED_STEPS.indexOf(currentVal);
+    if (curIndex === -1) {
+      curIndex = DEV_SPEED_STEPS.reduce((closest, val, idx) =>
+        Math.abs(val - currentVal) < Math.abs(DEV_SPEED_STEPS[closest] - currentVal) ? idx : closest, 0);
+    }
+  }
+
+  // 2. Сдвигаем индекс шага
+  const nextIndex = Math.max(0, Math.min(DEV_SPEED_STEPS.length - 1, curIndex + direction));
+  const newSpeed = DEV_SPEED_STEPS[nextIndex];
+
+  // 3. Обновляем ВСЕ найденные элементы селектора скорости
+  selects.forEach(s => {
+    s.selectedIndex = nextIndex;
+    s.value = String(newSpeed);
+
+    // Если это кастомные опции или стилизованный блок
+    if (s.options && s.options[nextIndex]) {
+      s.options[nextIndex].selected = true;
+    }
+
+    // Вызываем нативное событие change
+    s.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+
+  // 4. Применяем скорость игры
+  if (typeof setGameSpeed === 'function') {
+    setGameSpeed(newSpeed);
+  }
+  if (typeof gameTimeScale !== 'undefined') {
+    gameTimeScale = newSpeed;
+  }
+}
 
 function toggleLivePause() {
   isLivePaused = !isLivePaused;
-  const btn = document.getElementById('livePauseBtn');
+  
   if (isLivePaused) {
     btn.innerHTML = '<span>▶ Play</span>';
     btn.classList.add('paused');
@@ -1394,8 +1496,7 @@ function showStartScreen() {
   const waveBtn = document.getElementById('waveBtn');
   if (waveBtn) waveBtn.classList.add('hidden');
 
-  document.getElementById('speedContainer').classList.add('hidden');
-  document.getElementById('livePauseBtn').classList.add('hidden');
+  
   
   const customSpawner = document.getElementById('devCustomSpawner');
   if (customSpawner) customSpawner.classList.add('hidden');
@@ -2816,17 +2917,37 @@ function drawSynthWavePerspectiveScene(now) {
   const floorH = h - horizonY;
   const vpX = w * 0.5;
 
+  // 1. Верхняя часть (без изменений)
   drawCosmicNebulaBackground(w, h);
   updateAndDrawStars(w, h, now);
 
+  // 2. Нижняя разлинованная часть
   ctx.save();
+
+  // Легкая общая подложка на всю сетку
+  const planeGrad = ctx.createLinearGradient(0, horizonY, 0, h);
+  planeGrad.addColorStop(0, 'rgba(16, 26, 52, 0.08)');
+  planeGrad.addColorStop(0.35, 'rgba(16, 26, 52, 0.24)');
+  planeGrad.addColorStop(1, 'rgba(12, 20, 42, 0.48)');
+  ctx.fillStyle = planeGrad;
+  ctx.fillRect(0, horizonY, w, floorH);
+
+  // Ограничиваем отрисовку нижней половиной
+  ctx.beginPath();
+  ctx.rect(0, horizonY, w, floorH);
+  ctx.clip();
+
+  // Мягкий glow для линий сетки
+  setGlow('#00e5ff', 5);
+
   const horizCount = 14;
   const bottomStep = Math.max(34, (floorH / horizCount) * 1.5);
   const targetBottomCellWidth = bottomStep * 1.1;
   const numLines = Math.ceil((w * 1.4) / targetBottomCellWidth);
 
+  // Вертикальные перспективные лучи
   ctx.lineWidth = 1.0;
-  ctx.strokeStyle = 'rgba(125, 165, 255, 0.30)';
+  ctx.strokeStyle = 'rgba(125, 165, 255, 0.35)';
   for (let i = -numLines; i <= numLines; i++) {
     const bottomX = vpX + (i + 0.5) * targetBottomCellWidth;
     const topX = vpX + (i + 0.5) * (targetBottomCellWidth * 0.32);
@@ -2836,10 +2957,11 @@ function drawSynthWavePerspectiveScene(now) {
     ctx.stroke();
   }
 
+  // Центральная трасса: деликатная, едва заметная прозрачная заливка
   const roadTopHalfW = targetBottomCellWidth * 0.16;
   const roadBottomHalfW = targetBottomCellWidth * 0.50;
 
-  ctx.fillStyle = 'rgba(6, 100, 112, 0.42)';
+  ctx.fillStyle = 'rgba(16, 26, 52, 0.22)';
   ctx.beginPath();
   ctx.moveTo(vpX - roadTopHalfW, horizonY);
   ctx.lineTo(vpX + roadTopHalfW, horizonY);
@@ -2848,8 +2970,10 @@ function drawSynthWavePerspectiveScene(now) {
   ctx.closePath();
   ctx.fill();
 
-  ctx.strokeStyle = 'rgba(45, 212, 191, 0.75)';
-  ctx.lineWidth = 1.4;
+  // 1-й слой краев дорожки: статичные, спокойные направляющие
+  ctx.strokeStyle = 'rgba(0, 229, 255, 0.20)';
+  ctx.lineWidth = 2.6;
+  ctx.setLineDash([]);
   ctx.beginPath();
   ctx.moveTo(vpX - roadTopHalfW, horizonY);
   ctx.lineTo(vpX - roadBottomHalfW, h);
@@ -2857,28 +2981,29 @@ function drawSynthWavePerspectiveScene(now) {
   ctx.lineTo(vpX + roadBottomHalfW, h);
   ctx.stroke();
 
-  const railOffset = (time * 28) % 18;
+  // 2-й слой краев дорожки: бегущие яркие штрихи снизу вверх в сторону горизонта
   ctx.save();
-  ctx.strokeStyle = 'rgba(0, 229, 255, 0.55)';
-  setGlow('#00e5ff', 4);
-  ctx.lineWidth = 1.3;
-  ctx.setLineDash([7, 11]);
-  ctx.lineDashOffset = railOffset;
-  const railTopHalfW = roadTopHalfW * 0.55;
-  const railBottomHalfW = roadBottomHalfW * 0.55;
+  ctx.strokeStyle = 'rgba(165, 243, 252, 0.88)';
+  setGlow('#00e5ff', 6);
+  ctx.lineWidth = 1.8;
+  ctx.setLineDash([12, 10]);
+  // Положительный сдвиг направляет штрихи снизу вверх (в перспективу)
+  ctx.lineDashOffset = (time * 36);
+
   ctx.beginPath();
-  ctx.moveTo(vpX - railTopHalfW, horizonY);
-  ctx.lineTo(vpX - railBottomHalfW, h);
-  ctx.moveTo(vpX + railTopHalfW, horizonY);
-  ctx.lineTo(vpX + railBottomHalfW, h);
+  ctx.moveTo(vpX - roadTopHalfW, horizonY);
+  ctx.lineTo(vpX - roadBottomHalfW, h);
+  ctx.moveTo(vpX + roadTopHalfW, horizonY);
+  ctx.lineTo(vpX + roadBottomHalfW, h);
   ctx.stroke();
   ctx.restore();
 
+  // Горизонтальные линии сетки
   const gridOffset = (time * 0.42) % 1;
   for (let j = 0; j < horizCount; j++) {
     const progress = (j + gridOffset) / horizCount;
     const currentY = horizonY + Math.pow(progress, 1.95) * floorH;
-    const alpha = Math.min(0.32, progress * 0.35);
+    const alpha = Math.min(0.38, 0.08 + progress * 0.35);
     ctx.strokeStyle = `rgba(125, 165, 255, ${alpha})`;
     ctx.lineWidth = 1.2;
     ctx.beginPath();
@@ -2886,8 +3011,45 @@ function drawSynthWavePerspectiveScene(now) {
     ctx.lineTo(w, currentY);
     ctx.stroke();
   }
+
+  // --- Перспективный Scout, бегущий в горизонт ---
+  const scoutColor = '#ff9100';
+  const scoutGlow = '#ffaa33';
+  const mobCycleDuration = 13.5;
+  const mobLinearProgress = (time % mobCycleDuration) / mobCycleDuration;
+  const u = 1 - mobLinearProgress;
+
+  const mobY = horizonY + Math.pow(u, 1.95) * floorH;
+  const mobScale = 0.2 + 0.8 * u;
+  const scoutBaseR = 12 * mobScale;
+  const mobFade = Math.min(1, Math.min(u / 0.15, (1 - u) / 0.12));
+
+  ctx.save();
+  ctx.translate(vpX, mobY);
+  ctx.globalAlpha = Math.max(0, mobFade);
+
+  ctx.rotate(-Math.PI / 2);
+
+  // Свечение и заливка тела моба цветом glow
+  setGlow(scoutGlow, 8 * mobScale);
+  ctx.fillStyle = 'rgba(255, 170, 51, 0.32)';
+  ctx.strokeStyle = scoutColor;
+  ctx.lineWidth = 1.8 * mobScale;
+
+  ctx.beginPath();
+  const R = scoutBaseR * 1.25;
+  ctx.moveTo(R, 0);
+  ctx.lineTo(-R * 0.5, R * 0.866);
+  ctx.lineTo(-R * 0.5, -R * 0.866);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
   ctx.restore();
 
+  ctx.restore(); // Закрываем clip и нижнюю плоскость
+
+  // 3. Линия горизонта и туман (без изменений)
   ctx.save();
   const fogGrad = ctx.createLinearGradient(0, horizonY, 0, horizonY + 80);
   fogGrad.addColorStop(0, 'rgba(0, 229, 255, 0.20)');
@@ -2904,6 +3066,7 @@ function drawSynthWavePerspectiveScene(now) {
   ctx.stroke();
   ctx.restore();
 
+  // 4. Логотип (без изменений)
   drawSynthWaveTriangleLogo5C(w, horizonY, time);
 }
 
@@ -2973,8 +3136,10 @@ function renderCellRails(cell) {
   }
 }
 
+// Переменные прозрачности и контроля первого старта
 let battlePathAlpha = 1.0;
 let lastPathTime = performance.now();
+let battleStartedOnce = false; // Блокирует повторное возгорание дорожки при автостарте волны
 
 function drawPathRails(now) {
   if (!pathCells || pathCells.length <= 2) return;
@@ -2984,6 +3149,7 @@ function drawPathRails(now) {
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 
+  // 1. Статичная подложка пути (спокойный постоянный контур)
   ctx.strokeStyle = 'rgba(0, 229, 255, 0.18)';
   ctx.lineWidth = 3.5;
   ctx.setLineDash([]);
@@ -2991,25 +3157,36 @@ function drawPathRails(now) {
     renderCellRails(pathCells[i]);
   }
 
+  // Расчет дельты времени
   const curTime = (typeof now === 'number' && now > 0) ? now : performance.now();
   const dt = Math.min((curTime - (lastPathTime || curTime)) / 1000, 0.1);
   lastPathTime = curTime;
 
+  // Проверяем, начался ли бой (ручное нажатие GO, автосрабатывание таймера или появление мобов)
   const isBattleActive = (typeof waveInProgress !== 'undefined' && waveInProgress) || 
                          (typeof enemies !== 'undefined' && enemies.length > 0);
 
   if (isBattleActive) {
+    battleStartedOnce = true;
+  }
+
+  // Если бой хоть раз стартовал — дорожка ТОЛЬКО гаснет и никогда не возвращает яркость назад
+  if (battleStartedOnce || isBattleActive) {
     if (battlePathAlpha > 0) {
-      battlePathAlpha = Math.max(0, battlePathAlpha - dt * 0.5);
+      battlePathAlpha = Math.max(0, battlePathAlpha - dt * 0.5); // плавно в 0 за 2 секунды
     }
   } else {
+    // Яркость держится только до самого первого старта
     battlePathAlpha = 1.0;
   }
 
-  if (battlePathAlpha > 0.01) {
+  // 2. Яркие штрихи: рендерятся без скачков только пока прозрачность больше 0
+  if (battlePathAlpha > 0.005) {
     ctx.strokeStyle = `rgba(165, 243, 252, ${0.90 * battlePathAlpha})`;
     ctx.lineWidth = 1.8;
     ctx.setLineDash([12, 10]);
+
+    // Непрерывное плавное движение без сброса фазы
     ctx.lineDashOffset = -((curTime / 1000) * 36);
 
     for (let i = 1; i < totalCells - 1; i++) {

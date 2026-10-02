@@ -607,8 +607,6 @@ function reallyStartLevel(lvl) {
   if (waveBtn) waveBtn.classList.remove('hidden');
 
   if (devMode) {
-    document.getElementById('speedContainer').classList.remove('hidden');
-    document.getElementById('livePauseBtn').classList.remove('hidden');
     const customSpawner = document.getElementById('devCustomSpawner');
     if (customSpawner) customSpawner.classList.remove('hidden');
   }
@@ -1607,62 +1605,11 @@ function el(id) {
 }
 
 function toggleDevMode(enabled) {
-  devMode = enabled;
-  const checkbox = document.getElementById('devModeCheckbox');
-  if (checkbox && checkbox.checked !== enabled) checkbox.checked = enabled;
-
-  const speedContainer = document.getElementById('speedContainer');
-  const livePauseBtn = document.getElementById('livePauseBtn');
-  const devClearSaveBtn = document.getElementById('devClearSaveBtn');
-  const devLevelSelect = document.getElementById('devLevelSelect');
-  const devWaveSelect = document.getElementById('devWaveSelect');
-  const devCustomSpawner = document.getElementById('devCustomSpawner');
-  const levelText = document.getElementById('levelText');
-  const waveText = document.getElementById('waveText');
-  const hudStaticLabels = Array.from(document.querySelectorAll('.hud-static-label'));
-  const goldHalf = document.getElementById('goldHalf');
-  const hpHalf = document.getElementById('hpHalf');
-
-  if (devMode) {
-    if (gameState === 'PLAYING' || gameState === 'PAUSED') {
-      if (speedContainer) speedContainer.classList.remove('hidden');
-      if (livePauseBtn) livePauseBtn.classList.remove('hidden');
-      if (devCustomSpawner) devCustomSpawner.classList.remove('hidden');
-    }
-    if (devClearSaveBtn) devClearSaveBtn.classList.remove('hidden');
-    if (devLevelSelect) devLevelSelect.classList.remove('hidden');
-    if (devWaveSelect) devWaveSelect.classList.remove('hidden');
-    if (levelText) levelText.classList.add('hidden');
-    if (waveText) waveText.classList.add('hidden');
-    hudStaticLabels.forEach(el => el.classList.add('hidden'));
-    if (goldHalf) goldHalf.classList.add('interactive');
-    if (hpHalf) hpHalf.classList.add('interactive');
-    refreshDevDropdowns();
-    initDevSpawnerSync();
+  if (enabled) {
+    if (typeof openDevMode === 'function') openDevMode();
   } else {
-    if (speedContainer) speedContainer.classList.add('hidden');
-    if (livePauseBtn) livePauseBtn.classList.add('hidden');
-    if (devClearSaveBtn) devClearSaveBtn.classList.add('hidden');
-    if (devLevelSelect) devLevelSelect.classList.add('hidden');
-    if (devWaveSelect) devWaveSelect.classList.add('hidden');
-    if (devCustomSpawner) devCustomSpawner.classList.add('hidden');
-    if (levelText) levelText.classList.remove('hidden');
-    if (waveText) waveText.classList.remove('hidden');
-    hudStaticLabels.forEach(el => el.classList.remove('hidden'));
-    setGameSpeed(1);
-    if (speedContainer) speedContainer.value = "1";
-    if (isLivePaused) {
-      isLivePaused = false;
-      if (livePauseBtn) {
-        livePauseBtn.innerHTML = '<span>⏸ Pause</span>';
-        livePauseBtn.classList.remove('paused');
-      }
-    }
+    if (typeof closeDevMode === 'function') closeDevMode();
   }
-
-  renderLevelsGrid();
-  updateUI();
-  updateUpgradeButtonsLock();
 }
 
 function handleClearSaveClick() {
@@ -2115,32 +2062,10 @@ function update(dt) {
       e.isShielded = e.shieldTimer < 1.0;
     }
 
-    if (e.type === 'chronos_warp') {
+if (e.type === 'chronos_warp') {
       e.shieldTimer = (e.shieldTimer || 0) + dt;
       if (e.shieldTimer >= 3.0) e.shieldTimer -= 3.0;
       e.isShielded = e.shieldTimer < 1.2;
-
-      e.warpTimer = (e.warpTimer || 0) + dt;
-      if (e.warpTimer >= 4.5) {
-        e.warpTimer -= 4.5;
-        createShockwave(e.x, e.y, 45, '#60a5fa');
-        let remainingJump = 50;
-        while (remainingJump > 0 && e.wpIndex < WAYPOINTS.length) {
-          const twp = WAYPOINTS[e.wpIndex];
-          const distToWp = Math.hypot(twp.x - e.x, twp.y - e.y);
-          if (distToWp <= remainingJump) {
-            remainingJump -= distToWp;
-            e.x = twp.x; e.y = twp.y;
-            e.wpIndex++;
-          } else {
-            e.x += ((twp.x - e.x) / distToWp) * remainingJump;
-            e.y += ((twp.y - e.y) / distToWp) * remainingJump;
-            remainingJump = 0;
-          }
-        }
-        createShockwave(e.x, e.y, 50, '#00e5ff');
-        createDamageShards(e.x, e.y, '#00e5ff', 18, false);
-      }
     }
 
     if (e.type === 'titan_core') {

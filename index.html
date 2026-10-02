@@ -302,10 +302,6 @@
   <option value="8">8x</option>
 </select>
 
-<button class="dev-live-pause-floating hidden" id="livePauseBtn" onclick="toggleLivePause()">
-  <span>⏸ Pause</span>
-</button>
-
 <button class="dev-clearsave-floating hidden" id="devClearSaveBtn" onclick="handleClearSaveClick()" title="Wipe localStorage and reset all progress to a fresh install">
   <span>🗑 Clear Save</span>
 </button>
@@ -315,6 +311,8 @@
     <div class="dev-bar-top">
       <div class="dev-fps-badge" id="devFpsBadge">FPS: 60</div>
       
+      <button type="button" class="dev-icon-btn dev-speed-step-btn" onclick="stepDevSpeed(-1)" title="Decrease speed">−</button>
+      
       <select id="speedContainer" class="dev-speed-select" onchange="setGameSpeed(parseFloat(this.value))">
         <option value="1">1x</option>
         <option value="1.5">1.5x</option>
@@ -322,6 +320,8 @@
         <option value="4">4x</option>
         <option value="8">8x</option>
       </select>
+
+      <button type="button" class="dev-icon-btn dev-speed-step-btn" onclick="stepDevSpeed(1)" title="Increase speed">+</button>
 
       <button type="button" class="dev-icon-btn" id="devExpandBtn" onclick="toggleDevPanelExpand()" title="Details">▾</button>
       <button type="button" class="dev-icon-btn dev-close-btn" onclick="closeDevMode()" title="Close Dev Mode">✕</button>

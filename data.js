@@ -3337,7 +3337,7 @@ const LEVELS_DATA = {
       ]}
     ]
   },
-  "31": {
+"31": {
     "mapId": "L31",
     "startHp": 10,
     "startGold": 190,
@@ -3350,7 +3350,7 @@ const LEVELS_DATA = {
         "delayAfter": 12,
         "earlyBonus": 65,
         "spawns": [
-          { "type": "grunt", "count": 8, "hp": 65, "hpMult": 1.63, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 3, "bountyMult": 0.43, "isBoss": false, "isMiniBoss": false }
+          { "type": "grunt", "count": 8, "hp": 90, "hpMult": 2.25, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 3, "bountyMult": 0.43, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3358,8 +3358,8 @@ const LEVELS_DATA = {
         "delayAfter": 14,
         "earlyBonus": 65,
         "spawns": [
-          { "type": "grunt", "count": 8, "hp": 50, "hpMult": 1.25, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 2, "bountyMult": 0.29, "isBoss": false, "isMiniBoss": false },
-          { "type": "goliath", "count": 2, "hp": 450, "hpMult": 1.73, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 6, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+          { "type": "grunt", "count": 8, "hp": 70, "hpMult": 1.75, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 2, "bountyMult": 0.29, "isBoss": false, "isMiniBoss": false },
+          { "type": "goliath", "count": 2, "hp": 630, "hpMult": 2.42, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 6, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3367,8 +3367,8 @@ const LEVELS_DATA = {
         "delayAfter": 10,
         "earlyBonus": 65,
         "spawns": [
-          { "type": "scout", "count": 8, "hp": 40, "hpMult": 1.67, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false },
-          { "type": "swarm", "count": 18, "hp": 25, "hpMult": 1.56, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 2, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+          { "type": "scout", "count": 8, "hp": 55, "hpMult": 2.29, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false },
+          { "type": "swarm", "count": 18, "hp": 35, "hpMult": 2.19, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 2, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3376,8 +3376,8 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 65,
         "spawns": [
-          { "type": "goliath", "count": 2, "hp": 650, "hpMult": 2.5, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 14, "bountyMult": 0.78, "isBoss": false, "isMiniBoss": false },
-          { "type": "tank", "count": 3, "hp": 280, "hpMult": 2.8, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 5, "bountyMult": 0.42, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 2, "hp": 910, "hpMult": 3.5, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 14, "bountyMult": 0.78, "isBoss": false, "isMiniBoss": false },
+          { "type": "tank", "count": 3, "hp": 390, "hpMult": 3.9, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 5, "bountyMult": 0.42, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3385,8 +3385,8 @@ const LEVELS_DATA = {
         "delayAfter": 12,
         "earlyBonus": 65,
         "spawns": [
-          { "type": "grunt", "count": 10, "hp": 85, "hpMult": 2.13, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 3, "bountyMult": 0.43, "isBoss": false, "isMiniBoss": false },
-          { "type": "scout", "count": 8, "hp": 65, "hpMult": 2.71, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
+          { "type": "grunt", "count": 10, "hp": 120, "hpMult": 3.0, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 3, "bountyMult": 0.43, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 8, "hp": 90, "hpMult": 3.75, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3394,7 +3394,7 @@ const LEVELS_DATA = {
         "delayAfter": 8,
         "earlyBonus": 65,
         "spawns": [
-          { "type": "swarm", "count": 30, "hp": 40, "hpMult": 2.5, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+          { "type": "swarm", "count": 30, "hp": 55, "hpMult": 3.44, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3402,8 +3402,8 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 65,
         "spawns": [
-          { "type": "goliath", "count": 3, "hp": 650, "hpMult": 2.5, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 15, "bountyMult": 0.83, "isBoss": false, "isMiniBoss": false },
-          { "type": "blinker", "count": 4, "hp": 260, "hpMult": 4.0, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 7, "bountyMult": 0.88, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 3, "hp": 910, "hpMult": 3.5, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 15, "bountyMult": 0.83, "isBoss": false, "isMiniBoss": false },
+          { "type": "blinker", "count": 4, "hp": 365, "hpMult": 5.62, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 7, "bountyMult": 0.88, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3411,8 +3411,8 @@ const LEVELS_DATA = {
         "delayAfter": 14,
         "earlyBonus": 65,
         "spawns": [
-          { "type": "tank", "count": 4, "hp": 360, "hpMult": 3.6, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 13, "bountyMult": 1.08, "isBoss": false, "isMiniBoss": false },
-          { "type": "scout", "count": 10, "hp": 80, "hpMult": 3.33, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
+          { "type": "tank", "count": 4, "hp": 500, "hpMult": 5.0, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 13, "bountyMult": 1.08, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 10, "hp": 110, "hpMult": 4.58, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3420,8 +3420,8 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 65,
         "spawns": [
-          { "type": "goliath", "count": 3, "hp": 750, "hpMult": 2.88, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 21, "bountyMult": 1.17, "isBoss": false, "isMiniBoss": false },
-          { "type": "grunt", "count": 10, "hp": 120, "hpMult": 3.0, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 3, "bountyMult": 0.43, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 3, "hp": 1050, "hpMult": 4.04, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 21, "bountyMult": 1.17, "isBoss": false, "isMiniBoss": false },
+          { "type": "grunt", "count": 10, "hp": 170, "hpMult": 4.25, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 3, "bountyMult": 0.43, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3429,7 +3429,7 @@ const LEVELS_DATA = {
         "delayAfter": 7,
         "earlyBonus": 65,
         "spawns": [
-          { "type": "goliath", "count": 1, "hp": 3200, "hpMult": 12.31, "speed": 26, "speedMult": 0.87, "interval": 1.2, "bounty": 80, "bountyMult": 4.44, "isBoss": false, "isMiniBoss": true }
+          { "type": "grunt", "count": 1, "hp": 4500, "hpMult": 112.5, "speed": 47, "speedMult": 0.85, "interval": 1.2, "bounty": 80, "bountyMult": 11.43, "isBoss": false, "isMiniBoss": true }
         ]
       }
     ]
@@ -3447,7 +3447,7 @@ const LEVELS_DATA = {
         "delayAfter": 10,
         "earlyBonus": 65,
         "spawns": [
-          { "type": "scout", "count": 8, "hp": 55, "hpMult": 2.29, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
+          { "type": "scout", "count": 8, "hp": 75, "hpMult": 3.13, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3455,8 +3455,8 @@ const LEVELS_DATA = {
         "delayAfter": 14,
         "earlyBonus": 65,
         "spawns": [
-          { "type": "tank", "count": 3, "hp": 320, "hpMult": 3.2, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 6, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false },
-          { "type": "grunt", "count": 8, "hp": 60, "hpMult": 1.5, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 2, "bountyMult": 0.29, "isBoss": false, "isMiniBoss": false }
+          { "type": "tank", "count": 3, "hp": 450, "hpMult": 4.5, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 6, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false },
+          { "type": "grunt", "count": 8, "hp": 85, "hpMult": 2.13, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 2, "bountyMult": 0.29, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3464,8 +3464,8 @@ const LEVELS_DATA = {
         "delayAfter": 14,
         "earlyBonus": 65,
         "spawns": [
-          { "type": "goliath", "count": 2, "hp": 600, "hpMult": 2.31, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 12, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false },
-          { "type": "scout", "count": 8, "hp": 50, "hpMult": 2.08, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 2, "hp": 840, "hpMult": 3.23, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 12, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 8, "hp": 70, "hpMult": 2.92, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3473,7 +3473,7 @@ const LEVELS_DATA = {
         "delayAfter": 8,
         "earlyBonus": 65,
         "spawns": [
-          { "type": "swarm", "count": 24, "hp": 35, "hpMult": 2.19, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+          { "type": "swarm", "count": 24, "hp": 50, "hpMult": 3.13, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3481,8 +3481,8 @@ const LEVELS_DATA = {
         "delayAfter": 14,
         "earlyBonus": 65,
         "spawns": [
-          { "type": "blinker", "count": 3, "hp": 350, "hpMult": 5.38, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 10, "bountyMult": 1.25, "isBoss": false, "isMiniBoss": false },
-          { "type": "grunt", "count": 8, "hp": 90, "hpMult": 2.25, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 3, "bountyMult": 0.43, "isBoss": false, "isMiniBoss": false }
+          { "type": "blinker", "count": 3, "hp": 490, "hpMult": 7.54, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 10, "bountyMult": 1.25, "isBoss": false, "isMiniBoss": false },
+          { "type": "grunt", "count": 8, "hp": 125, "hpMult": 3.13, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 3, "bountyMult": 0.43, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3490,8 +3490,8 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 65,
         "spawns": [
-          { "type": "goliath", "count": 3, "hp": 700, "hpMult": 2.69, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 14, "bountyMult": 0.78, "isBoss": false, "isMiniBoss": false },
-          { "type": "tank", "count": 4, "hp": 380, "hpMult": 3.8, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 5, "bountyMult": 0.42, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 3, "hp": 980, "hpMult": 3.77, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 14, "bountyMult": 0.78, "isBoss": false, "isMiniBoss": false },
+          { "type": "tank", "count": 4, "hp": 530, "hpMult": 5.3, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 5, "bountyMult": 0.42, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3499,7 +3499,7 @@ const LEVELS_DATA = {
         "delayAfter": 11,
         "earlyBonus": 65,
         "spawns": [
-          { "type": "scout", "count": 18, "hp": 95, "hpMult": 3.96, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 4, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+          { "type": "scout", "count": 18, "hp": 135, "hpMult": 5.63, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 4, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3507,8 +3507,8 @@ const LEVELS_DATA = {
         "delayAfter": 14,
         "earlyBonus": 65,
         "spawns": [
-          { "type": "goliath", "count": 3, "hp": 800, "hpMult": 3.08, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 20, "bountyMult": 1.11, "isBoss": false, "isMiniBoss": false },
-          { "type": "swarm", "count": 24, "hp": 50, "hpMult": 3.13, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 3, "hp": 1120, "hpMult": 4.31, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 20, "bountyMult": 1.11, "isBoss": false, "isMiniBoss": false },
+          { "type": "swarm", "count": 24, "hp": 70, "hpMult": 4.38, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3516,8 +3516,8 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 65,
         "spawns": [
-          { "type": "tank", "count": 5, "hp": 440, "hpMult": 4.4, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 12, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false },
-          { "type": "blinker", "count": 5, "hp": 360, "hpMult": 5.54, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 8, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false }
+          { "type": "tank", "count": 5, "hp": 620, "hpMult": 6.2, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 12, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false },
+          { "type": "blinker", "count": 5, "hp": 500, "hpMult": 7.69, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 8, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3525,8 +3525,8 @@ const LEVELS_DATA = {
         "delayAfter": 7,
         "earlyBonus": 65,
         "spawns": [
-          { "type": "goliath", "count": 2, "hp": 900, "hpMult": 3.46, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 15, "bountyMult": 0.83, "isBoss": false, "isMiniBoss": false },
-          { "type": "scout", "count": 1, "hp": 2200, "hpMult": 91.67, "speed": 94, "speedMult": 0.85, "interval": 1.2, "bounty": 55, "bountyMult": 9.17, "isBoss": false, "isMiniBoss": true }
+          { "type": "goliath", "count": 2, "hp": 1260, "hpMult": 4.85, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 15, "bountyMult": 0.83, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 1, "hp": 3100, "hpMult": 129.17, "speed": 94, "speedMult": 0.85, "interval": 1.2, "bounty": 55, "bountyMult": 9.17, "isBoss": false, "isMiniBoss": true }
         ]
       }
     ]
@@ -3544,7 +3544,7 @@ const LEVELS_DATA = {
         "delayAfter": 12,
         "earlyBonus": 70,
         "spawns": [
-          { "type": "grunt", "count": 10, "hp": 60, "hpMult": 1.5, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 2, "bountyMult": 0.29, "isBoss": false, "isMiniBoss": false }
+          { "type": "grunt", "count": 10, "hp": 85, "hpMult": 2.13, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 2, "bountyMult": 0.29, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3552,8 +3552,8 @@ const LEVELS_DATA = {
         "delayAfter": 9,
         "earlyBonus": 70,
         "spawns": [
-          { "type": "swarm", "count": 20, "hp": 30, "hpMult": 1.88, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 2, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false },
-          { "type": "blinker", "count": 3, "hp": 280, "hpMult": 4.31, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 2, "bountyMult": 0.25, "isBoss": false, "isMiniBoss": false }
+          { "type": "swarm", "count": 20, "hp": 42, "hpMult": 2.63, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 2, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false },
+          { "type": "blinker", "count": 3, "hp": 390, "hpMult": 6.0, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 2, "bountyMult": 0.25, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3561,8 +3561,8 @@ const LEVELS_DATA = {
         "delayAfter": 14,
         "earlyBonus": 70,
         "spawns": [
-          { "type": "tank", "count": 4, "hp": 310, "hpMult": 3.1, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 5, "bountyMult": 0.42, "isBoss": false, "isMiniBoss": false },
-          { "type": "scout", "count": 8, "hp": 60, "hpMult": 2.5, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 1, "bountyMult": 0.17, "isBoss": false, "isMiniBoss": false }
+          { "type": "tank", "count": 4, "hp": 430, "hpMult": 4.3, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 5, "bountyMult": 0.42, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 8, "hp": 85, "hpMult": 3.54, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 1, "bountyMult": 0.17, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3570,8 +3570,8 @@ const LEVELS_DATA = {
         "delayAfter": 15,
         "earlyBonus": 70,
         "spawns": [
-          { "type": "goliath", "count": 2, "hp": 750, "hpMult": 2.88, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 13, "bountyMult": 0.72, "isBoss": false, "isMiniBoss": false },
-          { "type": "grunt", "count": 10, "hp": 80, "hpMult": 2.0, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 1, "bountyMult": 0.14, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 2, "hp": 1050, "hpMult": 4.04, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 13, "bountyMult": 0.72, "isBoss": false, "isMiniBoss": false },
+          { "type": "grunt", "count": 10, "hp": 110, "hpMult": 2.75, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 1, "bountyMult": 0.14, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3579,8 +3579,8 @@ const LEVELS_DATA = {
         "delayAfter": 12,
         "earlyBonus": 70,
         "spawns": [
-          { "type": "blinker", "count": 4, "hp": 260, "hpMult": 4.0, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 6, "bountyMult": 0.75, "isBoss": false, "isMiniBoss": false },
-          { "type": "scout", "count": 12, "hp": 55, "hpMult": 2.29, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+          { "type": "blinker", "count": 4, "hp": 365, "hpMult": 5.62, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 6, "bountyMult": 0.75, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 12, "hp": 75, "hpMult": 3.13, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3588,8 +3588,8 @@ const LEVELS_DATA = {
         "delayAfter": 14,
         "earlyBonus": 70,
         "spawns": [
-          { "type": "goliath", "count": 3, "hp": 750, "hpMult": 2.88, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 14, "bountyMult": 0.78, "isBoss": false, "isMiniBoss": false },
-          { "type": "swarm", "count": 24, "hp": 55, "hpMult": 3.44, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 3, "hp": 1050, "hpMult": 4.04, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 14, "bountyMult": 0.78, "isBoss": false, "isMiniBoss": false },
+          { "type": "swarm", "count": 24, "hp": 77, "hpMult": 4.81, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3597,8 +3597,8 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 70,
         "spawns": [
-          { "type": "tank", "count": 5, "hp": 460, "hpMult": 4.6, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 9, "bountyMult": 0.75, "isBoss": false, "isMiniBoss": false },
-          { "type": "blinker", "count": 5, "hp": 380, "hpMult": 5.85, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 5, "bountyMult": 0.63, "isBoss": false, "isMiniBoss": false }
+          { "type": "tank", "count": 5, "hp": 640, "hpMult": 6.4, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 9, "bountyMult": 0.75, "isBoss": false, "isMiniBoss": false },
+          { "type": "blinker", "count": 5, "hp": 530, "hpMult": 8.15, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 5, "bountyMult": 0.63, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3606,7 +3606,7 @@ const LEVELS_DATA = {
         "delayAfter": 11,
         "earlyBonus": 70,
         "spawns": [
-          { "type": "scout", "count": 20, "hp": 115, "hpMult": 4.79, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 4, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+          { "type": "scout", "count": 20, "hp": 160, "hpMult": 6.67, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 4, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3614,8 +3614,8 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 70,
         "spawns": [
-          { "type": "goliath", "count": 3, "hp": 900, "hpMult": 3.46, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 24, "bountyMult": 1.33, "isBoss": false, "isMiniBoss": false },
-          { "type": "tank", "count": 4, "hp": 480, "hpMult": 4.8, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 5, "bountyMult": 0.42, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 3, "hp": 1260, "hpMult": 4.85, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 24, "bountyMult": 1.33, "isBoss": false, "isMiniBoss": false },
+          { "type": "tank", "count": 4, "hp": 670, "hpMult": 6.7, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 5, "bountyMult": 0.42, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3623,8 +3623,8 @@ const LEVELS_DATA = {
         "delayAfter": 9,
         "earlyBonus": 70,
         "spawns": [
-          { "type": "swarm", "count": 30, "hp": 60, "hpMult": 3.75, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false },
-          { "type": "blinker", "count": 6, "hp": 400, "hpMult": 6.15, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 7, "bountyMult": 0.88, "isBoss": false, "isMiniBoss": false }
+          { "type": "swarm", "count": 30, "hp": 85, "hpMult": 5.31, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false },
+          { "type": "blinker", "count": 6, "hp": 560, "hpMult": 8.62, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 7, "bountyMult": 0.88, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3632,7 +3632,7 @@ const LEVELS_DATA = {
         "delayAfter": 7,
         "earlyBonus": 70,
         "spawns": [
-          { "type": "goliath", "count": 1, "hp": 4200, "hpMult": 16.15, "speed": 26, "speedMult": 0.87, "interval": 1.2, "bounty": 90, "bountyMult": 5.0, "isBoss": false, "isMiniBoss": true }
+          { "type": "tank", "count": 1, "hp": 5900, "hpMult": 59.0, "speed": 32, "speedMult": 0.84, "interval": 1.2, "bounty": 90, "bountyMult": 7.5, "isBoss": false, "isMiniBoss": true }
         ]
       }
     ]
@@ -3650,7 +3650,7 @@ const LEVELS_DATA = {
         "delayAfter": 14,
         "earlyBonus": 70,
         "spawns": [
-          { "type": "tank", "count": 3, "hp": 240, "hpMult": 2.4, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 8, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+          { "type": "tank", "count": 3, "hp": 335, "hpMult": 3.35, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 8, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3658,8 +3658,8 @@ const LEVELS_DATA = {
         "delayAfter": 12,
         "earlyBonus": 70,
         "spawns": [
-          { "type": "scout", "count": 8, "hp": 65, "hpMult": 2.71, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false },
-          { "type": "grunt", "count": 8, "hp": 75, "hpMult": 1.88, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 1, "bountyMult": 0.14, "isBoss": false, "isMiniBoss": false }
+          { "type": "scout", "count": 8, "hp": 90, "hpMult": 3.75, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false },
+          { "type": "grunt", "count": 8, "hp": 105, "hpMult": 2.63, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 1, "bountyMult": 0.14, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3667,7 +3667,7 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 70,
         "spawns": [
-          { "type": "goliath", "count": 3, "hp": 700, "hpMult": 2.69, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 11, "bountyMult": 0.61, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 3, "hp": 980, "hpMult": 3.77, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 11, "bountyMult": 0.61, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3675,8 +3675,8 @@ const LEVELS_DATA = {
         "delayAfter": 8,
         "earlyBonus": 70,
         "spawns": [
-          { "type": "blinker", "count": 3, "hp": 320, "hpMult": 4.92, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 7, "bountyMult": 0.88, "isBoss": false, "isMiniBoss": false },
-          { "type": "swarm", "count": 20, "hp": 40, "hpMult": 2.5, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 2, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+          { "type": "blinker", "count": 3, "hp": 450, "hpMult": 6.92, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 7, "bountyMult": 0.88, "isBoss": false, "isMiniBoss": false },
+          { "type": "swarm", "count": 20, "hp": 55, "hpMult": 3.44, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 2, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3684,8 +3684,8 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 70,
         "spawns": [
-          { "type": "tank", "count": 4, "hp": 420, "hpMult": 4.2, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 7, "bountyMult": 0.58, "isBoss": false, "isMiniBoss": false },
-          { "type": "goliath", "count": 2, "hp": 850, "hpMult": 3.27, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 10, "bountyMult": 0.56, "isBoss": false, "isMiniBoss": false }
+          { "type": "tank", "count": 4, "hp": 590, "hpMult": 5.9, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 7, "bountyMult": 0.58, "isBoss": false, "isMiniBoss": false },
+          { "type": "goliath", "count": 2, "hp": 1190, "hpMult": 4.58, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 10, "bountyMult": 0.56, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3693,8 +3693,8 @@ const LEVELS_DATA = {
         "delayAfter": 12,
         "earlyBonus": 70,
         "spawns": [
-          { "type": "scout", "count": 15, "hp": 110, "hpMult": 4.58, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false },
-          { "type": "blinker", "count": 4, "hp": 360, "hpMult": 5.54, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 4, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
+          { "type": "scout", "count": 15, "hp": 155, "hpMult": 6.46, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false },
+          { "type": "blinker", "count": 4, "hp": 500, "hpMult": 7.69, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 4, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3702,8 +3702,8 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 70,
         "spawns": [
-          { "type": "goliath", "count": 3, "hp": 950, "hpMult": 3.65, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 18, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false },
-          { "type": "grunt", "count": 12, "hp": 140, "hpMult": 3.5, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 2, "bountyMult": 0.29, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 3, "hp": 1330, "hpMult": 5.12, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 18, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false },
+          { "type": "grunt", "count": 12, "hp": 195, "hpMult": 4.88, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 2, "bountyMult": 0.29, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3711,7 +3711,7 @@ const LEVELS_DATA = {
         "delayAfter": 8,
         "earlyBonus": 70,
         "spawns": [
-          { "type": "swarm", "count": 36, "hp": 60, "hpMult": 3.75, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 4, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+          { "type": "swarm", "count": 36, "hp": 85, "hpMult": 5.31, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 4, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3719,8 +3719,8 @@ const LEVELS_DATA = {
         "delayAfter": 14,
         "earlyBonus": 70,
         "spawns": [
-          { "type": "tank", "count": 6, "hp": 520, "hpMult": 5.2, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 11, "bountyMult": 0.92, "isBoss": false, "isMiniBoss": false },
-          { "type": "scout", "count": 12, "hp": 120, "hpMult": 5.0, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
+          { "type": "tank", "count": 6, "hp": 730, "hpMult": 7.3, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 11, "bountyMult": 0.92, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 12, "hp": 170, "hpMult": 7.08, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3728,8 +3728,8 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 70,
         "spawns": [
-          { "type": "goliath", "count": 3, "hp": 1100, "hpMult": 4.23, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 24, "bountyMult": 1.33, "isBoss": false, "isMiniBoss": false },
-          { "type": "blinker", "count": 5, "hp": 440, "hpMult": 6.77, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 8, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 3, "hp": 1540, "hpMult": 5.92, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 24, "bountyMult": 1.33, "isBoss": false, "isMiniBoss": false },
+          { "type": "blinker", "count": 5, "hp": 620, "hpMult": 9.54, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 8, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3737,7 +3737,7 @@ const LEVELS_DATA = {
         "delayAfter": 7,
         "earlyBonus": 70,
         "spawns": [
-          { "type": "tank", "count": 1, "hp": 4600, "hpMult": 46.0, "speed": 32, "speedMult": 0.84, "interval": 1.2, "bounty": 95, "bountyMult": 7.92, "isBoss": false, "isMiniBoss": true }
+          { "type": "swarm", "count": 1, "hp": 6400, "hpMult": 400.0, "speed": 145, "speedMult": 0.85, "interval": 1.2, "bounty": 95, "bountyMult": 31.67, "isBoss": false, "isMiniBoss": true }
         ]
       }
     ]
@@ -3755,7 +3755,7 @@ const LEVELS_DATA = {
         "delayAfter": 12,
         "earlyBonus": 75,
         "spawns": [
-          { "type": "blinker", "count": 4, "hp": 220, "hpMult": 3.38, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 6, "bountyMult": 0.75, "isBoss": false, "isMiniBoss": false }
+          { "type": "blinker", "count": 4, "hp": 310, "hpMult": 4.77, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 6, "bountyMult": 0.75, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3763,8 +3763,8 @@ const LEVELS_DATA = {
         "delayAfter": 12,
         "earlyBonus": 75,
         "spawns": [
-          { "type": "grunt", "count": 10, "hp": 80, "hpMult": 2.0, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 2, "bountyMult": 0.29, "isBoss": false, "isMiniBoss": false },
-          { "type": "scout", "count": 8, "hp": 70, "hpMult": 2.92, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 1, "bountyMult": 0.17, "isBoss": false, "isMiniBoss": false }
+          { "type": "grunt", "count": 10, "hp": 110, "hpMult": 2.75, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 2, "bountyMult": 0.29, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 8, "hp": 100, "hpMult": 4.17, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 1, "bountyMult": 0.17, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3772,8 +3772,8 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 75,
         "spawns": [
-          { "type": "goliath", "count": 3, "hp": 750, "hpMult": 2.88, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 8, "bountyMult": 0.44, "isBoss": false, "isMiniBoss": false },
-          { "type": "tank", "count": 4, "hp": 360, "hpMult": 3.6, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 3, "bountyMult": 0.25, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 3, "hp": 1050, "hpMult": 4.04, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 8, "bountyMult": 0.44, "isBoss": false, "isMiniBoss": false },
+          { "type": "tank", "count": 4, "hp": 500, "hpMult": 5.0, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 3, "bountyMult": 0.25, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3781,7 +3781,7 @@ const LEVELS_DATA = {
         "delayAfter": 8,
         "earlyBonus": 75,
         "spawns": [
-          { "type": "swarm", "count": 28, "hp": 45, "hpMult": 2.81, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+          { "type": "swarm", "count": 28, "hp": 63, "hpMult": 3.94, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3789,8 +3789,8 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 75,
         "spawns": [
-          { "type": "blinker", "count": 4, "hp": 350, "hpMult": 5.38, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 7, "bountyMult": 0.88, "isBoss": false, "isMiniBoss": false },
-          { "type": "goliath", "count": 2, "hp": 950, "hpMult": 3.65, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 13, "bountyMult": 0.72, "isBoss": false, "isMiniBoss": false }
+          { "type": "blinker", "count": 4, "hp": 490, "hpMult": 7.54, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 7, "bountyMult": 0.88, "isBoss": false, "isMiniBoss": false },
+          { "type": "goliath", "count": 2, "hp": 1330, "hpMult": 5.12, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 13, "bountyMult": 0.72, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3798,7 +3798,7 @@ const LEVELS_DATA = {
         "delayAfter": 11,
         "earlyBonus": 75,
         "spawns": [
-          { "type": "scout", "count": 18, "hp": 120, "hpMult": 5.0, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 4, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+          { "type": "scout", "count": 18, "hp": 170, "hpMult": 7.08, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 4, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3806,8 +3806,8 @@ const LEVELS_DATA = {
         "delayAfter": 14,
         "earlyBonus": 75,
         "spawns": [
-          { "type": "tank", "count": 5, "hp": 540, "hpMult": 5.4, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 11, "bountyMult": 0.92, "isBoss": false, "isMiniBoss": false },
-          { "type": "swarm", "count": 26, "hp": 65, "hpMult": 4.06, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+          { "type": "tank", "count": 5, "hp": 750, "hpMult": 7.5, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 11, "bountyMult": 0.92, "isBoss": false, "isMiniBoss": false },
+          { "type": "swarm", "count": 26, "hp": 90, "hpMult": 5.63, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3815,8 +3815,8 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 75,
         "spawns": [
-          { "type": "goliath", "count": 3, "hp": 1150, "hpMult": 4.42, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 24, "bountyMult": 1.33, "isBoss": false, "isMiniBoss": false },
-          { "type": "grunt", "count": 14, "hp": 160, "hpMult": 4.0, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 1, "bountyMult": 0.14, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 3, "hp": 1610, "hpMult": 6.19, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 24, "bountyMult": 1.33, "isBoss": false, "isMiniBoss": false },
+          { "type": "grunt", "count": 14, "hp": 225, "hpMult": 5.63, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 1, "bountyMult": 0.14, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3824,8 +3824,8 @@ const LEVELS_DATA = {
         "delayAfter": 12,
         "earlyBonus": 75,
         "spawns": [
-          { "type": "blinker", "count": 6, "hp": 480, "hpMult": 7.38, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 11, "bountyMult": 1.38, "isBoss": false, "isMiniBoss": false },
-          { "type": "scout", "count": 14, "hp": 130, "hpMult": 5.42, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
+          { "type": "blinker", "count": 6, "hp": 670, "hpMult": 10.31, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 11, "bountyMult": 1.38, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 14, "hp": 180, "hpMult": 7.5, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3833,8 +3833,8 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 75,
         "spawns": [
-          { "type": "goliath", "count": 4, "hp": 1100, "hpMult": 4.23, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 23, "bountyMult": 1.28, "isBoss": false, "isMiniBoss": false },
-          { "type": "tank", "count": 5, "hp": 500, "hpMult": 5.0, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 6, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 4, "hp": 1540, "hpMult": 5.92, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 23, "bountyMult": 1.28, "isBoss": false, "isMiniBoss": false },
+          { "type": "tank", "count": 5, "hp": 700, "hpMult": 7.0, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 6, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3842,7 +3842,7 @@ const LEVELS_DATA = {
         "delayAfter": 7,
         "earlyBonus": 75,
         "spawns": [
-          { "type": "blinker", "count": 1, "hp": 4800, "hpMult": 73.85, "speed": 53, "speedMult": 0.85, "interval": 1.2, "bounty": 100, "bountyMult": 12.5, "isBoss": false, "isMiniBoss": true }
+          { "type": "goliath", "count": 1, "hp": 6700, "hpMult": 25.77, "speed": 26, "speedMult": 0.87, "interval": 1.2, "bounty": 100, "bountyMult": 5.56, "isBoss": false, "isMiniBoss": true }
         ]
       }
     ]
@@ -3860,7 +3860,7 @@ const LEVELS_DATA = {
         "delayAfter": 8,
         "earlyBonus": 75,
         "spawns": [
-          { "type": "swarm", "count": 16, "hp": 35, "hpMult": 2.19, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 2, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+          { "type": "swarm", "count": 20, "hp": 40, "hpMult": 2.5, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 2, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3868,7 +3868,7 @@ const LEVELS_DATA = {
         "delayAfter": 10,
         "earlyBonus": 75,
         "spawns": [
-          { "type": "scout", "count": 10, "hp": 95, "hpMult": 3.96, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
+          { "type": "scout", "count": 12, "hp": 110, "hpMult": 4.58, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3876,17 +3876,17 @@ const LEVELS_DATA = {
         "delayAfter": 8,
         "earlyBonus": 75,
         "spawns": [
-          { "type": "swarm", "count": 20, "hp": 40, "hpMult": 2.5, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 2, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false },
-          { "type": "scout", "count": 8, "hp": 75, "hpMult": 3.13, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 1, "bountyMult": 0.17, "isBoss": false, "isMiniBoss": false }
+          { "type": "swarm", "count": 24, "hp": 45, "hpMult": 2.81, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 2, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 10, "hp": 90, "hpMult": 3.75, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 1, "bountyMult": 0.17, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
         "wave": 4,
-        "delayAfter": 9,
+        "delayAfter": 8,
         "earlyBonus": 75,
         "spawns": [
-          { "type": "tank", "count": 2, "hp": 350, "hpMult": 3.5, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 6, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false },
-          { "type": "swarm", "count": 30, "hp": 45, "hpMult": 2.81, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+          { "type": "scout", "count": 16, "hp": 115, "hpMult": 4.79, "speed": 110, "speedMult": 1.0, "interval": 0.45, "bounty": 1, "bountyMult": 0.17, "isBoss": false, "isMiniBoss": false },
+          { "type": "swarm", "count": 30, "hp": 45, "hpMult": 2.81, "speed": 170, "speedMult": 1.0, "interval": 0.03, "clumps": 3, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3894,58 +3894,58 @@ const LEVELS_DATA = {
         "delayAfter": 10,
         "earlyBonus": 75,
         "spawns": [
-          { "type": "scout", "count": 18, "hp": 90, "hpMult": 3.75, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+          { "type": "scout", "count": 22, "hp": 110, "hpMult": 4.58, "speed": 110, "speedMult": 1.0, "interval": 0.4, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
         "wave": 6,
-        "delayAfter": 8,
+        "delayAfter": 7,
         "earlyBonus": 75,
         "spawns": [
-          { "type": "swarm", "count": 40, "hp": 55, "hpMult": 3.44, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 4, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+          { "type": "swarm", "count": 45, "hp": 65, "hpMult": 4.06, "speed": 170, "speedMult": 1.0, "interval": 0.03, "clumps": 5, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
         "wave": 7,
-        "delayAfter": 11,
+        "delayAfter": 8,
         "earlyBonus": 75,
         "spawns": [
-          { "type": "blinker", "count": 5, "hp": 480, "hpMult": 7.38, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 7, "bountyMult": 0.88, "isBoss": false, "isMiniBoss": false },
-          { "type": "scout", "count": 14, "hp": 135, "hpMult": 5.63, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+          { "type": "scout", "count": 24, "hp": 150, "hpMult": 6.25, "speed": 110, "speedMult": 1.0, "interval": 0.4, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false },
+          { "type": "swarm", "count": 20, "hp": 70, "hpMult": 4.38, "speed": 170, "speedMult": 1.0, "interval": 0.03, "clumps": 2, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
         "wave": 8,
-        "delayAfter": 10,
+        "delayAfter": 8,
         "earlyBonus": 75,
         "spawns": [
-          { "type": "swarm", "count": 36, "hp": 70, "hpMult": 4.38, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 4, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false },
-          { "type": "tank", "count": 4, "hp": 580, "hpMult": 5.8, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 11, "bountyMult": 0.92, "isBoss": false, "isMiniBoss": false }
+          { "type": "swarm", "count": 40, "hp": 85, "hpMult": 5.31, "speed": 170, "speedMult": 1.0, "interval": 0.03, "clumps": 4, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 18, "hp": 155, "hpMult": 6.46, "speed": 110, "speedMult": 1.0, "interval": 0.4, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
         "wave": 9,
-        "delayAfter": 10,
+        "delayAfter": 8,
         "earlyBonus": 75,
         "spawns": [
-          { "type": "scout", "count": 24, "hp": 145, "hpMult": 6.04, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 4, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+          { "type": "scout", "count": 30, "hp": 165, "hpMult": 6.88, "speed": 110, "speedMult": 1.0, "interval": 0.38, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
         "wave": 10,
-        "delayAfter": 8,
+        "delayAfter": 7,
         "earlyBonus": 75,
         "spawns": [
-          { "type": "swarm", "count": 50, "hp": 75, "hpMult": 4.69, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 5, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+          { "type": "swarm", "count": 60, "hp": 85, "hpMult": 5.31, "speed": 170, "speedMult": 1.0, "interval": 0.03, "clumps": 6, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
         "wave": 11,
-        "delayAfter": 10,
+        "delayAfter": 8,
         "earlyBonus": 75,
         "spawns": [
-          { "type": "goliath", "count": 2, "hp": 1400, "hpMult": 5.38, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 38, "bountyMult": 2.11, "isBoss": false, "isMiniBoss": false },
-          { "type": "swarm", "count": 30, "hp": 75, "hpMult": 4.69, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+          { "type": "swarm", "count": 50, "hp": 95, "hpMult": 5.94, "speed": 170, "speedMult": 1.0, "interval": 0.03, "clumps": 5, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 16, "hp": 160, "hpMult": 6.67, "speed": 110, "speedMult": 1.0, "interval": 0.4, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3953,8 +3953,7 @@ const LEVELS_DATA = {
         "delayAfter": 7,
         "earlyBonus": 75,
         "spawns": [
-          { "type": "scout", "count": 12, "hp": 140, "hpMult": 5.83, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 4, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false },
-          { "type": "swarm", "count": 1, "hp": 3800, "hpMult": 237.5, "speed": 145, "speedMult": 0.85, "interval": 1.2, "bounty": 57, "bountyMult": 19.0, "isBoss": false, "isMiniBoss": true }
+          { "type": "blinker", "count": 1, "hp": 7600, "hpMult": 116.92, "speed": 53, "speedMult": 0.85, "interval": 1.2, "bounty": 105, "bountyMult": 13.13, "isBoss": false, "isMiniBoss": true }
         ]
       }
     ]
@@ -3972,8 +3971,22 @@ const LEVELS_DATA = {
         "delayAfter": 12,
         "earlyBonus": 80,
         "spawns": [
-          { "type": "grunt", "count": 8, "hp": 110, "hpMult": 2.75, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 2, "bountyMult": 0.29, "isBoss": false, "isMiniBoss": false },
-          { "type": "scout", "count": 8, "hp": 90, "hpMult": 3.75, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 1, "bountyMult": 0.17, "isBoss": false, "isMiniBoss": false }
+          { "type": "grunt", "count": 1, "hp": 150, "hpMult": 3.75, "speed": 55, "speedMult": 1.0, "interval": 0.5, "bounty": 1, "bountyMult": 0.14, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 1, "hp": 125, "hpMult": 5.21, "speed": 55, "speedMult": 0.5, "interval": 0.5, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false },
+          { "type": "grunt", "count": 1, "hp": 150, "hpMult": 3.75, "speed": 55, "speedMult": 1.0, "interval": 0.5, "bounty": 1, "bountyMult": 0.14, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 1, "hp": 125, "hpMult": 5.21, "speed": 55, "speedMult": 0.5, "interval": 0.5, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false },
+          { "type": "grunt", "count": 1, "hp": 150, "hpMult": 3.75, "speed": 55, "speedMult": 1.0, "interval": 0.5, "bounty": 1, "bountyMult": 0.14, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 1, "hp": 125, "hpMult": 5.21, "speed": 55, "speedMult": 0.5, "interval": 0.5, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false },
+          { "type": "grunt", "count": 1, "hp": 150, "hpMult": 3.75, "speed": 55, "speedMult": 1.0, "interval": 0.5, "bounty": 1, "bountyMult": 0.14, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 1, "hp": 125, "hpMult": 5.21, "speed": 55, "speedMult": 0.5, "interval": 0.5, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false },
+          { "type": "grunt", "count": 1, "hp": 150, "hpMult": 3.75, "speed": 55, "speedMult": 1.0, "interval": 0.5, "bounty": 1, "bountyMult": 0.14, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 1, "hp": 125, "hpMult": 5.21, "speed": 55, "speedMult": 0.5, "interval": 0.5, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false },
+          { "type": "grunt", "count": 1, "hp": 150, "hpMult": 3.75, "speed": 55, "speedMult": 1.0, "interval": 0.5, "bounty": 1, "bountyMult": 0.14, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 1, "hp": 125, "hpMult": 5.21, "speed": 55, "speedMult": 0.5, "interval": 0.5, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false },
+          { "type": "grunt", "count": 1, "hp": 150, "hpMult": 3.75, "speed": 55, "speedMult": 1.0, "interval": 0.5, "bounty": 1, "bountyMult": 0.14, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 1, "hp": 125, "hpMult": 5.21, "speed": 55, "speedMult": 0.5, "interval": 0.5, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false },
+          { "type": "grunt", "count": 1, "hp": 150, "hpMult": 3.75, "speed": 55, "speedMult": 1.0, "interval": 0.5, "bounty": 1, "bountyMult": 0.14, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 1, "hp": 125, "hpMult": 5.21, "speed": 55, "speedMult": 0.5, "interval": 0.5, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3981,8 +3994,8 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 80,
         "spawns": [
-          { "type": "goliath", "count": 2, "hp": 800, "hpMult": 3.08, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 10, "bountyMult": 0.56, "isBoss": false, "isMiniBoss": false },
-          { "type": "blinker", "count": 4, "hp": 380, "hpMult": 5.85, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 2, "bountyMult": 0.25, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 2, "hp": 1120, "hpMult": 4.31, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 10, "bountyMult": 0.56, "isBoss": false, "isMiniBoss": false },
+          { "type": "blinker", "count": 4, "hp": 530, "hpMult": 8.15, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 2, "bountyMult": 0.25, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3990,8 +4003,8 @@ const LEVELS_DATA = {
         "delayAfter": 14,
         "earlyBonus": 80,
         "spawns": [
-          { "type": "tank", "count": 4, "hp": 380, "hpMult": 3.8, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 6, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false },
-          { "type": "scout", "count": 10, "hp": 85, "hpMult": 3.54, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 1, "bountyMult": 0.17, "isBoss": false, "isMiniBoss": false }
+          { "type": "tank", "count": 4, "hp": 530, "hpMult": 5.3, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 6, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 10, "hp": 120, "hpMult": 5.0, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 1, "bountyMult": 0.17, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -3999,8 +4012,8 @@ const LEVELS_DATA = {
         "delayAfter": 14,
         "earlyBonus": 80,
         "spawns": [
-          { "type": "goliath", "count": 2, "hp": 950, "hpMult": 3.65, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 14, "bountyMult": 0.78, "isBoss": false, "isMiniBoss": false },
-          { "type": "swarm", "count": 24, "hp": 55, "hpMult": 3.44, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 2, "hp": 1330, "hpMult": 5.12, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 14, "bountyMult": 0.78, "isBoss": false, "isMiniBoss": false },
+          { "type": "swarm", "count": 24, "hp": 77, "hpMult": 4.81, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4008,8 +4021,8 @@ const LEVELS_DATA = {
         "delayAfter": 12,
         "earlyBonus": 80,
         "spawns": [
-          { "type": "blinker", "count": 4, "hp": 420, "hpMult": 6.46, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 9, "bountyMult": 1.13, "isBoss": false, "isMiniBoss": false },
-          { "type": "grunt", "count": 10, "hp": 140, "hpMult": 3.5, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 1, "bountyMult": 0.14, "isBoss": false, "isMiniBoss": false }
+          { "type": "blinker", "count": 4, "hp": 590, "hpMult": 9.08, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 9, "bountyMult": 1.13, "isBoss": false, "isMiniBoss": false },
+          { "type": "grunt", "count": 10, "hp": 195, "hpMult": 4.88, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 1, "bountyMult": 0.14, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4017,8 +4030,8 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 80,
         "spawns": [
-          { "type": "goliath", "count": 3, "hp": 1050, "hpMult": 4.04, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 15, "bountyMult": 0.83, "isBoss": false, "isMiniBoss": false },
-          { "type": "tank", "count": 5, "hp": 560, "hpMult": 5.6, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 3, "bountyMult": 0.25, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 3, "hp": 1470, "hpMult": 5.65, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 15, "bountyMult": 0.83, "isBoss": false, "isMiniBoss": false },
+          { "type": "tank", "count": 5, "hp": 780, "hpMult": 7.8, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 3, "bountyMult": 0.25, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4026,8 +4039,8 @@ const LEVELS_DATA = {
         "delayAfter": 11,
         "earlyBonus": 80,
         "spawns": [
-          { "type": "scout", "count": 16, "hp": 140, "hpMult": 5.83, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false },
-          { "type": "swarm", "count": 30, "hp": 75, "hpMult": 4.69, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+          { "type": "scout", "count": 16, "hp": 195, "hpMult": 8.13, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false },
+          { "type": "swarm", "count": 30, "hp": 105, "hpMult": 6.56, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4035,8 +4048,8 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 80,
         "spawns": [
-          { "type": "goliath", "count": 3, "hp": 1250, "hpMult": 4.81, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 22, "bountyMult": 1.22, "isBoss": false, "isMiniBoss": false },
-          { "type": "blinker", "count": 6, "hp": 460, "hpMult": 7.08, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 3, "bountyMult": 0.38, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 3, "hp": 1750, "hpMult": 6.73, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 22, "bountyMult": 1.22, "isBoss": false, "isMiniBoss": false },
+          { "type": "blinker", "count": 6, "hp": 640, "hpMult": 9.85, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 3, "bountyMult": 0.38, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4044,8 +4057,8 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 80,
         "spawns": [
-          { "type": "tank", "count": 6, "hp": 620, "hpMult": 6.2, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 14, "bountyMult": 1.17, "isBoss": false, "isMiniBoss": false },
-          { "type": "grunt", "count": 14, "hp": 180, "hpMult": 4.5, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 1, "bountyMult": 0.14, "isBoss": false, "isMiniBoss": false }
+          { "type": "tank", "count": 6, "hp": 870, "hpMult": 8.7, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 14, "bountyMult": 1.17, "isBoss": false, "isMiniBoss": false },
+          { "type": "grunt", "count": 14, "hp": 250, "hpMult": 6.25, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 1, "bountyMult": 0.14, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4053,8 +4066,8 @@ const LEVELS_DATA = {
         "delayAfter": 14,
         "earlyBonus": 80,
         "spawns": [
-          { "type": "goliath", "count": 3, "hp": 1450, "hpMult": 5.58, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 30, "bountyMult": 1.67, "isBoss": false, "isMiniBoss": false },
-          { "type": "scout", "count": 16, "hp": 160, "hpMult": 6.67, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 3, "hp": 2030, "hpMult": 7.81, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 30, "bountyMult": 1.67, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 16, "hp": 225, "hpMult": 9.38, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4062,8 +4075,8 @@ const LEVELS_DATA = {
         "delayAfter": 9,
         "earlyBonus": 80,
         "spawns": [
-          { "type": "blinker", "count": 6, "hp": 520, "hpMult": 8.0, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 15, "bountyMult": 1.88, "isBoss": false, "isMiniBoss": false },
-          { "type": "swarm", "count": 36, "hp": 85, "hpMult": 5.31, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 4, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+          { "type": "blinker", "count": 6, "hp": 730, "hpMult": 11.23, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 15, "bountyMult": 1.88, "isBoss": false, "isMiniBoss": false },
+          { "type": "swarm", "count": 36, "hp": 120, "hpMult": 7.5, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 4, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4071,8 +4084,7 @@ const LEVELS_DATA = {
         "delayAfter": 7,
         "earlyBonus": 80,
         "spawns": [
-          { "type": "goliath", "count": 2, "hp": 1300, "hpMult": 5.0, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 25, "bountyMult": 1.39, "isBoss": false, "isMiniBoss": false },
-          { "type": "blinker", "count": 1, "hp": 4500, "hpMult": 69.23, "speed": 53, "speedMult": 0.85, "interval": 1.2, "bounty": 60, "bountyMult": 7.5, "isBoss": false, "isMiniBoss": true }
+          { "type": "swarm", "count": 1, "hp": 9900, "hpMult": 618.75, "speed": 145, "speedMult": 0.85, "interval": 1.2, "bounty": 110, "bountyMult": 36.67, "isBoss": false, "isMiniBoss": true }
         ]
       }
     ]
@@ -4090,7 +4102,7 @@ const LEVELS_DATA = {
         "delayAfter": 8,
         "earlyBonus": 40,
         "spawns": [
-          { "type": "swarm", "count": 20, "hp": 30, "hpMult": 1.88, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 2, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+          { "type": "swarm", "count": 20, "hp": 42, "hpMult": 2.63, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 2, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4098,7 +4110,7 @@ const LEVELS_DATA = {
         "delayAfter": 12,
         "earlyBonus": 40,
         "spawns": [
-          { "type": "grunt", "count": 10, "hp": 85, "hpMult": 2.13, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 0, "bountyMult": 0.0, "isBoss": false, "isMiniBoss": false }
+          { "type": "grunt", "count": 10, "hp": 120, "hpMult": 3.0, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 0, "bountyMult": 0.0, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4106,7 +4118,7 @@ const LEVELS_DATA = {
         "delayAfter": 10,
         "earlyBonus": 40,
         "spawns": [
-          { "type": "scout", "count": 12, "hp": 110, "hpMult": 4.58, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 4, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+          { "type": "scout", "count": 12, "hp": 155, "hpMult": 6.46, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 4, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4114,7 +4126,7 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 40,
         "spawns": [
-          { "type": "goliath", "count": 2, "hp": 900, "hpMult": 3.46, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 0, "bountyMult": 0.0, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 2, "hp": 1260, "hpMult": 4.85, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 0, "bountyMult": 0.0, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4122,7 +4134,7 @@ const LEVELS_DATA = {
         "delayAfter": 8,
         "earlyBonus": 40,
         "spawns": [
-          { "type": "swarm", "count": 32, "hp": 45, "hpMult": 2.81, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+          { "type": "swarm", "count": 32, "hp": 63, "hpMult": 3.94, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 2, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4130,7 +4142,7 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 40,
         "spawns": [
-          { "type": "tank", "count": 5, "hp": 520, "hpMult": 5.2, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 0, "bountyMult": 0.0, "isBoss": false, "isMiniBoss": false }
+          { "type": "tank", "count": 5, "hp": 730, "hpMult": 7.3, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 0, "bountyMult": 0.0, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4138,8 +4150,8 @@ const LEVELS_DATA = {
         "delayAfter": 12,
         "earlyBonus": 40,
         "spawns": [
-          { "type": "blinker", "count": 5, "hp": 420, "hpMult": 6.46, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 15, "bountyMult": 1.88, "isBoss": false, "isMiniBoss": false },
-          { "type": "scout", "count": 12, "hp": 130, "hpMult": 5.42, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+          { "type": "blinker", "count": 5, "hp": 590, "hpMult": 9.08, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 15, "bountyMult": 1.88, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 12, "hp": 180, "hpMult": 7.5, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 2, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4147,7 +4159,7 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 40,
         "spawns": [
-          { "type": "goliath", "count": 3, "hp": 1200, "hpMult": 4.62, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 0, "bountyMult": 0.0, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 3, "hp": 1680, "hpMult": 6.46, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 0, "bountyMult": 0.0, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4155,7 +4167,7 @@ const LEVELS_DATA = {
         "delayAfter": 8,
         "earlyBonus": 40,
         "spawns": [
-          { "type": "swarm", "count": 40, "hp": 70, "hpMult": 4.38, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 4, "bounty": 3, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false }
+          { "type": "swarm", "count": 40, "hp": 100, "hpMult": 6.25, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 4, "bounty": 3, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4163,8 +4175,8 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 40,
         "spawns": [
-          { "type": "goliath", "count": 3, "hp": 1250, "hpMult": 4.81, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 0, "bountyMult": 0.0, "isBoss": false, "isMiniBoss": false },
-          { "type": "tank", "count": 5, "hp": 550, "hpMult": 5.5, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 0, "bountyMult": 0.0, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 3, "hp": 1750, "hpMult": 6.73, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 0, "bountyMult": 0.0, "isBoss": false, "isMiniBoss": false },
+          { "type": "tank", "count": 5, "hp": 770, "hpMult": 7.7, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 0, "bountyMult": 0.0, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4172,7 +4184,7 @@ const LEVELS_DATA = {
         "delayAfter": 12,
         "earlyBonus": 40,
         "spawns": [
-          { "type": "blinker", "count": 8, "hp": 450, "hpMult": 6.92, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 23, "bountyMult": 2.88, "isBoss": false, "isMiniBoss": false }
+          { "type": "blinker", "count": 8, "hp": 630, "hpMult": 9.69, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 23, "bountyMult": 2.88, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4180,7 +4192,7 @@ const LEVELS_DATA = {
         "delayAfter": 7,
         "earlyBonus": 40,
         "spawns": [
-          { "type": "goliath", "count": 1, "hp": 5800, "hpMult": 22.31, "speed": 26, "speedMult": 0.87, "interval": 1.2, "bounty": 120, "bountyMult": 6.67, "isBoss": false, "isMiniBoss": true }
+          { "type": "scout", "count": 1, "hp": 8100, "hpMult": 337.5, "speed": 94, "speedMult": 0.85, "interval": 1.2, "bounty": 120, "bountyMult": 20.0, "isBoss": false, "isMiniBoss": true }
         ]
       }
     ]
@@ -4198,7 +4210,7 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 85,
         "spawns": [
-          { "type": "tank", "count": 3, "hp": 480, "hpMult": 4.8, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 40, "bountyMult": 3.33, "isBoss": false, "isMiniBoss": false }
+          { "type": "tank", "count": 1, "hp": 250, "hpMult": 2.5, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 120, "bountyMult": 10.0, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4206,7 +4218,7 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 85,
         "spawns": [
-          { "type": "tank", "count": 4, "hp": 550, "hpMult": 5.5, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 21, "bountyMult": 1.75, "isBoss": false, "isMiniBoss": false }
+          { "type": "tank", "count": 2, "hp": 350, "hpMult": 3.5, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 42, "bountyMult": 3.5, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4214,7 +4226,7 @@ const LEVELS_DATA = {
         "delayAfter": 18,
         "earlyBonus": 85,
         "spawns": [
-          { "type": "goliath", "count": 2, "hp": 1350, "hpMult": 5.19, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 40, "bountyMult": 2.22, "isBoss": false, "isMiniBoss": false }
+          { "type": "tank", "count": 3, "hp": 500, "hpMult": 5.0, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 26, "bountyMult": 2.17, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4222,7 +4234,7 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 85,
         "spawns": [
-          { "type": "tank", "count": 5, "hp": 700, "hpMult": 7.0, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 15, "bountyMult": 1.25, "isBoss": false, "isMiniBoss": false }
+          { "type": "tank", "count": 4, "hp": 700, "hpMult": 7.0, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 18, "bountyMult": 1.5, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4230,7 +4242,7 @@ const LEVELS_DATA = {
         "delayAfter": 18,
         "earlyBonus": 85,
         "spawns": [
-          { "type": "goliath", "count": 3, "hp": 1500, "hpMult": 5.77, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 25, "bountyMult": 1.39, "isBoss": false, "isMiniBoss": false }
+          { "type": "tank", "count": 5, "hp": 900, "hpMult": 9.0, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 15, "bountyMult": 1.25, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4238,8 +4250,7 @@ const LEVELS_DATA = {
         "delayAfter": 18,
         "earlyBonus": 85,
         "spawns": [
-          { "type": "tank", "count": 4, "hp": 650, "hpMult": 6.5, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 8, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false },
-          { "type": "goliath", "count": 2, "hp": 1500, "hpMult": 5.77, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 19, "bountyMult": 1.06, "isBoss": false, "isMiniBoss": false }
+          { "type": "tank", "count": 6, "hp": 1100, "hpMult": 11.0, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 11, "bountyMult": 0.92, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4247,7 +4258,7 @@ const LEVELS_DATA = {
         "delayAfter": 18,
         "earlyBonus": 85,
         "spawns": [
-          { "type": "goliath", "count": 4, "hp": 1650, "hpMult": 6.35, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 19, "bountyMult": 1.06, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 7, "hp": 1350, "hpMult": 5.19, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 10, "bountyMult": 0.56, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4255,7 +4266,7 @@ const LEVELS_DATA = {
         "delayAfter": 18,
         "earlyBonus": 85,
         "spawns": [
-          { "type": "tank", "count": 6, "hp": 750, "hpMult": 7.5, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 13, "bountyMult": 1.08, "isBoss": false, "isMiniBoss": false }
+          { "type": "tank", "count": 8, "hp": 1450, "hpMult": 14.5, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 9, "bountyMult": 0.75, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4263,7 +4274,7 @@ const LEVELS_DATA = {
         "delayAfter": 18,
         "earlyBonus": 85,
         "spawns": [
-          { "type": "goliath", "count": 4, "hp": 1800, "hpMult": 6.92, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 20, "bountyMult": 1.11, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 9, "hp": 1650, "hpMult": 6.35, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 8, "bountyMult": 0.44, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4271,7 +4282,7 @@ const LEVELS_DATA = {
         "delayAfter": 18,
         "earlyBonus": 85,
         "spawns": [
-          { "type": "tank", "count": 7, "hp": 800, "hpMult": 8.0, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 12, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false }
+          { "type": "tank", "count": 10, "hp": 1850, "hpMult": 18.5, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 8, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4279,7 +4290,7 @@ const LEVELS_DATA = {
         "delayAfter": 18,
         "earlyBonus": 85,
         "spawns": [
-          { "type": "goliath", "count": 4, "hp": 2100, "hpMult": 8.08, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 23, "bountyMult": 1.28, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 11, "hp": 2100, "hpMult": 8.08, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 8, "bountyMult": 0.44, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4287,8 +4298,7 @@ const LEVELS_DATA = {
         "delayAfter": 18,
         "earlyBonus": 85,
         "spawns": [
-          { "type": "tank", "count": 5, "hp": 800, "hpMult": 8.0, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 7, "bountyMult": 0.58, "isBoss": false, "isMiniBoss": false },
-          { "type": "goliath", "count": 3, "hp": 2000, "hpMult": 7.69, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 20, "bountyMult": 1.11, "isBoss": false, "isMiniBoss": false }
+          { "type": "tank", "count": 12, "hp": 2350, "hpMult": 23.5, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 7, "bountyMult": 0.58, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4296,7 +4306,7 @@ const LEVELS_DATA = {
         "delayAfter": 7,
         "earlyBonus": 85,
         "spawns": [
-          { "type": "goliath", "count": 1, "hp": 11500, "hpMult": 44.23, "speed": 26, "speedMult": 0.87, "interval": 1.2, "bounty": 110, "bountyMult": 6.11, "isBoss": false, "isMiniBoss": true }
+          { "type": "tank", "count": 1, "hp": 16000, "hpMult": 160.0, "speed": 32, "speedMult": 0.84, "interval": 1.2, "bounty": 110, "bountyMult": 9.17, "isBoss": false, "isMiniBoss": true }
         ]
       }
     ]
@@ -4314,8 +4324,8 @@ const LEVELS_DATA = {
         "delayAfter": 12,
         "earlyBonus": 90,
         "spawns": [
-          { "type": "grunt", "count": 8, "hp": 120, "hpMult": 3.0, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 2, "bountyMult": 0.29, "isBoss": false, "isMiniBoss": false },
-          { "type": "scout", "count": 8, "hp": 95, "hpMult": 3.96, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 1, "bountyMult": 0.17, "isBoss": false, "isMiniBoss": false }
+          { "type": "grunt", "count": 8, "hp": 170, "hpMult": 4.25, "speed": 55, "speedMult": 1.0, "interval": 0.65, "bounty": 2, "bountyMult": 0.29, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 8, "hp": 135, "hpMult": 5.63, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 1, "bountyMult": 0.17, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4323,8 +4333,8 @@ const LEVELS_DATA = {
         "delayAfter": 14,
         "earlyBonus": 90,
         "spawns": [
-          { "type": "tank", "count": 4, "hp": 420, "hpMult": 4.2, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 5, "bountyMult": 0.42, "isBoss": false, "isMiniBoss": false },
-          { "type": "blinker", "count": 4, "hp": 360, "hpMult": 5.54, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 2, "bountyMult": 0.25, "isBoss": false, "isMiniBoss": false }
+          { "type": "tank", "count": 4, "hp": 590, "hpMult": 5.9, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 5, "bountyMult": 0.42, "isBoss": false, "isMiniBoss": false },
+          { "type": "blinker", "count": 4, "hp": 500, "hpMult": 7.69, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 2, "bountyMult": 0.25, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4332,7 +4342,7 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 90,
         "spawns": [
-          { "type": "goliath", "count": 3, "hp": 1100, "hpMult": 4.23, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 12, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 3, "hp": 1540, "hpMult": 5.92, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 12, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4340,7 +4350,7 @@ const LEVELS_DATA = {
         "delayAfter": 8,
         "earlyBonus": 90,
         "spawns": [
-          { "type": "swarm", "count": 30, "hp": 60, "hpMult": 3.75, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+          { "type": "swarm", "count": 30, "hp": 85, "hpMult": 5.31, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4348,8 +4358,8 @@ const LEVELS_DATA = {
         "delayAfter": 14,
         "earlyBonus": 90,
         "spawns": [
-          { "type": "goliath", "count": 2, "hp": 1250, "hpMult": 4.81, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 18, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false },
-          { "type": "scout", "count": 10, "hp": 115, "hpMult": 4.79, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 1, "bountyMult": 0.17, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 2, "hp": 1750, "hpMult": 6.73, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 18, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 10, "hp": 160, "hpMult": 6.67, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 1, "bountyMult": 0.17, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4357,8 +4367,8 @@ const LEVELS_DATA = {
         "delayAfter": 12,
         "earlyBonus": 90,
         "spawns": [
-          { "type": "blinker", "count": 5, "hp": 440, "hpMult": 6.77, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 8, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false },
-          { "type": "swarm", "count": 26, "hp": 75, "hpMult": 4.69, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+          { "type": "blinker", "count": 5, "hp": 620, "hpMult": 9.54, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 8, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false },
+          { "type": "swarm", "count": 26, "hp": 105, "hpMult": 6.56, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 3, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4366,8 +4376,8 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 90,
         "spawns": [
-          { "type": "tank", "count": 5, "hp": 650, "hpMult": 6.5, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 8, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false },
-          { "type": "goliath", "count": 2, "hp": 1500, "hpMult": 5.77, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 16, "bountyMult": 0.89, "isBoss": false, "isMiniBoss": false }
+          { "type": "tank", "count": 5, "hp": 910, "hpMult": 9.1, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 8, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false },
+          { "type": "goliath", "count": 2, "hp": 2100, "hpMult": 8.08, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 16, "bountyMult": 0.89, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4375,7 +4385,7 @@ const LEVELS_DATA = {
         "delayAfter": 11,
         "earlyBonus": 90,
         "spawns": [
-          { "type": "scout", "count": 20, "hp": 165, "hpMult": 6.88, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 4, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
+          { "type": "scout", "count": 20, "hp": 230, "hpMult": 9.58, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 4, "bountyMult": 0.67, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4383,8 +4393,8 @@ const LEVELS_DATA = {
         "delayAfter": 16,
         "earlyBonus": 90,
         "spawns": [
-          { "type": "goliath", "count": 3, "hp": 1400, "hpMult": 5.38, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 23, "bountyMult": 1.28, "isBoss": false, "isMiniBoss": false },
-          { "type": "blinker", "count": 6, "hp": 520, "hpMult": 8.0, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 5, "bountyMult": 0.63, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 3, "hp": 1960, "hpMult": 7.54, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 23, "bountyMult": 1.28, "isBoss": false, "isMiniBoss": false },
+          { "type": "blinker", "count": 6, "hp": 730, "hpMult": 11.23, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 5, "bountyMult": 0.63, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4392,8 +4402,8 @@ const LEVELS_DATA = {
         "delayAfter": 12,
         "earlyBonus": 90,
         "spawns": [
-          { "type": "tank", "count": 6, "hp": 680, "hpMult": 6.8, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 12, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false },
-          { "type": "swarm", "count": 36, "hp": 95, "hpMult": 5.94, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 4, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
+          { "type": "tank", "count": 6, "hp": 950, "hpMult": 9.5, "speed": 38, "speedMult": 1.0, "interval": 1.3, "bounty": 12, "bountyMult": 1.0, "isBoss": false, "isMiniBoss": false },
+          { "type": "swarm", "count": 36, "hp": 135, "hpMult": 8.44, "speed": 170, "speedMult": 1.0, "interval": 0.045, "clumps": 4, "bounty": 1, "bountyMult": 0.33, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4401,7 +4411,7 @@ const LEVELS_DATA = {
         "delayAfter": 18,
         "earlyBonus": 90,
         "spawns": [
-          { "type": "goliath", "count": 4, "hp": 1550, "hpMult": 5.96, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 34, "bountyMult": 1.89, "isBoss": false, "isMiniBoss": false }
+          { "type": "goliath", "count": 4, "hp": 2170, "hpMult": 8.35, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 34, "bountyMult": 1.89, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4409,8 +4419,8 @@ const LEVELS_DATA = {
         "delayAfter": 14,
         "earlyBonus": 90,
         "spawns": [
-          { "type": "blinker", "count": 7, "hp": 550, "hpMult": 8.46, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 14, "bountyMult": 1.75, "isBoss": false, "isMiniBoss": false },
-          { "type": "scout", "count": 16, "hp": 175, "hpMult": 7.29, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
+          { "type": "blinker", "count": 7, "hp": 770, "hpMult": 11.85, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 14, "bountyMult": 1.75, "isBoss": false, "isMiniBoss": false },
+          { "type": "scout", "count": 16, "hp": 245, "hpMult": 10.21, "speed": 110, "speedMult": 1.0, "interval": 0.55, "bounty": 3, "bountyMult": 0.5, "isBoss": false, "isMiniBoss": false }
         ]
       },
       {
@@ -4418,10 +4428,11 @@ const LEVELS_DATA = {
         "delayAfter": 7,
         "earlyBonus": 90,
         "spawns": [
-          { "type": "goliath", "count": 2, "hp": 1400, "hpMult": 5.38, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 20, "bountyMult": 1.11, "isBoss": false, "isMiniBoss": false },
-          { "type": "blinker", "count": 4, "hp": 500, "hpMult": 7.69, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 10, "bountyMult": 1.25, "isBoss": false, "isMiniBoss": false },
-          { "type": "titan_core", "count": 1, "hp": 10000, "hpMult": 1.72, "speed": 28, "speedMult": 1.0, "interval": 1.2, "bounty": 50, "bountyMult": 0.45, "isBoss": true, "isMiniBoss": false }
-      ]}
+          { "type": "goliath", "count": 2, "hp": 1960, "hpMult": 7.54, "speed": 30, "speedMult": 1.0, "interval": 1.5, "bounty": 20, "bountyMult": 1.11, "isBoss": false, "isMiniBoss": false },
+          { "type": "blinker", "count": 4, "hp": 700, "hpMult": 10.77, "speed": 62, "speedMult": 1.0, "interval": 0.8, "bounty": 10, "bountyMult": 1.25, "isBoss": false, "isMiniBoss": false },
+          { "type": "titan_core", "count": 1, "hp": 14000, "hpMult": 2.41, "speed": 28, "speedMult": 1.0, "interval": 1.2, "bounty": 50, "bountyMult": 0.45, "isBoss": true, "isMiniBoss": false }
+        ]
+      }
     ]
   },
   "41": {
