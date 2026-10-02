@@ -1,6 +1,13 @@
 // Synth Wave Defense -- ui.js
 // Presentation layer: renders screens, HUD, canvas graphics, and user input.
 
+window.perfProfiler = {
+  times: { sim: 0, towers: 0, drawMobs: 0, drawFx: 0, total: 0 },
+  accum: { sim: 0, towers: 0, drawMobs: 0, drawFx: 0, frames: 0 },
+  lastFlush: performance.now(),
+  report: ''
+};
+
 // --- Glow Sprites Cache for High-Performance Additive Blending ---
 const GLOW_SPRITES = Object.create(null);
 function createGlowSprite(color) {
@@ -109,16 +116,19 @@ function getNeonDiscSprite(color) {
   return c;
 }
 
-
-// --- Кэш оффскрин-спрайтов геометрии мобов (ускорение рендера толпы) ---
+// --- Кэш оффскрин-спрайтов геометрии мобов (Crash-Safe) ---
 const ENEMY_SPRITE_CACHE = Object.create(null);
 
 function getEnemyShapeSprite(shape, color, radius) {
-  const key = `${shape}_${color}_${Math.round(radius)}`;
+  const safeShape = shape || 'circle';
+  const safeColor = color || '#00e5ff';
+  const safeR = Math.max(4, Math.round(radius || 12));
+  const key = `${safeShape}_${safeColor}_${safeR}`;
+
   if (ENEMY_SPRITE_CACHE[key]) return ENEMY_SPRITE_CACHE[key];
 
   const padding = 10;
-  const size = Math.ceil((radius * 1.5 + padding) * 2);
+  const size = Math.ceil((safeR * 1.5 + padding) * 2);
   const c = document.createElement('canvas');
   c.width = size;
   c.height = size;
@@ -129,147 +139,83 @@ function getEnemyShapeSprite(shape, color, radius) {
   sCtx.save();
   sCtx.translate(cx, cy);
 
-  // Мягкий рассеянный неоновый отсвет (запекается 1 раз вместо createRadialGradient каждый кадр)
-  const grad = sCtx.createRadialGradient(0, 0, 2, 0, 0, radius * 2.2);
-  grad.addColorStop(0, color + '55');
-  grad.addColorStop(0.5, color + '15');
+  // Мягкий рассеянный неоновый отсвет
+  const grad = sCtx.createRadialGradient(0, 0, 2, 0, 0, safeR * 2.2);
+  grad.addColorStop(0, safeColor + '55');
+  grad.addColorStop(0.5, safeColor + '15');
   grad.addColorStop(1, 'transparent');
   sCtx.fillStyle = grad;
   sCtx.beginPath();
-  sCtx.arc(0, 0, radius * 2.2, 0, Math.PI * 2);
+  sCtx.arc(0, 0, safeR * 2.2, 0, Math.PI * 2);
   sCtx.fill();
 
   // Основное тело и неоновый контур
-  sCtx.fillStyle = color + '22';
-  sCtx.strokeStyle = color;
+  sCtx.fillStyle = safeColor + '22';
+  sCtx.strokeStyle = safeColor;
   sCtx.lineWidth = 2.4;
 
-  if (shape === 'circle') {
-    sCtx.beginPath();
-    sCtx.arc(0, 0, radius, 0, Math.PI * 2);
-    sCtx.fill(); sCtx.stroke();
-  } else if (shape === 'triangle') {
-    const R = radius * 1.2;
-    sCtx.beginPath();
+  sCtx.beginPath();
+  if (safeShape === 'circle') {
+    sCtx.arc(0, 0, safeR, 0, Math.PI * 2);
+  } else if (safeShape === 'triangle') {
+    const R = safeR * 1.2;
     sCtx.moveTo(R, 0);
     sCtx.lineTo(-R * 0.5, R * 0.866);
     sCtx.lineTo(-R * 0.5, -R * 0.866);
     sCtx.closePath();
-    sCtx.fill(); sCtx.stroke();
-  } else if (shape === 'trapezoid' || shape === 'triangle_inverted') {
-    sCtx.beginPath();
-    sCtx.moveTo(radius * 1.2, -radius * 0.4);
-    sCtx.lineTo(radius * 1.2, radius * 0.4);
-    sCtx.lineTo(-radius * 0.8, radius * 0.9);
-    sCtx.lineTo(-radius * 0.8, -radius * 0.9);
+  } else if (safeShape === 'trapezoid' || safeShape === 'triangle_inverted') {
+    sCtx.moveTo(safeR * 1.2, -safeR * 0.4);
+    sCtx.lineTo(safeR * 1.2, safeR * 0.4);
+    sCtx.lineTo(-safeR * 0.8, safeR * 0.9);
+    sCtx.lineTo(-safeR * 0.8, -safeR * 0.9);
     sCtx.closePath();
-    sCtx.fill(); sCtx.stroke();
-  } else if (shape === 'kite') {
-    sCtx.beginPath();
-    sCtx.moveTo(radius * 1.4, 0);
-    sCtx.lineTo(0, -radius * 0.9);
-    sCtx.lineTo(-radius * 1.1, 0);
-    sCtx.lineTo(0, radius * 0.9);
+  } else if (safeShape === 'kite') {
+    sCtx.moveTo(safeR * 1.4, 0);
+    sCtx.lineTo(0, -safeR * 0.9);
+    sCtx.lineTo(-safeR * 1.1, 0);
+    sCtx.lineTo(0, safeR * 0.9);
     sCtx.closePath();
-    sCtx.fill(); sCtx.stroke();
-  } else if (shape === 'square') {
-    const s = radius * 1.5;
-    sCtx.beginPath();
-    sCtx.roundRect(-s/2, -s/2, s, s, 3);
-    sCtx.fill(); sCtx.stroke();
-  } else if (shape === 'diamond') {
-    sCtx.beginPath();
-    sCtx.moveTo(0, -radius * 1.3); sCtx.lineTo(radius * 1.1, 0);
-    sCtx.lineTo(0, radius * 1.3); sCtx.lineTo(-radius * 1.1, 0);
+  } else if (safeShape === 'square') {
+    const s = safeR * 1.5;
+    if (typeof sCtx.roundRect === 'function') {
+      sCtx.roundRect(-s/2, -s/2, s, s, 3);
+    } else {
+      sCtx.rect(-s/2, -s/2, s, s);
+    }
+  } else if (safeShape === 'diamond') {
+    sCtx.moveTo(0, -safeR * 1.3);
+    sCtx.lineTo(safeR * 1.1, 0);
+    sCtx.lineTo(0, safeR * 1.3);
+    sCtx.lineTo(-safeR * 1.1, 0);
     sCtx.closePath();
-    sCtx.fill(); sCtx.stroke();
-  } else if (shape === 'hexagon') {
-    sCtx.beginPath();
+  } else if (safeShape === 'hexagon') {
     for (let hx = 0; hx < 6; hx++) {
       const a = (hx * Math.PI) / 3;
-      const hxX = Math.cos(a) * radius * 1.15;
-      const hxY = Math.sin(a) * radius * 1.15;
+      const hxX = Math.cos(a) * safeR * 1.15;
+      const hxY = Math.sin(a) * safeR * 1.15;
       if (hx === 0) sCtx.moveTo(hxX, hxY); else sCtx.lineTo(hxX, hxY);
     }
     sCtx.closePath();
-    sCtx.fill(); sCtx.stroke();
-  } else if (shape === 'octagon') {
-    sCtx.beginPath();
+  } else if (safeShape === 'octagon') {
     for (let oc = 0; oc < 8; oc++) {
       const a = (oc * Math.PI) / 4;
-      const ocX = Math.cos(a) * radius * 1.2;
-      const ocY = Math.sin(a) * radius * 1.2;
+      const ocX = Math.cos(a) * safeR * 1.2;
+      const ocY = Math.sin(a) * safeR * 1.2;
       if (oc === 0) sCtx.moveTo(ocX, ocY); else sCtx.lineTo(ocX, ocY);
     }
     sCtx.closePath();
-    sCtx.fill(); sCtx.stroke();
+  } else {
+    sCtx.arc(0, 0, safeR, 0, Math.PI * 2);
   }
 
-  sCtx.restore();
-
-  ENEMY_SPRITE_CACHE[key] = {
-    canvas: c,
-    half: cx
-  };
-  return ENEMY_SPRITE_CACHE[key];
-}
-
-function getEnemySprite(e) {
-  // Ключ кэша строится по типу, цвету и радиусу
-  const key = `${e.type}_${e.color}_${e.radius}`;
-  if (ENEMY_SPRITE_CACHE[key]) return ENEMY_SPRITE_CACHE[key];
-
-  const r = e.radius;
-  const padding = 6;
-  const size = Math.ceil((r + padding) * 2);
-  const c = document.createElement('canvas');
-  c.width = size;
-  c.height = size;
-  const sCtx = c.getContext('2d');
-  const cx = size / 2;
-  const cy = size / 2;
-
-  sCtx.save();
-  sCtx.translate(cx, cy);
-  sCtx.fillStyle = e.color;
-  sCtx.strokeStyle = '#ffffff';
-  sCtx.lineWidth = 1.2;
-
-  // Отрисовываем чистую геометрическую форму моба в локальных координатах
-  sCtx.beginPath();
-  switch (e.type) {
-    case 'scout': // Треугольник (направлен вправо вдоль оси X)
-      sCtx.moveTo(r, 0);
-      sCtx.lineTo(-r * 0.7, -r * 0.7);
-      sCtx.lineTo(-r * 0.7, r * 0.7);
-      break;
-
-    case 'tank': // Квадрат
-      sCtx.rect(-r * 0.75, -r * 0.75, r * 1.5, r * 1.5);
-      break;
-
-    case 'swarm': // Ромб
-      sCtx.moveTo(0, -r);
-      sCtx.lineTo(r * 0.75, 0);
-      sCtx.lineTo(0, r);
-      sCtx.lineTo(-r * 0.75, 0);
-      break;
-
-    case 'grunt': // Круг
-    default:
-      sCtx.arc(0, 0, r * 0.8, 0, Math.PI * 2);
-      break;
-  }
-  sCtx.closePath();
   sCtx.fill();
   sCtx.stroke();
   sCtx.restore();
 
   ENEMY_SPRITE_CACHE[key] = {
     canvas: c,
-    halfSize: cx
+    half: cx
   };
-
   return ENEMY_SPRITE_CACHE[key];
 }
 
@@ -307,7 +253,6 @@ function getFlareSprite(color) {
   const fCtx = c.getContext('2d');
   const half = size / 2;
 
-  // Центральное горячее ядро
   const rad = fCtx.createRadialGradient(half, half, 2, half, half, 32);
   rad.addColorStop(0, '#ffffff');
   rad.addColorStop(0.3, color);
@@ -317,7 +262,6 @@ function getFlareSprite(color) {
   fCtx.arc(half, half, 32, 0, Math.PI * 2);
   fCtx.fill();
 
-  // Горизонтальный неоновый луч (Streak Flare)
   const hGrad = fCtx.createLinearGradient(0, half, size, half);
   hGrad.addColorStop(0, 'transparent');
   hGrad.addColorStop(0.5, '#ffffff');
@@ -325,7 +269,6 @@ function getFlareSprite(color) {
   fCtx.fillStyle = hGrad;
   fCtx.fillRect(0, half - 2, size, 4);
 
-  // Вертикальный тонкий луч
   const vGrad = fCtx.createLinearGradient(half, 0, half, size);
   vGrad.addColorStop(0, 'transparent');
   vGrad.addColorStop(0.5, color);
@@ -390,7 +333,7 @@ function hideIncomingAlert() {
 }
 
 function resizeCanvasAndCamera() {
-  const dpr = window.devicePixelRatio || 1;
+  const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
   canvas.width = window.innerWidth * dpr;
   canvas.height = window.innerHeight * dpr;
   ctx.setTransform(1, 0, 0, 1, 0, 0);
@@ -407,34 +350,27 @@ function resizeCanvasAndCamera() {
     ? bottomEl.getBoundingClientRect().height
     : 110;
 
-  // Безопасный вертикальный коридор строго между плашками интерфейса
   const usableHeight = Math.max(220, window.innerHeight - topH - bottomH);
 
-  // 1. БАЗОВЫЙ МАСШТАБ (по умолчанию): вписывает карту ровно в видимую область, как и было
-  baseZoom = Math.min(window.innerWidth / FIELD_WIDTH, usableHeight / FIELD_HEIGHT);
-
-  // 2. МИНИМАЛЬНЫЙ ЗУМ (для ручного отдаления): позволяет игроку отдалить карту на ~1 клетку с каждой стороны
   const PADDING_CELLS = 1;
   const paddedWidth = FIELD_WIDTH + (TILE_SIZE * PADDING_CELLS * 2);
   const paddedHeight = FIELD_HEIGHT + (TILE_SIZE * PADDING_CELLS * 2);
-  minZoom = Math.min(window.innerWidth / paddedWidth, usableHeight / paddedHeight);
 
-  // Максимальное приближение
+  baseZoom = Math.min(window.innerWidth / paddedWidth, usableHeight / paddedHeight);
+  minZoom = baseZoom * 0.90;
   maxZoom = Math.max(1.8, baseZoom * 2.2);
 
-  // При старте или сбросе уровня ставим базовый привычный масштаб
-  if (!camZoom || camZoom < minZoom) {
-    camZoom = baseZoom;
-  }
+  if (camZoom < minZoom || !camZoom) camZoom = baseZoom;
   if (camZoom > maxZoom) camZoom = maxZoom;
 
-  // Центрируем камеру в рабочей зоне между HUD и панелью башен
   const targetCenterY = topH + (usableHeight / 2);
   camX = (window.innerWidth / 2) - (FIELD_WIDTH * camZoom / 2);
   camY = targetCenterY - (FIELD_HEIGHT * camZoom / 2);
-  
+
   clampCamera();
-  invalidateGridCache();
+  if (typeof invalidateGridCache === 'function') {
+    invalidateGridCache();
+  }
 }
 
 function clampCamera() {
@@ -454,17 +390,12 @@ function clampCamera() {
 
   const usableHeight = Math.max(100, screenH - topH - bottomH);
 
-  // Горизонтальное позиционирование / панорамирование
   if (viewFieldW <= screenW) {
     camX = (screenW - viewFieldW) / 2;
   } else {
     camX = Math.max(screenW - viewFieldW, Math.min(0, camX));
   }
 
-  // Вертикальное позиционирование:
-  // Если карта умещается в безопасном коридоре — аккуратно центрируем между плашками.
-  // Если увеличена (зум) — строго блокируем верхнюю границу под плашкой topH,
-  // а нижнюю — не даем провалиться под панель башен bottomH.
   if (viewFieldH <= usableHeight) {
     camY = topH + (usableHeight - viewFieldH) / 2;
   } else {
@@ -858,10 +789,7 @@ function setGlow(color, blur) {
 function pushParticle(p) {
   const cap = perfMode === 'low' ? 55 : 95;
   if (particles.length > cap) {
-    // Если на экране перегрузка эффектами, пропускаем некритичные пулевые искры,
-    // но всегда пропускаем дым мортиры и взрывы боссов
     if (!p.isSmoke && !p.isBossFx && Math.random() < 0.45) return;
-    // Слегка ускоряем угасание самых старых частиц
     particles[0].life *= 0.5;
   }
   particles.push(p);
@@ -1206,7 +1134,6 @@ function openDevMode() {
   const bar = document.getElementById('devBar');
   if (bar) bar.classList.remove('hidden');
   
-  // HUD-ресурсы делаем интерактивными для дебага
   const goldHalf = document.getElementById('goldHalf');
   const hpHalf = document.getElementById('hpHalf');
   if (goldHalf) goldHalf.classList.add('interactive');
@@ -1269,7 +1196,6 @@ function toggleDevPanelExpand() {
   let initialTop = 0;
 
   function onPointerDown(e) {
-    // Не начинаем драг, если кликнули по кнопке, селектору или инпуту
     if (['BUTTON', 'SELECT', 'INPUT', 'OPTION'].includes(e.target.tagName)) return;
     
     const bar = document.getElementById('devBar');
@@ -1280,7 +1206,6 @@ function toggleDevPanelExpand() {
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
 
     const rect = bar.getBoundingClientRect();
-    // При первом захвате переводим абсолютные координаты в пиксели без translateX(-50%)
     bar.style.transform = 'none';
     bar.style.left = `${rect.left}px`;
     bar.style.top = `${rect.top}px`;
@@ -1937,9 +1862,8 @@ function showUpgradesScreen(fromSource) {
   const devSpawner = document.getElementById('devCustomSpawner');
   if (devSpawner) devSpawner.classList.add('hidden');
 
-  // Скрываем постоянный верхний HUD, чтобы он не просвечивал сквозь шапку Tech Tree
   const topHud = document.getElementById('topHud');
-  if (topHud) topHud.classList.add('hidden');
+  if (topHud) topHud.classList.remove('hidden');
 
   const upg = document.getElementById('upgradesScreen');
   const isResultBg = (bgScreenId === 'victoryScreen' || bgScreenId === 'defeatScreen');
@@ -1953,7 +1877,6 @@ function showUpgradesScreen(fromSource) {
 function closeUpgradesScreen() {
   document.getElementById('upgradesScreen').classList.add('hidden');
   
-  // Возвращаем постоянный верхний HUD:
   const topHud = document.getElementById('topHud');
   if (topHud) topHud.classList.remove('hidden');
 
@@ -2046,7 +1969,6 @@ function renderShopScreen() {
   const diamondLabel = document.getElementById('shopDiamondVal');
   if (diamondLabel) diamondLabel.textContent = diamonds;
 
-  // Отрисовка статуса ежедневных подарков
   const giftSub = document.getElementById('dailyGiftSubText');
   const giftBtn = document.getElementById('dailyGiftClaimBtn');
 
@@ -2070,7 +1992,6 @@ function renderShopScreen() {
     }
   }
 
-  // Отрисовка кнопки No Ads
   const noAdsBtn = document.getElementById('noAdsBuyBtn');
   if (noAdsBtn) {
     if (noAdsPurchased) {
@@ -2576,20 +2497,16 @@ function createDamageShards(x, y, color, damage = 16, isDeath = false) {
     const speed = isDeath ? (60 + Math.random() * 120) : (30 + Math.random() * 80);
     const sz = baseSize * (0.75 + Math.random() * 0.55);
 
-    // Случайная геометрическая форма осколка:
-    // 0 = острый клин, 1 = неправильный четырёхугольник (пластинка), 2 = вытянутая щепка
     const shapeType = Math.floor(Math.random() * 3);
     let pts;
 
     if (shapeType === 0) {
-      // Клин / треугольник
       pts = [
         { x: -sz * 0.6, y: -sz * 0.3 },
         { x: sz * 0.8, y: -sz * 0.1 },
         { x: (Math.random() - 0.5) * sz * 0.5, y: sz * 0.7 }
       ];
     } else if (shapeType === 1) {
-      // Пластинка / четырёхугольник
       pts = [
         { x: -sz * 0.5, y: -sz * 0.5 },
         { x: sz * 0.6, y: -sz * 0.4 },
@@ -2597,7 +2514,6 @@ function createDamageShards(x, y, color, damage = 16, isDeath = false) {
         { x: -sz * 0.5, y: sz * 0.4 }
       ];
     } else {
-      // Вытянутая узкая щепка
       pts = [
         { x: -sz * 0.8, y: -sz * 0.2 },
         { x: sz * 0.9, y: -sz * 0.15 },
@@ -2622,7 +2538,6 @@ function createDamageShards(x, y, color, damage = 16, isDeath = false) {
   }
 }
 
-// Аккуратный дымок при попадании снарядов (Gatling, Laser, Melter, Railgun)
 function createImpactSmoke(x, y, size = 10) {
   if (perfMode === 'low' && Math.random() < 0.4) return;
   const sAngle = Math.random() * Math.PI * 2;
@@ -2639,7 +2554,7 @@ function createImpactSmoke(x, y, size = 10) {
     isSmoke: true
   });
 }
-// Оставляем createSparks как совместимую обёртку для внешних вызовов
+
 function createSparks(x, y, color1, count = 6, color2 = null) {
   createDamageShards(x, y, color1, count * 5, false);
 }
@@ -2667,20 +2582,17 @@ function createExplosion(x, y, radius, color1 = '#ff9100', color2 = null, kind =
   const isBoss = (kind === 'boss');
 
   if (isMortar) {
-    // 1. Для Мортиры: мягкое, прозрачное свечение купола БЕЗ ослепляющей вспышки
     pushParticle({
       x, y, vx: 0, vy: 0,
       color: c1,
       radius: radius * 0.75,
       life: 0.15, maxLife: 0.15,
       isGlowHalo: true,
-      alphaMult: 0.35 // приглушенная прозрачность (не слепит)
+      alphaMult: 0.35
     });
 
-    // 2. Тонкое быстрое полупрозрачное кольцо
     createShockwave(x, y, radius * 0.75, '#ffaa44');
 
-    // 3. Лаконичные направленные искры (всего 5-6 штук вместо каши)
     const count = perfMode === 'low' ? 3 : 5;
     for (let i = 0; i < count; i++) {
       const angle = Math.random() * Math.PI * 2;
@@ -2698,7 +2610,6 @@ function createExplosion(x, y, radius, color1 = '#ff9100', color2 = null, kind =
       });
     }
 
-    // 4. Мягкий полупрозрачный дымный след, уже много дыма
     const smokeCount = perfMode === 'low' ? 4 : 8;
     for (let s = 0; s < smokeCount; s++) {
       const sAngle = Math.random() * Math.PI * 2;
@@ -2708,7 +2619,7 @@ function createExplosion(x, y, radius, color1 = '#ff9100', color2 = null, kind =
         x: x + Math.cos(sAngle) * sDist,
         y: y + Math.sin(sAngle) * sDist,
         vx: Math.cos(sAngle) * sSpeed,
-        vy: Math.sin(sAngle) * sSpeed - (10 + Math.random() * 15), // легкий подъем вверх
+        vy: Math.sin(sAngle) * sSpeed - (10 + Math.random() * 15),
         radius: 16 + Math.random() * 14,
         color: '#ffffff',
         life: 0.65 + Math.random() * 0.35,
@@ -2719,7 +2630,6 @@ function createExplosion(x, y, radius, color1 = '#ff9100', color2 = null, kind =
     return;
   }
 
-  // Взрывы боссов и стандартные детонации
   pushParticle({
     x, y, vx: 0, vy: 0,
     color: c1,
@@ -2836,28 +2746,24 @@ function drawCosmicNebulaBackground(w, h) {
   ctx.fillRect(0, 0, w, h);
 
   ctx.save();
-  // rad1: приглушённый глубокий индиго вместо яркого фиолетового
   const rad1 = ctx.createRadialGradient(w * 0.25, h * 0.15, 10, w * 0.25, h * 0.15, w * 0.65);
   rad1.addColorStop(0, 'rgba(45, 55, 115, 0.35)');
   rad1.addColorStop(1, 'transparent');
   ctx.fillStyle = rad1;
   ctx.fillRect(0, 0, w, h);
 
-  // rad2: глубокий сине-бирюзовый
   const rad2 = ctx.createRadialGradient(w * 0.85, h * 0.70, 10, w * 0.85, h * 0.70, w * 0.60);
   rad2.addColorStop(0, 'rgba(15, 75, 120, 0.30)');
   rad2.addColorStop(1, 'transparent');
   ctx.fillStyle = rad2;
   ctx.fillRect(0, 0, w, h);
 
-  // rad3: убран ядовитый пурпурно-красный (255, 42, 133), заменён на мягкий нейтрально-синий акцент
   const rad3 = ctx.createRadialGradient(w * 0.55, h * 0.45, 10, w * 0.55, h * 0.45, w * 0.50);
   rad3.addColorStop(0, 'rgba(30, 45, 80, 0.22)');
   rad3.addColorStop(1, 'transparent');
   ctx.fillStyle = rad3;
   ctx.fillRect(0, 0, w, h);
 
-  // Виньетка для глубины
   const vignette = ctx.createRadialGradient(w * 0.5, h * 0.45, w * 0.15, w * 0.5, h * 0.45, w * 0.85);
   vignette.addColorStop(0.4, 'transparent');
   vignette.addColorStop(1, 'rgba(2, 3, 8, 0.90)');
@@ -2906,7 +2812,7 @@ function drawSynthWavePerspectiveScene(now) {
   const w = window.innerWidth;
   const h = window.innerHeight;
   const time = now / 1000;
-  const horizonY = h * 0.44; // Приподняли горизонт на высоту кнопки
+  const horizonY = h * 0.44;
   const floorH = h - horizonY;
   const vpX = w * 0.5;
 
@@ -3041,7 +2947,7 @@ function drawPathPortals() {
   const baseY = endTile.r * TILE_SIZE;
   const baseAngle = Math.atan2(endTile.r - prevTile.r, endTile.c - prevTile.c);
 
-const baseOffsets = [-14, 0, 14];
+  const baseOffsets = [-14, 0, 14];
   baseOffsets.forEach(off => {
     const px = baseX + 35 + Math.cos(baseAngle) * off;
     const py = baseY + 35 + Math.sin(baseAngle) * off;
@@ -3078,7 +2984,6 @@ function drawPathRails(now) {
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 
-  // 1. Статичная неоновая подложка пути (спокойный сине-стальной свет)
   ctx.strokeStyle = 'rgba(0, 229, 255, 0.18)';
   ctx.lineWidth = 3.5;
   ctx.setLineDash([]);
@@ -3086,32 +2991,25 @@ function drawPathRails(now) {
     renderCellRails(pathCells[i]);
   }
 
-  // Расчет дельты времени
   const curTime = (typeof now === 'number' && now > 0) ? now : performance.now();
   const dt = Math.min((curTime - (lastPathTime || curTime)) / 1000, 0.1);
   lastPathTime = curTime;
 
-  // Проверяем статус волны
   const isBattleActive = (typeof waveInProgress !== 'undefined' && waveInProgress) || 
                          (typeof enemies !== 'undefined' && enemies.length > 0);
 
   if (isBattleActive) {
-    // В бою: плавно гасим прозрачность до нуля за 2 секунды (скорость 0.5/сек)
     if (battlePathAlpha > 0) {
       battlePathAlpha = Math.max(0, battlePathAlpha - dt * 0.5);
     }
   } else {
-    // До нажатия GO: возвращаем полную яркость
     battlePathAlpha = 1.0;
   }
 
-  // 2. Яркие штрихи: продолжают непрерывно бежать БЕЗ рывков, пока угасают
   if (battlePathAlpha > 0.01) {
     ctx.strokeStyle = `rgba(165, 243, 252, ${0.90 * battlePathAlpha})`;
     ctx.lineWidth = 1.8;
     ctx.setLineDash([12, 10]);
-
-    // Непрерывный расчет смещения — штрихи не сбрасываются и не застревают
     ctx.lineDashOffset = -((curTime / 1000) * 36);
 
     for (let i = 1; i < totalCells - 1; i++) {
@@ -3298,47 +3196,47 @@ function drawTowerModel(type, angle, color, level = 1, glow = '#00e5ff', isDisab
 }
 
 function drawEnemyModel(e, showHpBar = true) {
+  if (!e || typeof e.x !== 'number' || typeof e.y !== 'number') return;
+
   ctx.save();
   ctx.translate(e.x, e.y);
 
   const isBlinkerShielded = (e.type === 'blinker' || e.type === 'chronos_warp') && e.isShielded;
-  const renderColor = isBlinkerShielded ? '#64748b' : e.color;
+  const renderColor = isBlinkerShielded ? '#64748b' : (e.color || '#00e5ff');
 
-  // Отрисовка динамического щита Blinker
   if (isBlinkerShielded) {
     ctx.save();
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 2.5;
     ctx.beginPath();
-    ctx.arc(0, 0, e.radius * 1.45, 0, Math.PI * 2);
+    ctx.arc(0, 0, (e.radius || 12) * 1.45, 0, Math.PI * 2);
     ctx.stroke();
     ctx.restore();
   }
 
   const isHeavyMob = e.isBoss || e.isMiniBoss || isBlinkerShielded;
 
-  if (!isHeavyMob) {
-    // РЯДОВЫЕ МОБЫ: рисуются через 1 мгновенный blit из спрайт-кэша
-    const spr = getEnemyShapeSprite(e.shape || 'circle', renderColor, e.radius);
-    
-    // Если фигура направленная (треугольник, кайт, трапеция) — поворачиваем спрайт
-    const needsRotation = (e.shape === 'triangle' || e.shape === 'trapezoid' || e.shape === 'triangle_inverted' || e.shape === 'kite');
-    if (needsRotation) {
-      ctx.rotate(e.angle);
-      ctx.drawImage(spr.canvas, -spr.half, -spr.half);
-      ctx.rotate(-e.angle);
-    } else {
-      ctx.drawImage(spr.canvas, -spr.half, -spr.half);
+  if (!isHeavyMob && typeof getEnemyShapeSprite === 'function') {
+    const spr = getEnemyShapeSprite(e.shape || 'circle', renderColor, e.radius || 12);
+    if (spr && spr.canvas) {
+      const needsRotation = (e.shape === 'triangle' || e.shape === 'trapezoid' || e.shape === 'triangle_inverted' || e.shape === 'kite');
+      if (needsRotation && typeof e.angle === 'number') {
+        ctx.rotate(e.angle);
+        ctx.drawImage(spr.canvas, -spr.half, -spr.half);
+        ctx.rotate(-e.angle);
+      } else {
+        ctx.drawImage(spr.canvas, -spr.half, -spr.half);
+      }
     }
   } else {
-    // БОССЫ И ОСОБЫЕ МОБЫ: оригинальный детальный векторный рендер
-    const glowGrad = ctx.createRadialGradient(0, 0, 2, 0, 0, e.radius * 2.5);
+    const rad = e.radius || 16;
+    const glowGrad = ctx.createRadialGradient(0, 0, 2, 0, 0, rad * 2.5);
     glowGrad.addColorStop(0, renderColor + (e.isBoss ? '88' : '66'));
     glowGrad.addColorStop(0.5, renderColor + (e.isBoss ? '30' : '20'));
     glowGrad.addColorStop(1, 'transparent');
     ctx.fillStyle = glowGrad;
     ctx.beginPath();
-    ctx.arc(0, 0, e.radius * 2.5, 0, Math.PI * 2);
+    ctx.arc(0, 0, rad * 2.5, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.save();
@@ -3348,59 +3246,65 @@ function drawEnemyModel(e, showHpBar = true) {
     ctx.fillStyle = isBlinkerShielded ? '#334155' : renderColor + (e.isBoss ? '28' : '22');
     ctx.strokeStyle = renderColor;
     ctx.lineWidth = strokeW;
-    setGlow(isBlinkerShielded ? 'transparent' : renderColor, isBlinkerShielded ? 0 : 8);
+    if (typeof setGlow === 'function') {
+      setGlow(isBlinkerShielded ? 'transparent' : renderColor, isBlinkerShielded ? 0 : 8);
+    }
 
-    if (e.shape === 'circle') {
+    if (e.shape === 'circle' || !e.shape) {
       ctx.beginPath();
-      ctx.arc(0, 0, e.radius, 0, Math.PI * 2);
+      ctx.arc(0, 0, rad, 0, Math.PI * 2);
       ctx.fill(); ctx.stroke();
     } else if (e.shape === 'triangle') {
-      ctx.rotate(e.angle);
-      const R = e.radius * 1.2;
+      ctx.rotate(e.angle || 0);
+      const R = rad * 1.2;
       ctx.beginPath();
       ctx.moveTo(R, 0);
       ctx.lineTo(-R * 0.5, R * 0.866);
       ctx.lineTo(-R * 0.5, -R * 0.866);
       ctx.closePath();
       ctx.fill(); ctx.stroke();
-      ctx.rotate(-e.angle);
+      ctx.rotate(-(e.angle || 0));
     } else if (e.shape === 'trapezoid' || e.shape === 'triangle_inverted') {
-      ctx.rotate(e.angle);
+      ctx.rotate(e.angle || 0);
       ctx.beginPath();
-      ctx.moveTo(e.radius * 1.2, -e.radius * 0.4);
-      ctx.lineTo(e.radius * 1.2, e.radius * 0.4);
-      ctx.lineTo(-e.radius * 0.8, e.radius * 0.9);
-      ctx.lineTo(-e.radius * 0.8, -e.radius * 0.9);
+      ctx.moveTo(rad * 1.2, -rad * 0.4);
+      ctx.lineTo(rad * 1.2, rad * 0.4);
+      ctx.lineTo(-rad * 0.8, rad * 0.9);
+      ctx.lineTo(-rad * 0.8, -rad * 0.9);
       ctx.closePath();
       ctx.fill(); ctx.stroke();
-      ctx.rotate(-e.angle);
+      ctx.rotate(-(e.angle || 0));
     } else if (e.shape === 'kite') {
-      ctx.rotate(e.angle);
+      ctx.rotate(e.angle || 0);
       ctx.beginPath();
-      ctx.moveTo(e.radius * 1.4, 0);
-      ctx.lineTo(0, -e.radius * 0.9);
-      ctx.lineTo(-e.radius * 1.1, 0);
-      ctx.lineTo(0, e.radius * 0.9);
+      ctx.moveTo(rad * 1.4, 0);
+      ctx.lineTo(0, -rad * 0.9);
+      ctx.lineTo(-rad * 1.1, 0);
+      ctx.lineTo(0, rad * 0.9);
       ctx.closePath();
       ctx.fill(); ctx.stroke();
-      ctx.rotate(-e.angle);
+      ctx.rotate(-(e.angle || 0));
     } else if (e.shape === 'square') {
-      const s = e.radius * 1.5;
+      const s = rad * 1.5;
       ctx.beginPath();
-      ctx.roundRect(-s/2, -s/2, s, s, 3);
+      if (typeof ctx.roundRect === 'function') {
+        ctx.roundRect(-s/2, -s/2, s, s, 3);
+      } else {
+        ctx.rect(-s/2, -s/2, s, s);
+      }
       ctx.fill(); ctx.stroke();
     } else if (e.shape === 'diamond') {
       ctx.beginPath();
-      ctx.moveTo(0, -e.radius * 1.3); ctx.lineTo(e.radius * 1.1, 0);
-      ctx.lineTo(0, e.radius * 1.3); ctx.lineTo(-e.radius * 1.1, 0);
+      ctx.moveTo(0, -rad * 1.3); ctx.lineTo(rad * 1.1, 0);
+      ctx.lineTo(0, rad * 1.3); ctx.lineTo(-rad * 1.1, 0);
       ctx.closePath();
       ctx.fill(); ctx.stroke();
     } else if (e.shape === 'hexagon') {
       ctx.beginPath();
       for (let hx = 0; hx < 6; hx++) {
         const a = (hx * Math.PI) / 3;
-        const hxX = Math.cos(a) * e.radius * 1.15;
-        const hxY = Math.sin(a) * e.radius * 1.15;
+        const hxX = Math.cos(a) * rad * 1.15;
+        const hxY = Math.sin(a) * rad * 1.15;
         if (hx === 0) ctx.moveTo(hxX, hxY); else ctx.lineTo(hxX, hxY);
       }
       ctx.closePath();
@@ -3409,8 +3313,8 @@ function drawEnemyModel(e, showHpBar = true) {
       ctx.beginPath();
       for (let oc = 0; oc < 8; oc++) {
         const a = (oc * Math.PI) / 4;
-        const ocX = Math.cos(a) * e.radius * 1.2;
-        const ocY = Math.sin(a) * e.radius * 1.2;
+        const ocX = Math.cos(a) * rad * 1.2;
+        const ocY = Math.sin(a) * rad * 1.2;
         if (oc === 0) ctx.moveTo(ocX, ocY); else ctx.lineTo(ocX, ocY);
       }
       ctx.closePath();
@@ -3420,26 +3324,25 @@ function drawEnemyModel(e, showHpBar = true) {
     ctx.restore();
   }
 
-  // Отрисовка снежинки замедления
   if (e.slowTimer > 0) {
     ctx.save();
     ctx.fillStyle = '#38bdf8';
     ctx.font = 'bold 11px Montserrat, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('❄', e.radius * 0.85, -e.radius * 0.85);
+    ctx.fillText('❄', (e.radius || 12) * 0.85, -(e.radius || 12) * 0.85);
     ctx.restore();
   }
 
-  // Полоска HP (рисуется только для раненых или боссов)
-  if (showHpBar && settings.showEnemyHp && (e.isBoss || e.isMiniBoss || e.hp < e.maxHp)) {
+  if (showHpBar && typeof settings !== 'undefined' && settings.showEnemyHp && (e.isBoss || e.isMiniBoss || (e.hp < e.maxHp))) {
     ctx.shadowBlur = 0;
-    const barW = Math.max(22, e.radius * 2.2);
+    const rad = e.radius || 12;
+    const barW = Math.max(22, rad * 2.2);
     const barH = e.isBoss ? 5 : (e.isMiniBoss ? 4 : 3);
-    const hpPct = Math.max(0, e.hp / e.maxHp);
+    const hpPct = Math.max(0, e.hp / (e.maxHp || 1));
     ctx.fillStyle = 'rgba(7, 10, 20, 0.9)';
-    ctx.fillRect(-barW/2, -e.radius - (e.isBoss ? 14 : (e.isMiniBoss ? 12 : 8)), barW, barH);
+    ctx.fillRect(-barW/2, -rad - (e.isBoss ? 14 : (e.isMiniBoss ? 12 : 8)), barW, barH);
     ctx.fillStyle = e.isBoss ? (e.color || '#f05f9f') : (hpPct > 0.5 ? '#00e5ff' : '#ff9100');
-    ctx.fillRect(-barW/2, -e.radius - (e.isBoss ? 14 : (e.isMiniBoss ? 12 : 8)), barW * hpPct, barH);
+    ctx.fillRect(-barW/2, -rad - (e.isBoss ? 14 : (e.isMiniBoss ? 12 : 8)), barW * hpPct, barH);
   }
 
   ctx.restore();
@@ -3522,11 +3425,26 @@ function drawJaggedLightning(x1, y1, x2, y3, color, alpha, progress = 1.0) {
 }
 
 function render(now) {
-  const dpr = window.devicePixelRatio || 1;
+  const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
-// --- FPS Counter для Dev Mode ---
+  if (perfProfiler.accum.frames > 30) {
+    const f = perfProfiler.accum.frames;
+    const s = (perfProfiler.accum.sim / f).toFixed(1);
+    const t = (perfProfiler.accum.towers / f).toFixed(1);
+    const m = (perfProfiler.accum.drawMobs / f).toFixed(1);
+    const fx = (perfProfiler.accum.drawFx / f).toFixed(1);
+    perfProfiler.report = `Sim:${s}ms | Tow:${t}ms | Mobs:${m}ms | Fx:${fx}ms`;
+    
+    const badge = document.getElementById('devFpsBadge');
+    if (badge) {
+      badge.title = perfProfiler.report;
+    }
+    perfProfiler.accum = { sim: 0, towers: 0, drawMobs: 0, drawFx: 0, frames: 0 };
+  }
+  perfProfiler.accum.frames++;
+
   if (isDevModeActive) {
     if (!window._fpsLastTime) {
       window._fpsLastTime = now;
@@ -3547,10 +3465,9 @@ function render(now) {
 
   const isUpgradesFromCombat = (gameState === 'UPGRADES' && (upgradesPreviousSource === 'victory' || upgradesPreviousSource === 'defeat'));
   const isSettingsFromCombat = (gameState === 'SETTINGS' && settingsPreviousSource === 'pause');
-
   const isShopFromCombat = (gameState === 'SHOP' && (shopPreviousSource === 'victory' || shopPreviousSource === 'defeat'));
 
-  if ((gameState === 'START' || gameState === 'SETTINGS' || gameState === 'LEVELS' || gameState === 'UPGRADES' || gameState === 'SHOP') 
+  if ((gameState === 'START' || gameState === 'LEVELS' || gameState === 'UPGRADES' || gameState === 'SHOP') 
       && !isUpgradesFromCombat && !isSettingsFromCombat && !isShopFromCombat) {
     drawSynthWavePerspectiveScene(now);
     return;
@@ -3563,7 +3480,6 @@ function render(now) {
   ctx.translate(camX, camY);
   ctx.scale(camZoom, camZoom);
 
-// Быстрая отрисовка запечённой сетки поля из оффскрин-буфера
   if (offscreenGridDirty || !offscreenGridCanvas) {
     updateOffscreenGrid();
   }
@@ -3653,7 +3569,7 @@ function render(now) {
     }
     ctx.restore();
 
-if (t.type === 'laser' && t.target && t.isLockedOn && t.disabledTimer <= 0) {
+    if (t.type === 'laser' && t.target && t.isLockedOn && t.disabledTimer <= 0) {
       const muzzleX = t.x + Math.cos(t.angle) * 24;
       const muzzleY = t.y + Math.sin(t.angle) * 24;
       ctx.save();
@@ -3683,27 +3599,28 @@ if (t.type === 'laser' && t.target && t.isLockedOn && t.disabledTimer <= 0) {
     }
   });
 
-// Вычисляем видимые мировые границы экрана с запасом в 1 клетку
   const viewLeft = -camX / camZoom - TILE_SIZE;
   const viewTop = -camY / camZoom - TILE_SIZE;
   const viewRight = (window.innerWidth - camX) / camZoom + TILE_SIZE;
   const viewBottom = (window.innerHeight - camY) / camZoom + TILE_SIZE;
 
+  const _tMobsStart = performance.now();
+
   for (let i = 0; i < enemies.length; i++) {
     const e = enemies[i];
-    // Пропускаем мобов, находящихся за пределами зоны видимости
     if (e.x < viewLeft || e.x > viewRight || e.y < viewTop || e.y > viewBottom) continue;
     drawEnemyModel(e);
   }
+
+  if (window.perfProfiler) perfProfiler.accum.drawMobs += (performance.now() - _tMobsStart);
 
   projectiles.forEach(p => {
     ctx.save();
     if (p.type === 'bullet') {
       ctx.fillStyle = '#ffffff';
-      setGlow('#00e5ff', 8);
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.fillRect(p.x - 2, p.y - 2, 4, 4);
+      ctx.fillStyle = p.color || '#00e5ff';
+      ctx.fillRect(p.x - 1, p.y - 1, 2, 2);
     } else if (p.type === 'mortar_shell') {
       const tProg = Math.max(0, Math.min(1, p.elapsed / p.duration));
       const apex = p.arcApex || 45;
@@ -3758,7 +3675,8 @@ if (t.type === 'laser' && t.target && t.isLockedOn && t.disabledTimer <= 0) {
     ctx.restore();
   });
 
-// --- Батчированный рендер частиц без лишних save/restore ---
+  const _tFxStart = performance.now();
+  
   // Слой 1: Дым и пар (source-over)
   ctx.globalCompositeOperation = 'source-over';
   const smokeSprite = typeof getSmokeSprite === 'function' ? getSmokeSprite() : null;
@@ -3851,9 +3769,10 @@ if (t.type === 'laser' && t.target && t.isLockedOn && t.disabledTimer <= 0) {
     }
   }
 
-  // Возврат стандартного режима контекста
   ctx.globalCompositeOperation = 'source-over';
   ctx.globalAlpha = 1.0;
+  
+  if (window.perfProfiler) perfProfiler.accum.drawFx += (performance.now() - _tFxStart);
 
   if (draggingTower) {
     const c = Math.floor(draggingTower.worldX / TILE_SIZE);
@@ -3862,7 +3781,7 @@ if (t.type === 'laser' && t.target && t.isLockedOn && t.disabledTimer <= 0) {
     const canBuild = isValidCell && grid[r][c] === 0;
     const conf = TOWER_CONFIGS[draggingTower.type];
 
-if (isValidCell) {
+    if (isValidCell) {
       ctx.fillStyle = canBuild ? 'rgba(0, 229, 255, 0.2)' : 'rgba(240, 95, 159, 0.3)';
       ctx.fillRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
       ctx.strokeStyle = canBuild ? '#00e5ff' : '#f05f9f';
@@ -3883,7 +3802,7 @@ if (isValidCell) {
     ctx.restore();
   }
 
-  ctx.restore();
+ctx.restore();
 
   updateTutorialOverlay(now);
 }

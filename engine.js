@@ -237,7 +237,7 @@ function serializeSaveData() {
     selectedLoadout,
     settings,
     tutorialSeen,
-	noAdsPurchased,
+    noAdsPurchased,
     dailyGiftsClaimedDate,
     dailyGiftsClaimedCount
   };
@@ -2272,7 +2272,7 @@ function update(dt) {
       return;
     }
 
-let target = null;
+    let target = null;
     const rangeSq = t.range * t.range;
     const isLockingTowerType = (typeof LOCKED_TARGET_TOWERS !== 'undefined' ? LOCKED_TARGET_TOWERS : ['laser', 'melter']).includes(t.type);
     
@@ -2338,7 +2338,7 @@ let target = null;
         target.hp -= t.damage * dt;
         if (Math.random() < 0.25) {
           createDamageShards(target.x, target.y, target.color, t.damage * dt * 4, false);
-          createImpactSmoke(target.x, target.y, 8); // <-- Тлеющий дымок от лазера
+          createImpactSmoke(target.x, target.y, 8);
         }
       }
     }
@@ -2463,7 +2463,7 @@ let target = null;
           target.hp -= t.damage * rampMultiplier * dt;
           if (Math.random() < 0.3) {
             createDamageShards(target.x, target.y, target.color, t.damage * rampMultiplier * dt * 3, false);
-            createImpactSmoke(target.x, target.y, 9 + rampProgress * 5); // <-- Растущий дым по мере нагрева
+            createImpactSmoke(target.x, target.y, 9 + rampProgress * 5);
           }
         }
         if (t.melterFireTimer >= rampTime) {
@@ -2479,38 +2479,42 @@ let target = null;
       }
     }
 
-    if (t.type === 'railgun') {
-      t.lastFire += dt;
-      if (target && isLockedOn && t.lastFire >= t.fireRate) {
-        sfx('railgun');
-        t.lastFire = 0;
-        const maxLen = 3500;
-        const beamEndX = t.x + Math.cos(t.angle) * maxLen;
-        const beamEndY = t.y + Math.sin(t.angle) * maxLen;
+    if (t.type === 'railgun' && target && isLockedOn && t.lastFire >= t.fireRate) {
+      t.lastFire = 0;
+      sfx('railgun');
+      
+      const beamLength = 3500;
+      const beamEndX = t.x + Math.cos(t.angle) * beamLength;
+      const beamEndY = t.y + Math.sin(t.angle) * beamLength;
+      
+      let railShardCount = 0;
 
-        lightningBolts.push({ x1: t.x, y1: t.y, x2: beamEndX, y2: beamEndY, life: 0.22, maxLife: 0.22, isRail: true, towerColor: t.color });
+      for (let j = 0; j < enemies.length; j++) {
+        const e = enemies[j];
+        const vx = beamEndX - t.x;
+        const vy = beamEndY - t.y;
+        const wx = e.x - t.x;
+        const wy = e.y - t.y;
+        const c1 = wx * vx + wy * vy;
+        const c2 = vx * vx + vy * vy;
+        const param = c2 !== 0 ? Math.max(0, Math.min(1, c1 / c2)) : 0;
+        const projX = t.x + param * vx;
+        const projY = t.y + param * vy;
+        const distSq = (e.x - projX) * (e.x - projX) + (e.y - projY) * (e.y - projY);
+        const hitR = e.radius + 14;
 
-        enemies.forEach(e => {
-          const vx = beamEndX - t.x;
-          const vy = beamEndY - t.y;
-          const wx = e.x - t.x;
-          const wy = e.y - t.y;
-          const c1 = wx * vx + wy * vy;
-          const c2 = vx * vx + vy * vy;
-          const param = Math.max(0, Math.min(1, c1 / c2));
-          const projX = t.x + param * vx;
-          const projY = t.y + param * vy;
-          const distToBeam = Math.hypot(e.x - projX, e.y - projY);
-
-          if (distToBeam <= e.radius + 14 && !e.isShielded) {
-            e.hp -= t.damage;
-            if (railShardCount < 4) {
-              createDamageShards(e.x, e.y, e.color, t.damage, false);
-              if (typeof createImpactSmoke === 'function') createImpactSmoke(e.x, e.y, 12);
-              railShardCount++;
-            }
+        if (distSq <= hitR * hitR && !e.isShielded) {
+          e.hp -= t.damage;
+          if (railShardCount < 4) {
+            createDamageShards(e.x, e.y, e.color, t.damage, false);
+            if (typeof createImpactSmoke === 'function') createImpactSmoke(e.x, e.y, 12);
+            railShardCount++;
           }
-        });
+        }
+      }
+
+      if (typeof createRailBeamFx === 'function') {
+        createRailBeamFx(t.x, t.y, beamEndX, beamEndY, t.color || '#00e5ff');
       }
     }
   });
@@ -2544,7 +2548,7 @@ let target = null;
       p.x = p.startX + (p.targetX - p.startX) * tProg;
       p.y = p.startY + (p.targetY - p.startY) * tProg;
 
-if (tProg >= 1) {
+      if (tProg >= 1) {
         sfx('explosion');
         let hitEnemyColor = (p.targetRef && enemies.includes(p.targetRef)) ? p.targetRef.color : null;
         const splashSq = p.splash * p.splash;
@@ -2562,7 +2566,6 @@ if (tProg >= 1) {
             const splashDmg = p.damage * (1 - d / (p.splash * 1.3));
             e.hp -= splashDmg;
 
-            // Спавним осколки и микро-дым максимум для 3 мобов из пачки
             if (shardSpawnCount < 3) {
               createDamageShards(e.x, e.y, e.color, splashDmg, false);
               if (typeof createImpactSmoke === 'function') createImpactSmoke(e.x, e.y, 10);
@@ -2595,8 +2598,9 @@ if (tProg >= 1) {
         });
       }
 
-      const killShockRadius = e.isBoss ? 80 : (e.isMiniBoss ? 50 : 26);
-      createShockwave(e.x, e.y, killShockRadius, e.color);
+      if (e.isBoss || e.isMiniBoss) {
+        createShockwave(e.x, e.y, e.isBoss ? 80 : 50, e.color);
+      }
 
       if (e.isBoss || e.isMiniBoss) {
         createExplosion(e.x, e.y, e.isBoss ? 45 : 22, e.color, e.glow || e.color, 'boss');
@@ -2630,17 +2634,16 @@ if (tProg >= 1) {
     lb.elapsed = (lb.elapsed || 0) + dt;
     lb.life -= dt;
 
-if (!lb.targetRef.isShielded && enemies.includes(lb.targetRef)) {
-        lb.targetRef.hp -= lb.damage;
-        // Спавним компактные искры/осколки только с 50% шансом на звено цепи, чтобы не спамить в толпе
-        if (Math.random() < 0.5) {
-          if (typeof createDamageShards === 'function') {
-            createDamageShards(lb.x2, lb.y2, lb.targetRef.color, lb.damage, false);
-          } else {
-            createSparks(lb.x2, lb.y2, lb.towerColor || lb.color || '#00ffcc', 3, lb.targetRef.color);
-          }
+    if (!lb.targetRef.isShielded && enemies.includes(lb.targetRef)) {
+      lb.targetRef.hp -= lb.damage;
+      if (Math.random() < 0.5) {
+        if (typeof createDamageShards === 'function') {
+          createDamageShards(lb.x2, lb.y2, lb.targetRef.color, lb.damage, false);
+        } else {
+          createSparks(lb.x2, lb.y2, lb.towerColor || lb.color || '#00ffcc', 3, lb.targetRef.color);
         }
       }
+    }
 
     if (lb.life <= 0) lightningBolts.splice(i, 1);
   }
