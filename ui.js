@@ -109,6 +109,170 @@ function getNeonDiscSprite(color) {
   return c;
 }
 
+
+// --- Кэш оффскрин-спрайтов геометрии мобов (ускорение рендера толпы) ---
+const ENEMY_SPRITE_CACHE = Object.create(null);
+
+function getEnemyShapeSprite(shape, color, radius) {
+  const key = `${shape}_${color}_${Math.round(radius)}`;
+  if (ENEMY_SPRITE_CACHE[key]) return ENEMY_SPRITE_CACHE[key];
+
+  const padding = 10;
+  const size = Math.ceil((radius * 1.5 + padding) * 2);
+  const c = document.createElement('canvas');
+  c.width = size;
+  c.height = size;
+  const sCtx = c.getContext('2d');
+  const cx = size / 2;
+  const cy = size / 2;
+
+  sCtx.save();
+  sCtx.translate(cx, cy);
+
+  // Мягкий рассеянный неоновый отсвет (запекается 1 раз вместо createRadialGradient каждый кадр)
+  const grad = sCtx.createRadialGradient(0, 0, 2, 0, 0, radius * 2.2);
+  grad.addColorStop(0, color + '55');
+  grad.addColorStop(0.5, color + '15');
+  grad.addColorStop(1, 'transparent');
+  sCtx.fillStyle = grad;
+  sCtx.beginPath();
+  sCtx.arc(0, 0, radius * 2.2, 0, Math.PI * 2);
+  sCtx.fill();
+
+  // Основное тело и неоновый контур
+  sCtx.fillStyle = color + '22';
+  sCtx.strokeStyle = color;
+  sCtx.lineWidth = 2.4;
+
+  if (shape === 'circle') {
+    sCtx.beginPath();
+    sCtx.arc(0, 0, radius, 0, Math.PI * 2);
+    sCtx.fill(); sCtx.stroke();
+  } else if (shape === 'triangle') {
+    const R = radius * 1.2;
+    sCtx.beginPath();
+    sCtx.moveTo(R, 0);
+    sCtx.lineTo(-R * 0.5, R * 0.866);
+    sCtx.lineTo(-R * 0.5, -R * 0.866);
+    sCtx.closePath();
+    sCtx.fill(); sCtx.stroke();
+  } else if (shape === 'trapezoid' || shape === 'triangle_inverted') {
+    sCtx.beginPath();
+    sCtx.moveTo(radius * 1.2, -radius * 0.4);
+    sCtx.lineTo(radius * 1.2, radius * 0.4);
+    sCtx.lineTo(-radius * 0.8, radius * 0.9);
+    sCtx.lineTo(-radius * 0.8, -radius * 0.9);
+    sCtx.closePath();
+    sCtx.fill(); sCtx.stroke();
+  } else if (shape === 'kite') {
+    sCtx.beginPath();
+    sCtx.moveTo(radius * 1.4, 0);
+    sCtx.lineTo(0, -radius * 0.9);
+    sCtx.lineTo(-radius * 1.1, 0);
+    sCtx.lineTo(0, radius * 0.9);
+    sCtx.closePath();
+    sCtx.fill(); sCtx.stroke();
+  } else if (shape === 'square') {
+    const s = radius * 1.5;
+    sCtx.beginPath();
+    sCtx.roundRect(-s/2, -s/2, s, s, 3);
+    sCtx.fill(); sCtx.stroke();
+  } else if (shape === 'diamond') {
+    sCtx.beginPath();
+    sCtx.moveTo(0, -radius * 1.3); sCtx.lineTo(radius * 1.1, 0);
+    sCtx.lineTo(0, radius * 1.3); sCtx.lineTo(-radius * 1.1, 0);
+    sCtx.closePath();
+    sCtx.fill(); sCtx.stroke();
+  } else if (shape === 'hexagon') {
+    sCtx.beginPath();
+    for (let hx = 0; hx < 6; hx++) {
+      const a = (hx * Math.PI) / 3;
+      const hxX = Math.cos(a) * radius * 1.15;
+      const hxY = Math.sin(a) * radius * 1.15;
+      if (hx === 0) sCtx.moveTo(hxX, hxY); else sCtx.lineTo(hxX, hxY);
+    }
+    sCtx.closePath();
+    sCtx.fill(); sCtx.stroke();
+  } else if (shape === 'octagon') {
+    sCtx.beginPath();
+    for (let oc = 0; oc < 8; oc++) {
+      const a = (oc * Math.PI) / 4;
+      const ocX = Math.cos(a) * radius * 1.2;
+      const ocY = Math.sin(a) * radius * 1.2;
+      if (oc === 0) sCtx.moveTo(ocX, ocY); else sCtx.lineTo(ocX, ocY);
+    }
+    sCtx.closePath();
+    sCtx.fill(); sCtx.stroke();
+  }
+
+  sCtx.restore();
+
+  ENEMY_SPRITE_CACHE[key] = {
+    canvas: c,
+    half: cx
+  };
+  return ENEMY_SPRITE_CACHE[key];
+}
+
+function getEnemySprite(e) {
+  // Ключ кэша строится по типу, цвету и радиусу
+  const key = `${e.type}_${e.color}_${e.radius}`;
+  if (ENEMY_SPRITE_CACHE[key]) return ENEMY_SPRITE_CACHE[key];
+
+  const r = e.radius;
+  const padding = 6;
+  const size = Math.ceil((r + padding) * 2);
+  const c = document.createElement('canvas');
+  c.width = size;
+  c.height = size;
+  const sCtx = c.getContext('2d');
+  const cx = size / 2;
+  const cy = size / 2;
+
+  sCtx.save();
+  sCtx.translate(cx, cy);
+  sCtx.fillStyle = e.color;
+  sCtx.strokeStyle = '#ffffff';
+  sCtx.lineWidth = 1.2;
+
+  // Отрисовываем чистую геометрическую форму моба в локальных координатах
+  sCtx.beginPath();
+  switch (e.type) {
+    case 'scout': // Треугольник (направлен вправо вдоль оси X)
+      sCtx.moveTo(r, 0);
+      sCtx.lineTo(-r * 0.7, -r * 0.7);
+      sCtx.lineTo(-r * 0.7, r * 0.7);
+      break;
+
+    case 'tank': // Квадрат
+      sCtx.rect(-r * 0.75, -r * 0.75, r * 1.5, r * 1.5);
+      break;
+
+    case 'swarm': // Ромб
+      sCtx.moveTo(0, -r);
+      sCtx.lineTo(r * 0.75, 0);
+      sCtx.lineTo(0, r);
+      sCtx.lineTo(-r * 0.75, 0);
+      break;
+
+    case 'grunt': // Круг
+    default:
+      sCtx.arc(0, 0, r * 0.8, 0, Math.PI * 2);
+      break;
+  }
+  sCtx.closePath();
+  sCtx.fill();
+  sCtx.stroke();
+  sCtx.restore();
+
+  ENEMY_SPRITE_CACHE[key] = {
+    canvas: c,
+    halfSize: cx
+  };
+
+  return ENEMY_SPRITE_CACHE[key];
+}
+
 // --- Кешированные спрайты дыма (контрастный концентрический дым) ---
 let SMOKE_SPRITE = null;
 function getSmokeSprite() {
@@ -2903,30 +3067,56 @@ function renderCellRails(cell) {
   }
 }
 
+let battlePathAlpha = 1.0;
+let lastPathTime = performance.now();
+
 function drawPathRails(now) {
   if (!pathCells || pathCells.length <= 2) return;
   const totalCells = pathCells.length;
-  const timeSeconds = now / 1000;
-  const dashOffset = -(timeSeconds * 30);
 
   ctx.save();
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 
-  // Слой 1: Мягкая статичная неоновая подложка (без медленного setGlow/shadowBlur)
+  // 1. Статичная неоновая подложка пути (спокойный сине-стальной свет)
   ctx.strokeStyle = 'rgba(0, 229, 255, 0.18)';
   ctx.lineWidth = 3.5;
+  ctx.setLineDash([]);
   for (let i = 1; i < totalCells - 1; i++) {
     renderCellRails(pathCells[i]);
   }
 
-  // Слой 2: Чёткий анимированный бегущий неоновый пунктир
-  ctx.strokeStyle = 'rgba(165, 243, 252, 0.85)';
-  ctx.lineWidth = 1.8;
-  ctx.setLineDash([10, 8]);
-  ctx.lineDashOffset = dashOffset;
-  for (let i = 1; i < totalCells - 1; i++) {
-    renderCellRails(pathCells[i]);
+  // Расчет дельты времени
+  const curTime = (typeof now === 'number' && now > 0) ? now : performance.now();
+  const dt = Math.min((curTime - (lastPathTime || curTime)) / 1000, 0.1);
+  lastPathTime = curTime;
+
+  // Проверяем статус волны
+  const isBattleActive = (typeof waveInProgress !== 'undefined' && waveInProgress) || 
+                         (typeof enemies !== 'undefined' && enemies.length > 0);
+
+  if (isBattleActive) {
+    // В бою: плавно гасим прозрачность до нуля за 2 секунды (скорость 0.5/сек)
+    if (battlePathAlpha > 0) {
+      battlePathAlpha = Math.max(0, battlePathAlpha - dt * 0.5);
+    }
+  } else {
+    // До нажатия GO: возвращаем полную яркость
+    battlePathAlpha = 1.0;
+  }
+
+  // 2. Яркие штрихи: продолжают непрерывно бежать БЕЗ рывков, пока угасают
+  if (battlePathAlpha > 0.01) {
+    ctx.strokeStyle = `rgba(165, 243, 252, ${0.90 * battlePathAlpha})`;
+    ctx.lineWidth = 1.8;
+    ctx.setLineDash([12, 10]);
+
+    // Непрерывный расчет смещения — штрихи не сбрасываются и не застревают
+    ctx.lineDashOffset = -((curTime / 1000) * 36);
+
+    for (let i = 1; i < totalCells - 1; i++) {
+      renderCellRails(pathCells[i]);
+    }
   }
 
   ctx.restore();
@@ -3114,10 +3304,10 @@ function drawEnemyModel(e, showHpBar = true) {
   const isBlinkerShielded = (e.type === 'blinker' || e.type === 'chronos_warp') && e.isShielded;
   const renderColor = isBlinkerShielded ? '#64748b' : e.color;
 
+  // Отрисовка динамического щита Blinker
   if (isBlinkerShielded) {
     ctx.save();
     ctx.strokeStyle = '#ffffff';
-    setGlow('#ffffff', 8);
     ctx.lineWidth = 2.5;
     ctx.beginPath();
     ctx.arc(0, 0, e.radius * 1.45, 0, Math.PI * 2);
@@ -3125,194 +3315,123 @@ function drawEnemyModel(e, showHpBar = true) {
     ctx.restore();
   }
 
-// замороженный круг вокруг моба
-//  if (e.slowTimer > 0) {
-    //ctx.strokeStyle = '#38bdf8';
-    //ctx.lineWidth = 2;
-    //ctx.beginPath();
-    //ctx.arc(0, 0, e.radius * 1.25, 0, Math.PI * 2);
-    //ctx.stroke();
-  //}
+  const isHeavyMob = e.isBoss || e.isMiniBoss || isBlinkerShielded;
 
-  if (!isBlinkerShielded) {
+  if (!isHeavyMob) {
+    // РЯДОВЫЕ МОБЫ: рисуются через 1 мгновенный blit из спрайт-кэша
+    const spr = getEnemyShapeSprite(e.shape || 'circle', renderColor, e.radius);
+    
+    // Если фигура направленная (треугольник, кайт, трапеция) — поворачиваем спрайт
+    const needsRotation = (e.shape === 'triangle' || e.shape === 'trapezoid' || e.shape === 'triangle_inverted' || e.shape === 'kite');
+    if (needsRotation) {
+      ctx.rotate(e.angle);
+      ctx.drawImage(spr.canvas, -spr.half, -spr.half);
+      ctx.rotate(-e.angle);
+    } else {
+      ctx.drawImage(spr.canvas, -spr.half, -spr.half);
+    }
+  } else {
+    // БОССЫ И ОСОБЫЕ МОБЫ: оригинальный детальный векторный рендер
     const glowGrad = ctx.createRadialGradient(0, 0, 2, 0, 0, e.radius * 2.5);
-    glowGrad.addColorStop(0, renderColor + (e.isBoss ? '88' : (e.isMiniBoss ? '66' : '55')));
-    glowGrad.addColorStop(0.5, renderColor + (e.isBoss ? '30' : (e.isMiniBoss ? '20' : '15')));
+    glowGrad.addColorStop(0, renderColor + (e.isBoss ? '88' : '66'));
+    glowGrad.addColorStop(0.5, renderColor + (e.isBoss ? '30' : '20'));
     glowGrad.addColorStop(1, 'transparent');
     ctx.fillStyle = glowGrad;
     ctx.beginPath();
     ctx.arc(0, 0, e.radius * 2.5, 0, Math.PI * 2);
     ctx.fill();
-  }
 
-  ctx.save();
-  if (isBlinkerShielded) {
-    ctx.globalAlpha = 0.52;
-  }
+    ctx.save();
+    if (isBlinkerShielded) ctx.globalAlpha = 0.52;
 
-  const strokeW = e.isBoss ? 5.0 : (e.isMiniBoss ? 3.6 : 2.4);
-  ctx.fillStyle = isBlinkerShielded ? '#334155' : renderColor + (e.isBoss ? '28' : (e.isMiniBoss ? '22' : '18'));
-  ctx.strokeStyle = renderColor;
-  ctx.lineWidth = strokeW;
-  setGlow(isBlinkerShielded ? 'transparent' : renderColor, isBlinkerShielded ? 0 : 8);
+    const strokeW = e.isBoss ? 5.0 : 3.6;
+    ctx.fillStyle = isBlinkerShielded ? '#334155' : renderColor + (e.isBoss ? '28' : '22');
+    ctx.strokeStyle = renderColor;
+    ctx.lineWidth = strokeW;
+    setGlow(isBlinkerShielded ? 'transparent' : renderColor, isBlinkerShielded ? 0 : 8);
 
-  if (e.shape === 'circle') {
-    ctx.beginPath();
-    ctx.arc(0, 0, e.radius, 0, Math.PI * 2);
-    ctx.fill(); ctx.stroke();
-  } else if (e.shape === 'triangle') {
-    ctx.rotate(e.angle);
-    const R = e.radius * 1.2;
-    ctx.beginPath();
-    ctx.moveTo(R, 0);
-    ctx.lineTo(-R * 0.5, R * 0.866);
-    ctx.lineTo(-R * 0.5, -R * 0.866);
-    ctx.closePath();
-    ctx.fill(); ctx.stroke();
-    ctx.rotate(-e.angle);
-  } else if (e.shape === 'trapezoid' || e.shape === 'triangle_inverted') {
-    ctx.rotate(e.angle);
-    ctx.beginPath();
-    ctx.moveTo(e.radius * 1.2, -e.radius * 0.4);
-    ctx.lineTo(e.radius * 1.2, e.radius * 0.4);
-    ctx.lineTo(-e.radius * 0.8, e.radius * 0.9);
-    ctx.lineTo(-e.radius * 0.8, -e.radius * 0.9);
-    ctx.closePath();
-    ctx.fill(); ctx.stroke();
-    ctx.rotate(-e.angle);
-  } else if (e.shape === 'kite') {
-    ctx.rotate(e.angle);
-    ctx.beginPath();
-    ctx.moveTo(e.radius * 1.4, 0);
-    ctx.lineTo(0, -e.radius * 0.9);
-    ctx.lineTo(-e.radius * 1.1, 0);
-    ctx.lineTo(0, e.radius * 0.9);
-    ctx.closePath();
-    ctx.fill(); ctx.stroke();
-    ctx.rotate(-e.angle);
-  } else if (e.shape === 'square') {
-    const s = e.radius * 1.5;
-    ctx.beginPath();
-    ctx.roundRect(-s/2, -s/2, s, s, 3);
-    ctx.fill(); ctx.stroke();
-  } else if (e.shape === 'diamond') {
-    ctx.beginPath();
-    ctx.moveTo(0, -e.radius * 1.3); ctx.lineTo(e.radius * 1.1, 0);
-    ctx.lineTo(0, e.radius * 1.3); ctx.lineTo(-e.radius * 1.1, 0);
-    ctx.closePath();
-    ctx.fill(); ctx.stroke();
-  } else if (e.shape === 'hexagon') {
-    ctx.beginPath();
-    for (let hx = 0; hx < 6; hx++) {
-      const a = (hx * Math.PI) / 3;
-      const hxX = Math.cos(a) * e.radius * 1.15;
-      const hxY = Math.sin(a) * e.radius * 1.15;
-      if (hx === 0) ctx.moveTo(hxX, hxY); else ctx.lineTo(hxX, hxY);
+    if (e.shape === 'circle') {
+      ctx.beginPath();
+      ctx.arc(0, 0, e.radius, 0, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+    } else if (e.shape === 'triangle') {
+      ctx.rotate(e.angle);
+      const R = e.radius * 1.2;
+      ctx.beginPath();
+      ctx.moveTo(R, 0);
+      ctx.lineTo(-R * 0.5, R * 0.866);
+      ctx.lineTo(-R * 0.5, -R * 0.866);
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
+      ctx.rotate(-e.angle);
+    } else if (e.shape === 'trapezoid' || e.shape === 'triangle_inverted') {
+      ctx.rotate(e.angle);
+      ctx.beginPath();
+      ctx.moveTo(e.radius * 1.2, -e.radius * 0.4);
+      ctx.lineTo(e.radius * 1.2, e.radius * 0.4);
+      ctx.lineTo(-e.radius * 0.8, e.radius * 0.9);
+      ctx.lineTo(-e.radius * 0.8, -e.radius * 0.9);
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
+      ctx.rotate(-e.angle);
+    } else if (e.shape === 'kite') {
+      ctx.rotate(e.angle);
+      ctx.beginPath();
+      ctx.moveTo(e.radius * 1.4, 0);
+      ctx.lineTo(0, -e.radius * 0.9);
+      ctx.lineTo(-e.radius * 1.1, 0);
+      ctx.lineTo(0, e.radius * 0.9);
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
+      ctx.rotate(-e.angle);
+    } else if (e.shape === 'square') {
+      const s = e.radius * 1.5;
+      ctx.beginPath();
+      ctx.roundRect(-s/2, -s/2, s, s, 3);
+      ctx.fill(); ctx.stroke();
+    } else if (e.shape === 'diamond') {
+      ctx.beginPath();
+      ctx.moveTo(0, -e.radius * 1.3); ctx.lineTo(e.radius * 1.1, 0);
+      ctx.lineTo(0, e.radius * 1.3); ctx.lineTo(-e.radius * 1.1, 0);
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
+    } else if (e.shape === 'hexagon') {
+      ctx.beginPath();
+      for (let hx = 0; hx < 6; hx++) {
+        const a = (hx * Math.PI) / 3;
+        const hxX = Math.cos(a) * e.radius * 1.15;
+        const hxY = Math.sin(a) * e.radius * 1.15;
+        if (hx === 0) ctx.moveTo(hxX, hxY); else ctx.lineTo(hxX, hxY);
+      }
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
+    } else if (e.shape === 'octagon') {
+      ctx.beginPath();
+      for (let oc = 0; oc < 8; oc++) {
+        const a = (oc * Math.PI) / 4;
+        const ocX = Math.cos(a) * e.radius * 1.2;
+        const ocY = Math.sin(a) * e.radius * 1.2;
+        if (oc === 0) ctx.moveTo(ocX, ocY); else ctx.lineTo(ocX, ocY);
+      }
+      ctx.closePath();
+      ctx.fill(); ctx.stroke();
     }
-    ctx.closePath();
-    ctx.fill(); ctx.stroke();
-  } else if (e.shape === 'octagon') {
-    ctx.beginPath();
-    for (let oc = 0; oc < 8; oc++) {
-      const a = (oc * Math.PI) / 4;
-      const ocX = Math.cos(a) * e.radius * 1.2;
-      const ocY = Math.sin(a) * e.radius * 1.2;
-      if (oc === 0) ctx.moveTo(ocX, ocY); else ctx.lineTo(ocX, ocY);
-    }
-    ctx.closePath();
-    ctx.fill(); ctx.stroke();
+
+    ctx.restore();
   }
 
-  ctx.restore();
-
+  // Отрисовка снежинки замедления
   if (e.slowTimer > 0) {
     ctx.save();
     ctx.fillStyle = '#38bdf8';
-    setGlow('#00e5ff', 6);
     ctx.font = 'bold 11px Montserrat, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('❄', e.radius * 0.85, -e.radius * 0.85);
     ctx.restore();
   }
 
-// --- Процедурные тонкие трещины с кэшированием геометрии (без тяжелой тригонометрии в каждом кадре) ---
-  const hpRatio = e.hp / e.maxHp;
-  if (hpRatio < 0.85) {
-    const r = e.radius * 0.88;
-
-    // Генерируем точки трещин ровно один раз для конкретного моба
-    if (!e.crackGeom) {
-      const seed1 = Math.abs(Math.sin((e.maxHp || 100) * 12.9898 + (e.baseSpeed || 50) * 78.233));
-      const seed2 = Math.abs(Math.sin((e.maxHp || 100) * 45.123 + 91.7));
-      const seed3 = Math.abs(Math.sin((e.maxHp || 100) * 73.456 + 13.9));
-
-      const a1 = seed1 * Math.PI * 2;
-      const a1_mid = a1 + (seed2 - 0.5) * 1.2;
-      const p1_start = { x: Math.cos(a1) * r * 0.7, y: Math.sin(a1) * r * 0.7 };
-      const p1_mid   = { x: Math.cos(a1_mid) * r * 0.25, y: Math.sin(a1_mid) * r * 0.25 };
-      const p1_end   = { x: (seed3 - 0.5) * r * 0.4, y: (seed2 - 0.5) * r * 0.4 };
-
-      const a2 = (seed1 * Math.PI * 2 + Math.PI * 0.7) % (Math.PI * 2);
-      const a2_mid = a2 - (seed3 - 0.5) * 1.4;
-      const p2_start = { x: Math.cos(a2) * r * 0.8, y: Math.sin(a2) * r * 0.8 };
-      const p2_mid   = { x: Math.cos(a2_mid) * r * 0.35, y: Math.sin(a2_mid) * r * 0.35 };
-      const p2_end   = { x: (seed2 - 0.5) * r * 0.3, y: -(seed1 - 0.5) * r * 0.3 };
-      const p2_branch = { x: (seed2 - 0.5) * r * 0.6, y: -(seed3 - 0.5) * r * 0.5 };
-
-      const a3 = (seed1 * Math.PI * 2 + Math.PI * 1.4) % (Math.PI * 2);
-      const p3_start = { x: Math.cos(a3) * r * 0.75, y: Math.sin(a3) * r * 0.75 };
-      const p3_end   = { x: (seed1 - 0.5) * r * 0.7, y: (seed3 - 0.5) * r * 0.7 };
-
-      e.crackGeom = { p1_start, p1_mid, p1_end, p2_start, p2_mid, p2_end, p2_branch, p3_start, p3_end };
-    }
-
-    ctx.save();
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'miter';
-    ctx.strokeStyle = '#06070d';
-    ctx.lineWidth = e.isBoss ? 1.6 : 1.1;
-
-    const g = e.crackGeom;
-
-    // 1-я ветка: легкое ранение (HP < 85%)
-    ctx.beginPath();
-    ctx.moveTo(g.p1_start.x, g.p1_start.y);
-    ctx.lineTo(g.p1_mid.x, g.p1_mid.y);
-    ctx.lineTo(g.p1_end.x, g.p1_end.y);
-    ctx.stroke();
-
-    // 2-я ветка: среднее ранение (HP < 60%)
-    if (hpRatio < 0.6) {
-      ctx.beginPath();
-      ctx.moveTo(g.p2_start.x, g.p2_start.y);
-      ctx.lineTo(g.p2_mid.x, g.p2_mid.y);
-      ctx.lineTo(g.p2_end.x, g.p2_end.y);
-      ctx.lineTo(g.p2_branch.x, g.p2_branch.y);
-      ctx.stroke();
-    }
-
-    // 3-я и 4-я ветки: критическое состояние (HP < 30%)
-    if (hpRatio < 0.3) {
-      ctx.beginPath();
-      ctx.moveTo(g.p3_start.x, g.p3_start.y);
-      ctx.lineTo(0, 0);
-      ctx.lineTo(g.p3_end.x, g.p3_end.y);
-      ctx.stroke();
-
-      // Тонкий неоновый разлом обнажающегося ядра
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 0.6;
-      ctx.beginPath();
-      ctx.moveTo(g.p1_mid.x, g.p1_mid.y);
-      ctx.lineTo(0, 0);
-      ctx.lineTo(g.p2_mid.x, g.p2_mid.y);
-      ctx.stroke();
-    }
-
-    ctx.restore();
-  }
-
-if (showHpBar && settings.showEnemyHp) {
+  // Полоска HP (рисуется только для раненых или боссов)
+  if (showHpBar && settings.showEnemyHp && (e.isBoss || e.isMiniBoss || e.hp < e.maxHp)) {
     ctx.shadowBlur = 0;
     const barW = Math.max(22, e.radius * 2.2);
     const barH = e.isBoss ? 5 : (e.isMiniBoss ? 4 : 3);
@@ -3456,13 +3575,13 @@ function render(now) {
   towers.forEach(t => {
     if (t.type === 'stasis') {
       ctx.save();
-      const stasisGrad = ctx.createRadialGradient(t.x, t.y, 0, t.x, t.y, t.range);
-      stasisGrad.addColorStop(0, 'rgba(56, 189, 248, 0.16)');
-      stasisGrad.addColorStop(1, 'rgba(56, 189, 248, 0)');
-      ctx.fillStyle = stasisGrad;
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.07)';
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.22)';
+      ctx.lineWidth = 1.2;
       ctx.beginPath();
       ctx.arc(t.x, t.y, t.range, 0, Math.PI * 2);
       ctx.fill();
+      ctx.stroke();
       ctx.restore();
     }
   });
@@ -3564,7 +3683,18 @@ if (t.type === 'laser' && t.target && t.isLockedOn && t.disabledTimer <= 0) {
     }
   });
 
-  enemies.forEach(e => drawEnemyModel(e, true));
+// Вычисляем видимые мировые границы экрана с запасом в 1 клетку
+  const viewLeft = -camX / camZoom - TILE_SIZE;
+  const viewTop = -camY / camZoom - TILE_SIZE;
+  const viewRight = (window.innerWidth - camX) / camZoom + TILE_SIZE;
+  const viewBottom = (window.innerHeight - camY) / camZoom + TILE_SIZE;
+
+  for (let i = 0; i < enemies.length; i++) {
+    const e = enemies[i];
+    // Пропускаем мобов, находящихся за пределами зоны видимости
+    if (e.x < viewLeft || e.x > viewRight || e.y < viewTop || e.y > viewBottom) continue;
+    drawEnemyModel(e);
+  }
 
   projectiles.forEach(p => {
     ctx.save();
@@ -3628,96 +3758,102 @@ if (t.type === 'laser' && t.target && t.isLockedOn && t.disabledTimer <= 0) {
     ctx.restore();
   });
 
-// --- Высокопроизводительный рендер частиц ---
-particles.forEach(pt => {
+// --- Батчированный рендер частиц без лишних save/restore ---
+  // Слой 1: Дым и пар (source-over)
+  ctx.globalCompositeOperation = 'source-over';
+  const smokeSprite = typeof getSmokeSprite === 'function' ? getSmokeSprite() : null;
+
+  for (let i = 0; i < particles.length; i++) {
+    const pt = particles[i];
+    if (!pt.isSmoke && !pt.isSteam) continue;
+
     const rawProg = Math.max(0, Math.min(1, pt.life / pt.maxLife));
-
-if (pt.isSmoke) {
-      ctx.save();
-      ctx.globalCompositeOperation = 'source-over';
-      // Плавное появление в первые 10% жизни и мягкое затухание до конца
-      const alphaNorm = rawProg > 0.9 ? (1.0 - rawProg) / 0.1 : (rawProg / 0.9);
-      ctx.globalAlpha = Math.max(0, Math.min(0.72, alphaNorm * 0.72));
-      const smokeSprite = getSmokeSprite();
-      // Клубы плавно расширяются в 2.4 раза от начального размера
-      const currentR = pt.radius * (1.0 + (1.0 - rawProg) * 1.4);
+    if (pt.isSmoke && smokeSprite) {
+      let smokeAlpha = rawProg > 0.85 ? (1.0 - rawProg) / 0.15 : rawProg / 0.85;
+      ctx.globalAlpha = Math.max(0, Math.min(0.6, smokeAlpha * 0.6));
+      const currentR = pt.radius * (1.0 + (1.0 - rawProg) * 1.3);
       ctx.drawImage(smokeSprite, pt.x - currentR, pt.y - currentR, currentR * 2, currentR * 2);
-      ctx.restore();
-      return;
-    }
-
-    if (pt.isSteam) {
-      ctx.save();
-      ctx.globalCompositeOperation = 'source-over';
+    } else if (pt.isSteam) {
       const growProg = 1.0 - rawProg;
       ctx.globalAlpha = rawProg * 0.45;
       ctx.fillStyle = pt.color;
       ctx.beginPath();
       ctx.arc(pt.x, pt.y, pt.radius * (0.6 + growProg * 0.9), 0, Math.PI * 2);
       ctx.fill();
-      ctx.restore();
-      return; // <-- ЗДЕСЬ ТОЖЕ
     }
+  }
 
-    // ВОТ ЗДЕСЬ КРИТИЧЕСКИ ВАЖНО:
+  // Слой 2: Осколки мобов (битое стекло, source-over)
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = 1.0;
+  for (let i = 0; i < particles.length; i++) {
+    const pt = particles[i];
+    if (!pt.isShard) continue;
+
+    const rawProg = Math.max(0, Math.min(1, pt.life / pt.maxLife));
+    pt.angle = (pt.angle || 0) + (pt.vRot || 0) * 0.016;
+    ctx.globalAlpha = Math.min(1.0, rawProg * 1.4);
+
     ctx.save();
-    ctx.globalCompositeOperation = 'lighter';
-
-    if (pt.isShard) {
-      pt.angle = (pt.angle || 0) + (pt.vRot || 0) * 0.016;
-      ctx.save(); // <-- Вложенный save для трансформации осколка!
-      ctx.translate(pt.x, pt.y);
-      ctx.rotate(pt.angle);
-      ctx.globalAlpha = rawProg * 0.9;
-      ctx.fillStyle = pt.color;
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 1.0;
-
-      ctx.beginPath();
-      if (pt.pts && pt.pts.length >= 3) {
-        ctx.moveTo(pt.pts[0].x, pt.pts[0].y);
-        for (let p = 1; p < pt.pts.length; p++) {
-          ctx.lineTo(pt.pts[p].x, pt.pts[p].y);
-        }
-      } else {
-        ctx.rect(-pt.radius / 2, -pt.radius / 2, pt.radius, pt.radius);
+    ctx.translate(pt.x, pt.y);
+    ctx.rotate(pt.angle);
+    ctx.fillStyle = pt.color;
+    ctx.beginPath();
+    if (pt.pts && pt.pts.length >= 3) {
+      ctx.moveTo(pt.pts[0].x, pt.pts[0].y);
+      for (let k = 1; k < pt.pts.length; k++) {
+        ctx.lineTo(pt.pts[k].x, pt.pts[k].y);
       }
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-      ctx.restore(); // <-- Обязательно закрываем поворот осколка!
+    } else {
+      ctx.rect(-pt.radius / 2, -pt.radius / 2, pt.radius, pt.radius);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
 
-    } else if (pt.isGlowHalo) {
+  // Слой 3: Световые частицы и искры (lighter)
+  ctx.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < particles.length; i++) {
+    const pt = particles[i];
+    if (pt.isSmoke || pt.isSteam || pt.isShard) continue;
+
+    const rawProg = Math.max(0, Math.min(1, pt.life / pt.maxLife));
+    const easeProg = rawProg * rawProg;
+
+    if (pt.isFlash && typeof getGlowSprite === 'function') {
+      ctx.globalAlpha = rawProg;
+      const sprite = getGlowSprite(pt.color || '#ffffff');
+      const r = pt.radius * (1.1 - (1.0 - rawProg) * 0.3);
+      ctx.drawImage(sprite, pt.x - r, pt.y - r, r * 2, r * 2);
+    } else if (pt.isGlowHalo && typeof getGlowSprite === 'function') {
       ctx.globalAlpha = rawProg * (pt.alphaMult || 0.4);
       const glowSprite = getGlowSprite(pt.color || '#ff9100');
-      const r = pt.radius;
-      ctx.drawImage(glowSprite, pt.x - r, pt.y - r, r * 2, r * 2);
-
+      ctx.drawImage(glowSprite, pt.x - pt.radius, pt.y - pt.radius, pt.radius * 2, pt.radius * 2);
     } else if (pt.isStreak) {
-      const easeProg = rawProg * rawProg;
       ctx.globalAlpha = rawProg * 0.85;
-      ctx.save(); // <-- Вложенный save для поворота шрапнели!
+      ctx.save();
       ctx.translate(pt.x, pt.y);
-      const velAngle = Math.atan2(pt.vy, pt.vx);
-      ctx.rotate(velAngle);
+      ctx.rotate(Math.atan2(pt.vy, pt.vx));
       const len = pt.radius * (1.4 + easeProg * 2.2);
       const width = Math.max(1.2, pt.radius * easeProg * 0.5);
       ctx.fillStyle = pt.color;
       ctx.beginPath();
       ctx.ellipse(0, 0, len, width, 0, 0, Math.PI * 2);
       ctx.fill();
-      ctx.restore(); // <-- Обязательно закрываем поворот шрапнели!
-
+      ctx.restore();
     } else {
-      const easeProg = rawProg * rawProg;
       ctx.globalAlpha = rawProg;
       const sprite = getNeonDiscSprite(pt.color || '#00e5ff');
       const curRadius = pt.radius * (0.4 + easeProg * 0.6);
       ctx.drawImage(sprite, pt.x - curRadius, pt.y - curRadius, curRadius * 2, curRadius * 2);
     }
+  }
 
-    ctx.restore(); // <-- ГЛАВНЫЙ RESTORE: сбрасывает lighter обратно на стандартный режим!
-  });
+  // Возврат стандартного режима контекста
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.globalAlpha = 1.0;
 
   if (draggingTower) {
     const c = Math.floor(draggingTower.worldX / TILE_SIZE);

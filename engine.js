@@ -2504,8 +2504,11 @@ let target = null;
 
           if (distToBeam <= e.radius + 14 && !e.isShielded) {
             e.hp -= t.damage;
-            createDamageShards(e.x, e.y, e.color, t.damage, false);
-            createImpactSmoke(e.x, e.y, 14); // <-- Густой дым от пробития рельсотрона
+            if (railShardCount < 4) {
+              createDamageShards(e.x, e.y, e.color, t.damage, false);
+              if (typeof createImpactSmoke === 'function') createImpactSmoke(e.x, e.y, 12);
+              railShardCount++;
+            }
           }
         });
       }
@@ -2541,18 +2544,32 @@ let target = null;
       p.x = p.startX + (p.targetX - p.startX) * tProg;
       p.y = p.startY + (p.targetY - p.startY) * tProg;
 
-      if (tProg >= 1) {
+if (tProg >= 1) {
         sfx('explosion');
         let hitEnemyColor = (p.targetRef && enemies.includes(p.targetRef)) ? p.targetRef.color : null;
-        enemies.forEach(e => {
-          const d = Math.hypot(e.x - p.targetX, e.y - p.targetY);
-          if (d <= p.splash && !e.isShielded) {
+        const splashSq = p.splash * p.splash;
+        let shardSpawnCount = 0;
+
+        for (let j = 0; j < enemies.length; j++) {
+          const e = enemies[j];
+          const dx = e.x - p.targetX;
+          const dy = e.y - p.targetY;
+          const distSq = dx * dx + dy * dy;
+
+          if (distSq <= splashSq && !e.isShielded) {
             if (!hitEnemyColor) hitEnemyColor = e.color;
+            const d = Math.sqrt(distSq);
             const splashDmg = p.damage * (1 - d / (p.splash * 1.3));
             e.hp -= splashDmg;
-            createDamageShards(e.x, e.y, e.color, splashDmg, false);
+
+            // Спавним осколки и микро-дым максимум для 3 мобов из пачки
+            if (shardSpawnCount < 3) {
+              createDamageShards(e.x, e.y, e.color, splashDmg, false);
+              if (typeof createImpactSmoke === 'function') createImpactSmoke(e.x, e.y, 10);
+              shardSpawnCount++;
+            }
           }
-        });
+        }
         createExplosion(p.targetX, p.targetY, p.splash, p.color || '#ff9100', '#f05f9f', 'mortar');
         createShockwave(p.targetX, p.targetY, p.splash * 1.15, p.color || '#ff9100');
         projectiles.splice(i, 1);
@@ -2587,9 +2604,9 @@ let target = null;
 
       createDamageShards(e.x, e.y, e.color, e.isBoss ? 120 : (e.isMiniBoss ? 60 : 35), true);
       enemies.splice(i, 1);
-      updateUI();
     }
   }
+  updateUI();
 
   for (let i = particles.length - 1; i >= 0; i--) {
     const pt = particles[i];
@@ -2613,13 +2630,17 @@ let target = null;
     lb.elapsed = (lb.elapsed || 0) + dt;
     lb.life -= dt;
 
-    if (!lb.hasDealtDamage && lb.targetRef && lb.elapsed >= (lb.travelTime || 0)) {
-      lb.hasDealtDamage = true;
-      if (!lb.targetRef.isShielded && enemies.includes(lb.targetRef)) {
+if (!lb.targetRef.isShielded && enemies.includes(lb.targetRef)) {
         lb.targetRef.hp -= lb.damage;
+        // Спавним компактные искры/осколки только с 50% шансом на звено цепи, чтобы не спамить в толпе
+        if (Math.random() < 0.5) {
+          if (typeof createDamageShards === 'function') {
+            createDamageShards(lb.x2, lb.y2, lb.targetRef.color, lb.damage, false);
+          } else {
+            createSparks(lb.x2, lb.y2, lb.towerColor || lb.color || '#00ffcc', 3, lb.targetRef.color);
+          }
+        }
       }
-      createDamageShards(lb.x2, lb.y2, lb.targetRef.color, lb.damage, false);
-    }
 
     if (lb.life <= 0) lightningBolts.splice(i, 1);
   }
