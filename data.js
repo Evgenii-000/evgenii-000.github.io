@@ -3338,6 +3338,7 @@ const LEVELS_DATA = {
     ]
   },
   "31": {
+    "mapId": "L31",
     "totalWaves": 10,
     "startGold": 190,
     "waves": [
@@ -3355,6 +3356,7 @@ const LEVELS_DATA = {
   },
 
   "32": {
+    "mapId": "L32",
     "totalWaves": 10,
     "startGold": 200,
     "waves": [
@@ -3372,6 +3374,7 @@ const LEVELS_DATA = {
   },
 
   "33": {
+    "mapId": "L33",
     "totalWaves": 11,
     "startGold": 210,
     "waves": [
@@ -3390,6 +3393,7 @@ const LEVELS_DATA = {
   },
 
   "34": {
+    "mapId": "L34",
     "totalWaves": 11,
     "startGold": 220,
     "waves": [
@@ -3412,6 +3416,7 @@ const LEVELS_DATA = {
   },
 
   "35": {
+    "mapId": "L35",
     "totalWaves": 11,
     "startGold": 230,
     "waves": [
@@ -3430,6 +3435,7 @@ const LEVELS_DATA = {
   },
 
   "36": {
+    "mapId": "L36",
     "totalWaves": 12,
     "startGold": 240,
     "waves": [
@@ -3449,6 +3455,7 @@ const LEVELS_DATA = {
   },
 
   "37": {
+    "mapId": "L37",
     "totalWaves": 12,
     "startGold": 250,
     "waves": [
@@ -3469,6 +3476,7 @@ const LEVELS_DATA = {
   },
 
   "38": {
+    "mapId": "L38",
     "totalWaves": 12,
     "startGold": 165,
     "waves": [
@@ -3488,6 +3496,7 @@ const LEVELS_DATA = {
   },
 
   "39": {
+    "mapId": "L39",
     "totalWaves": 13,
     "startGold": 270,
     "waves": [
@@ -3508,6 +3517,7 @@ const LEVELS_DATA = {
   },
 
   "40": {
+    "mapId": "L40",
     "totalWaves": 13,
     "startGold": 280,
     "waves": [
