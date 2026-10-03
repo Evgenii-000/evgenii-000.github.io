@@ -169,8 +169,8 @@
 
   <span class="hud-chapter-label hidden" id="startChapterLabel">CHAPTER 1</span>
 
-  <div class="hud-right-group hidden" id="hudRightGroup">
-    <div class="hud-split-badge" id="levelWaveSplitBadge">
+<div class="hud-right-group" id="hudRightGroup">
+    <div class="hud-split-badge hidden" id="levelWaveSplitBadge">
       <div class="badge-half" id="levelHalf">
         <span class="match-val-text hud-static-label">LVL</span>
         <span class="match-val-text" id="levelText">1</span>
@@ -184,10 +184,10 @@
         <select id="devWaveSelect" class="hud-select-dropdown hidden" onchange="devJumpToWave(parseInt(this.value, 10))"></select>
       </div>
     </div>
-    <button class="hud-pause-btn" onclick="togglePause()" title="Pause Menu">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-        <rect x="7" y="4" width="3.5" height="16" rx="1.75" />
-        <rect x="13.5" y="4" width="3.5" height="16" rx="1.75" />
+   <button class="hud-gear-btn" id="hudSettingsBtn" onclick="handleHudSettingsClick()" title="Settings & Pause">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" class="hud-gear-svg">
+        <circle cx="12" cy="12" r="3.2"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
       </svg>
     </button>
   </div>
@@ -364,7 +364,6 @@
       <button class="menu-btn-primary-capsule seq-in" onclick="showLevelSelect()"><span>START</span></button>
       <button class="menu-btn-glass-capsule seq-in" id="mainUpgradesBtn" onclick="showUpgradesScreen('main')"><span>TECH TREE</span></button>
       <button class="menu-btn-glass-capsule seq-in" onclick="showShopScreen('start')"><span>GIFTS & SHOP</span></button>
-      <button class="menu-btn-glass-capsule seq-in" onclick="showSettings('start')"><span>SETTINGS</span></button>
     </div>
   </div>
 </div>
@@ -504,49 +503,77 @@
   </div>
 </div>
 
-<!-- Settings Screen -->
-<div class="overlay-screen hidden" id="settingsScreen">
-  <div class="menu-title">SETTINGS</div>
-  <div class="settings-box">
-    <div class="setting-row">
-      <span>Enemy Health Bar</span>
-      <label class="switch">
-        <input type="checkbox" id="settingShowHp" checked onchange="toggleSettingHp(this.checked)">
-        <span class="slider"></span>
-      </label>
+<!-- Settings & Pause Screen -->
+<div class="overlay-screen result-screen hidden" id="settingsScreen">
+  <div class="result-stack">
+    <div class="result-heading seq-in">
+      <div class="result-kicker" id="settingsKicker">Game</div>
+      <div class="result-title" id="settingsTitle">Paused</div>
     </div>
-    <div class="setting-row">
-      <span>Performance Mode</span>
-      <label class="switch">
-        <input type="checkbox" id="settingPerfMode" onchange="toggleSettingPerf(this.checked)">
-        <span class="slider"></span>
-      </label>
+    
+    <!-- 1. Боевые действия (вверху) -->
+    <div class="settings-combat-actions hidden" id="settingsCombatActions">
+      <button class="result-btn result-btn-primary" onclick="closeSettings()"><span>RESUME</span></button>
+      <button class="result-btn" onclick="retryLevel()"><span>RETRY</span></button>
+      <button class="result-btn" onclick="showLevelSelectFromGame()"><span>LEVELS</span></button>
     </div>
-    <div class="setting-row">
-  <span>Vibration</span>
-  <label class="switch">
-    <input type="checkbox" id="settingVibration" checked onchange="toggleSettingVibration(this.checked)">
-    <span class="slider"></span>
-  </label>
-</div>
-    <div class="setting-row setting-row-slider">
-      <div class="setting-slider-head">
-        <span>Music Audio</span>
-        <span class="setting-slider-val" id="musicVolLabel">70%</span>
+
+    <!-- 2. Виджет Loadout (между кнопками и настройками) -->
+    <div class="loadout-anchor" id="loadoutAnchor-pause"></div>
+
+    <!-- 3. Сворачиваемый блок системных настроек -->
+    <div class="settings-collapsible-widget" id="settingsCollapsible">
+      <div class="settings-collapsible-header" onclick="toggleSettingsAccordion()">
+        <span class="settings-collapsible-label">Settings</span>
+        <span class="settings-collapsible-arrow" id="settingsArrow">▾</span>
       </div>
-      <input type="range" class="vol-range" id="settingMusicVol" min="0" max="100" step="5" value="70"
-             oninput="setMusicVolume(this.value)">
-    </div>
-    <div class="setting-row setting-row-slider">
-      <div class="setting-slider-head">
-        <span>Sound Effects</span>
-        <span class="setting-slider-val" id="sfxVolLabel">100%</span>
+
+      <div class="settings-collapsible-body hidden" id="settingsBody">
+        <div class="settings-box">
+          <div class="setting-row">
+            <span>Enemy Health Bar</span>
+            <label class="switch">
+              <input type="checkbox" id="settingShowHp" checked onchange="toggleSettingHp(this.checked)">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="setting-row">
+            <span>Performance Mode</span>
+            <label class="switch">
+              <input type="checkbox" id="settingPerfMode" onchange="toggleSettingPerf(this.checked)">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="setting-row">
+            <span>Vibration</span>
+            <label class="switch">
+              <input type="checkbox" id="settingVibration" checked onchange="toggleSettingVibration(this.checked)">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="setting-row setting-row-slider">
+            <div class="setting-slider-head">
+              <span>Music Audio</span>
+              <span class="setting-slider-val" id="musicVolLabel">70%</span>
+            </div>
+            <input type="range" class="vol-range" id="settingMusicVol" min="0" max="100" step="5" value="70"
+                   oninput="setMusicVolume(this.value)">
+          </div>
+          <div class="setting-row setting-row-slider">
+            <div class="setting-slider-head">
+              <span>Sound Effects</span>
+              <span class="setting-slider-val" id="sfxVolLabel">100%</span>
+            </div>
+            <input type="range" class="vol-range" id="settingSfxVol" min="0" max="100" step="5" value="100"
+                   oninput="setSfxVolume(this.value)">
+          </div>
+        </div>
       </div>
-      <input type="range" class="vol-range" id="settingSfxVol" min="0" max="100" step="5" value="100"
-             oninput="setSfxVolume(this.value)">
     </div>
+
+    <!-- Кнопка Back (когда открыто из главного меню) -->
+    <button class="menu-btn-glass-capsule" id="settingsBackBtn" onclick="closeSettings()"><span>BACK</span></button>
   </div>
-  <button class="menu-btn" onclick="closeSettings()"><span>BACK</span></button>
 </div>
 
 <!-- Levels Selection Screen -->
@@ -582,8 +609,12 @@
 <!-- Shared "Towers Selected" loadout widget -->
 <div class="loadout-widget hidden" id="loadoutWidget">
   <div class="loadout-widget-header" onclick="toggleLoadoutWidgetExpanded()">
-    <span class="loadout-widget-label">Towers Selected <span class="loadout-widget-count" id="loadoutWidgetCount">0/3</span></span>
-    <div class="loadout-widget-mini-icons" id="loadoutWidgetMiniIcons"></div>
+    <span class="loadout-widget-label">TOWERS SELECTED</span>
+    <div class="loadout-widget-right">
+      <div class="loadout-widget-mini-icons" id="loadoutWidgetMiniIcons"></div>
+      <span class="loadout-widget-count hidden" id="loadoutWidgetCount">0/3</span>
+      <span class="loadout-widget-arrow" id="loadoutArrow">▾</span>
+    </div>
   </div>
   <div class="loadout-widget-expanded hidden" id="loadoutWidgetExpanded">
     <div class="loadout-grid" id="loadoutWidgetGrid"></div>
@@ -650,7 +681,6 @@
     <button class="result-btn seq-in seq-d5" id="victoryUpgradesBtn" onclick="showUpgradesScreen('victory')"><span>TECH TREE</span></button>
     <button class="result-btn seq-in seq-d5" onclick="showLevelSelectFromGame()"><span>LEVELS</span></button>
     <button class="result-btn seq-in seq-d6" onclick="showShopScreen('victory')"><span>GIFTS & SHOP</span></button>
-    <button class="result-btn seq-in seq-d6" onclick="showSettings('victory')"><span>SETTINGS</span></button>
 
     <div class="loadout-anchor seq-in seq-d6" id="loadoutAnchor-victory"></div>
   </div>
@@ -679,7 +709,6 @@
     <button class="result-btn seq-in seq-d2" id="defeatUpgradesBtn" onclick="showUpgradesScreen('defeat')"><span>TECH TREE</span></button>
     <button class="result-btn seq-in seq-d2" id="defeatLevelsBtn" onclick="showLevelSelectFromGame()"><span>LEVELS</span></button>
     <button class="result-btn seq-in seq-d3" id="defeatShopBtn" onclick="showShopScreen('defeat')"><span>GIFTS & SHOP</span></button>
-    <button class="result-btn seq-in seq-d3" id="defeatSettingsBtn" onclick="showSettings('defeat')"><span>SETTINGS</span></button>
     <div class="loadout-anchor seq-in seq-d3" id="loadoutAnchor-defeat"></div>
   </div>
 </div>

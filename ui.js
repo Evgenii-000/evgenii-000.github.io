@@ -1489,7 +1489,8 @@ function showStartScreen() {
 
   document.getElementById('econHpSplitBadge').classList.add('hidden');
   document.getElementById('levelWaveSplitBadge').classList.add('hidden');
-  document.getElementById('hudRightGroup').classList.add('hidden');
+  // Правая группа остаётся видимой, чтобы шестерёнка была доступна всегда
+  document.getElementById('hudRightGroup').classList.remove('hidden');
   updateStartChapterLabel(true);
   document.getElementById('controlsWrapper').classList.add('hidden');
 
@@ -1533,18 +1534,117 @@ function updateUpgradeButtonsLock() {
 }
 
 let settingsPreviousSource = 'start';
+let settingsAccordionExpanded = false;
+let devSettingsTapCount = 0;
+let devSettingsTapTimer = null;
+
+function toggleSettingsAccordion(forceState) {
+  if (typeof forceState === 'boolean') {
+    settingsAccordionExpanded = forceState;
+  } else {
+    settingsAccordionExpanded = !settingsAccordionExpanded;
+  }
+
+  const body = document.getElementById('settingsBody');
+  const arrow = document.getElementById('settingsArrow');
+  if (body) {
+    body.classList.toggle('hidden', !settingsAccordionExpanded);
+  }
+  if (arrow) {
+    arrow.textContent = settingsAccordionExpanded ? '▴' : '▾';
+  }
+}
+
+function handleHudSettingsClick() {
+  // 5 быстрых тапов по шестерёнке для переключения Dev-режима
+  devSettingsTapCount++;
+  if (devSettingsTapTimer) clearTimeout(devSettingsTapTimer);
+  devSettingsTapTimer = setTimeout(() => {
+    devSettingsTapCount = 0;
+    devSettingsTapTimer = null;
+  }, 1800);
+
+  if (devSettingsTapCount >= 5) {
+    devSettingsTapCount = 0;
+    if (devMode) {
+      if (typeof closeDevMode === 'function') closeDevMode();
+    } else {
+      if (typeof openDevMode === 'function') openDevMode();
+    }
+  }
+
+  const settingsSc = document.getElementById('settingsScreen');
+  const isSettingsOpen = settingsSc && !settingsSc.classList.contains('hidden');
+
+  // Если окно настроек/паузы уже открыто — повторный клик закрывает его и возвращает в бой/меню
+  if (isSettingsOpen || gameState === 'PAUSED' || gameState === 'SETTINGS') {
+    closeSettings();
+    return;
+  }
+
+  // Если нажато во время боя — ставим на паузу
+  if (gameState === 'PLAYING') {
+    gameState = 'PAUSED';
+    sfxStopBeams();
+    showSettings('combat');
+  } else {
+    // Если нажато в меню (START, LEVELS, UPGRADES, SHOP и т.д.)
+    showSettings(gameState ? gameState.toLowerCase() : 'start');
+  }
+}
 
 function showSettings(fromSource = 'start') {
   settingsPreviousSource = fromSource;
 
-  if (fromSource === 'pause') {
-    document.getElementById('pauseScreen').classList.add('hidden');
-  } else {
-    document.getElementById('startScreen').classList.add('hidden');
-  }
+  // Прячем экран вызова или переводим экраны победы/поражения в фоновый режим,
+  // чтобы настройки отображались поверх них без замыливания
+  const isResultScreen = (fromSource === 'victory' || fromSource === 'defeat');
+  const bgScreenId = fromSource === 'victory' ? 'victoryScreen' 
+    : (fromSource === 'defeat' ? 'defeatScreen' 
+    : (fromSource === 'levels' ? 'levelsScreen' 
+    : (fromSource === 'shop' ? 'shopScreen' 
+    : (fromSource === 'upgrades' ? 'upgradesScreen' : 'startScreen'))));
 
-  document.getElementById('settingsScreen').classList.remove('hidden');
-  gameState = 'SETTINGS';
+  ['startScreen', 'victoryScreen', 'defeatScreen', 'levelsScreen', 'shopScreen', 'upgradesScreen']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('screen-bg-only');
+      if (id === bgScreenId && isResultScreen) {
+        el.classList.remove('hidden');
+        el.classList.add('screen-bg-only');
+      } else if (id === bgScreenId) {
+        el.classList.add('hidden');
+      }
+    });
+
+  const settingsSc = document.getElementById('settingsScreen');
+  if (settingsSc) settingsSc.classList.remove('hidden');
+  const hudRightGroup = document.getElementById('hudRightGroup');
+  if (hudRightGroup) hudRightGroup.classList.remove('hidden');
+
+  const kickerEl = document.getElementById('settingsKicker');
+  const titleEl = document.getElementById('settingsTitle');
+  const combatActions = document.getElementById('settingsCombatActions');
+  const backBtn = document.getElementById('settingsBackBtn');
+  const loadoutAnchor = document.getElementById('loadoutAnchor-pause');
+
+  if (fromSource === 'combat') {
+    if (kickerEl) kickerEl.textContent = 'Game';
+    if (titleEl) titleEl.textContent = 'Paused';
+    if (combatActions) combatActions.classList.remove('hidden');
+    if (backBtn) backBtn.classList.add('hidden');
+    if (loadoutAnchor) loadoutAnchor.classList.remove('hidden');
+    showLoadoutWidgetIn('loadoutAnchor-pause');
+    toggleSettingsAccordion(false); // В бою настройки свёрнуты под Loadout
+  } else {
+    if (kickerEl) kickerEl.textContent = 'Game';
+    if (titleEl) titleEl.textContent = 'Settings';
+    if (combatActions) combatActions.classList.add('hidden');
+    if (backBtn) backBtn.classList.remove('hidden');
+    if (loadoutAnchor) loadoutAnchor.classList.add('hidden');
+    toggleSettingsAccordion(true); // В меню настройки открыты сразу
+  }
 
   const hpCheckbox = document.getElementById('settingShowHp');
   if (hpCheckbox) hpCheckbox.checked = !!settings.showEnemyHp;
@@ -1557,19 +1657,40 @@ function showSettings(fromSource = 'start') {
 }
 
 function closeSettings() {
-  document.getElementById('settingsScreen').classList.add('hidden');
+  const settingsSc = document.getElementById('settingsScreen');
+  if (settingsSc) settingsSc.classList.add('hidden');
 
-  if (settingsPreviousSource === 'pause') {
-    document.getElementById('pauseScreen').classList.remove('hidden');
-    gameState = 'PAUSED';
+  ['startScreen', 'victoryScreen', 'defeatScreen'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('screen-bg-only');
+  });
+
+  if (settingsPreviousSource === 'combat') {
+    gameState = 'PLAYING';
+    lastTime = performance.now();
   } else if (settingsPreviousSource === 'victory') {
-    document.getElementById('victoryScreen').classList.remove('hidden');
+    const scr = document.getElementById('victoryScreen');
+    if (scr) scr.classList.remove('hidden');
     gameState = 'VICTORY';
   } else if (settingsPreviousSource === 'defeat') {
-    document.getElementById('defeatScreen').classList.remove('hidden');
+    const scr = document.getElementById('defeatScreen');
+    if (scr) scr.classList.remove('hidden');
     gameState = 'DEFEAT';
+  } else if (settingsPreviousSource === 'levels') {
+    const scr = document.getElementById('levelsScreen');
+    if (scr) scr.classList.remove('hidden');
+    gameState = 'LEVELS';
+  } else if (settingsPreviousSource === 'upgrades') {
+    const scr = document.getElementById('upgradesScreen');
+    if (scr) scr.classList.remove('hidden');
+    gameState = 'UPGRADES';
+  } else if (settingsPreviousSource === 'shop') {
+    const scr = document.getElementById('shopScreen');
+    if (scr) scr.classList.remove('hidden');
+    gameState = 'SHOP';
   } else {
-    document.getElementById('startScreen').classList.remove('hidden');
+    const scr = document.getElementById('startScreen');
+    if (scr) scr.classList.remove('hidden');
     gameState = 'START';
     music('menu');
   }
@@ -1643,7 +1764,7 @@ function showLevelSelect() {
   document.getElementById('levelsScreen').classList.remove('hidden');
   document.getElementById('econHpSplitBadge').classList.add('hidden');
   document.getElementById('levelWaveSplitBadge').classList.add('hidden');
-  document.getElementById('hudRightGroup').classList.add('hidden');
+  document.getElementById('hudRightGroup').classList.remove('hidden');
   updateStartChapterLabel(false);
   document.getElementById('controlsWrapper').classList.add('hidden');
 
@@ -1662,16 +1783,31 @@ function showLevelSelect() {
 function showLevelSelectFromGame() {
   music('menu');
   if (reviveTimerInterval) { clearInterval(reviveTimerInterval); reviveTimerInterval = null; }
-  document.getElementById('pauseScreen').classList.add('hidden');
-  document.getElementById('victoryScreen').classList.add('hidden');
-  document.getElementById('defeatScreen').classList.add('hidden');
-  document.getElementById('upgradesScreen').classList.add('hidden');
+
+  // Скрываем экран настроек/паузы, поверх которого был вызов
+  const settingsSc = document.getElementById('settingsScreen');
+  if (settingsSc) settingsSc.classList.add('hidden');
+
+  ['startScreen', 'victoryScreen', 'defeatScreen'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('screen-bg-only');
+  });
+
+  const pauseSc = document.getElementById('pauseScreen');
+  if (pauseSc) pauseSc.classList.add('hidden');
+  const vicSc = document.getElementById('victoryScreen');
+  if (vicSc) vicSc.classList.add('hidden');
+  const defSc = document.getElementById('defeatScreen');
+  if (defSc) defSc.classList.add('hidden');
+  const upgSc = document.getElementById('upgradesScreen');
+  if (upgSc) upgSc.classList.add('hidden');
   const revSc = document.getElementById('reviveScreen');
   if (revSc) revSc.classList.add('hidden');
+
   document.getElementById('levelsScreen').classList.remove('hidden');
   document.getElementById('econHpSplitBadge').classList.add('hidden');
   document.getElementById('levelWaveSplitBadge').classList.add('hidden');
-  document.getElementById('hudRightGroup').classList.add('hidden');
+  document.getElementById('hudRightGroup').classList.remove('hidden');
   updateStartChapterLabel(false);
   document.getElementById('controlsWrapper').classList.add('hidden');
 
@@ -1680,7 +1816,7 @@ function showLevelSelectFromGame() {
 
   const customSpawner = document.getElementById('devCustomSpawner');
   if (customSpawner) customSpawner.classList.add('hidden');
-
+  
   currentLevelSection = Math.min(TOTAL_SECTIONS, Math.max(1, Math.ceil(currentLevel / LEVELS_PER_SECTION)));
   renderLevelsGrid();
   showLoadoutWidgetIn('loadoutAnchor-levels');
@@ -1739,6 +1875,8 @@ function showLoadoutWidgetIn(anchorId) {
   anchor.appendChild(widget);
   widget.classList.remove('hidden');
   loadoutWidgetExpanded = false;
+  const arrow = document.getElementById('loadoutArrow');
+  if (arrow) arrow.textContent = '▾';
   renderLoadoutWidgetBody();
 }
 
@@ -1748,19 +1886,26 @@ function toggleLoadoutWidgetExpanded() {
     // При сворачивании селектора восстанавливаем слот, если выбор не был завершён
     refreshLoadoutForProgress();
   }
+  const arrow = document.getElementById('loadoutArrow');
+  if (arrow) {
+    arrow.textContent = loadoutWidgetExpanded ? '▴' : '▾';
+  }
   renderLoadoutWidgetBody();
 }
 
 function renderLoadoutWidgetBody() {
   const miniIcons = document.getElementById('loadoutWidgetMiniIcons');
   const expandedBox = document.getElementById('loadoutWidgetExpanded');
-  if (!miniIcons || !expandedBox) return;
-
   const countEl = document.getElementById('loadoutWidgetCount');
+
   if (countEl) {
     countEl.textContent = `${selectedLoadout.length}/${LOADOUT_SIZE}`;
     countEl.classList.toggle('is-full', selectedLoadout.length >= LOADOUT_SIZE);
+    // Счётчик виден ТОЛЬКО при раскрытом меню
+    countEl.classList.toggle('hidden', !loadoutWidgetExpanded);
   }
+
+  if (!miniIcons || !expandedBox) return;
 
   if (loadoutWidgetExpanded) {
     miniIcons.innerHTML = '';

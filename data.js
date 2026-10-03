@@ -3339,6 +3339,9 @@ const LEVELS_DATA = {
   },
   "31": {
     "mapId": "L31",
+    "startHp": 10,
+    "canUpgrade": true,
+    "unlockedTowers": ["gun", "laser", "mortar", "tesla", "stasis", "melter"],
     "totalWaves": 10,
     "startGold": 190,
     "waves": [
@@ -3354,9 +3357,11 @@ const LEVELS_DATA = {
       { "wave": 10, "delayAfter": 0, "earlyBonus": 0, "spawns": [ { "type": "goliath", "count": 1, "hp": 18000, "hpMult": 45.0, "speed": 30, "speedMult": 0.75, "interval": 1.0, "bounty": 320, "bountyMult": 16.0, "isBoss": false, "isMiniBoss": true } ] }
     ]
   },
-
   "32": {
     "mapId": "L32",
+    "startHp": 10,
+    "canUpgrade": true,
+    "unlockedTowers": ["gun", "laser", "mortar", "tesla", "stasis", "melter"],
     "totalWaves": 10,
     "startGold": 200,
     "waves": [
@@ -3372,9 +3377,11 @@ const LEVELS_DATA = {
       { "wave": 10, "delayAfter": 0, "earlyBonus": 0, "spawns": [ { "type": "goliath", "count": 2, "hp": 5040, "hpMult": 12.6, "speed": 34, "speedMult": 0.85, "interval": 2.2, "bounty": 60, "bountyMult": 3.0, "isBoss": false, "isMiniBoss": false }, { "type": "scout", "count": 1, "hp": 12400, "hpMult": 413.3, "speed": 105, "speedMult": 0.95, "interval": 1.0, "bounty": 260, "bountyMult": 43.3, "isBoss": false, "isMiniBoss": true } ] }
     ]
   },
-
   "33": {
     "mapId": "L33",
+    "startHp": 10,
+    "canUpgrade": true,
+    "unlockedTowers": ["gun", "laser", "mortar", "tesla", "stasis", "melter"],
     "totalWaves": 11,
     "startGold": 210,
     "waves": [
@@ -3391,9 +3398,11 @@ const LEVELS_DATA = {
       { "wave": 11, "delayAfter": 0, "earlyBonus": 0, "spawns": [ { "type": "tank", "count": 1, "hp": 23600, "hpMult": 118.0, "speed": 35, "speedMult": 0.92, "interval": 1.0, "bounty": 420, "bountyMult": 28.0, "isBoss": false, "isMiniBoss": true } ] }
     ]
   },
-
   "34": {
     "mapId": "L34",
+    "startHp": 10,
+    "canUpgrade": true,
+    "unlockedTowers": ["gun", "laser", "mortar", "tesla", "stasis", "melter"],
     "totalWaves": 11,
     "startGold": 220,
     "waves": [
@@ -3407,16 +3416,17 @@ const LEVELS_DATA = {
       { "wave": 8, "delayAfter": 10, "earlyBonus": 75, "spawns": [ { "type": "swarm", "count": 36, "hp": 340, "hpMult": 22.7, "speed": 170, "speedMult": 1.0, "interval": 0.15, "bounty": 6, "bountyMult": 3.0, "isBoss": false, "isMiniBoss": false } ] },
       { "wave": 9, "delayAfter": 15, "earlyBonus": 75, "spawns": [ { "type": "tank", "count": 6, "hp": 2920, "hpMult": 14.6, "speed": 38, "speedMult": 1.0, "interval": 1.5, "bounty": 32, "bountyMult": 2.1, "isBoss": false, "isMiniBoss": false }, { "type": "scout", "count": 12, "hp": 680, "hpMult": 22.7, "speed": 110, "speedMult": 1.0, "interval": 0.40, "bounty": 11, "bountyMult": 1.8, "isBoss": false, "isMiniBoss": false } ] },
       { "wave": 10, "delayAfter": 15, "earlyBonus": 75, "spawns": [ { "type": "goliath", "count": 3, "hp": 6160, "hpMult": 15.4, "speed": 34, "speedMult": 0.85, "interval": 2.0, "bounty": 60, "bountyMult": 3.0, "isBoss": false, "isMiniBoss": false }, { "type": "blinker", "count": 5, "hp": 2480, "hpMult": 24.8, "speed": 65, "speedMult": 1.0, "interval": 1.3, "bounty": 35, "bountyMult": 2.3, "isBoss": false, "isMiniBoss": false } ] },
-      // 34 Мини-босс: 2 пачки по 6 мобов Swarm повышенной плотности (всего 12 мобов по 3800 HP)
       { "wave": 11, "delayAfter": 0, "earlyBonus": 0, "spawns": [
         { "type": "swarm", "count": 6, "hp": 3800, "hpMult": 253.3, "speed": 145, "speedMult": 0.85, "interval": 0.35, "bounty": 38, "bountyMult": 19.0, "isBoss": false, "isMiniBoss": true },
         { "type": "swarm", "count": 6, "hp": 3800, "hpMult": 253.3, "speed": 145, "speedMult": 0.85, "interval": 0.35, "bounty": 38, "bountyMult": 19.0, "isBoss": false, "isMiniBoss": true }
       ] }
     ]
   },
-
   "35": {
     "mapId": "L35",
+    "startHp": 10,
+    "canUpgrade": true,
+    "unlockedTowers": ["gun", "laser", "mortar", "tesla", "stasis", "melter"],
     "totalWaves": 11,
     "startGold": 230,
     "waves": [
@@ -3433,9 +3443,11 @@ const LEVELS_DATA = {
       { "wave": 11, "delayAfter": 0, "earlyBonus": 0, "spawns": [ { "type": "goliath", "count": 1, "hp": 26800, "hpMult": 67.0, "speed": 30, "speedMult": 0.75, "interval": 1.0, "bounty": 480, "bountyMult": 24.0, "isBoss": false, "isMiniBoss": true } ] }
     ]
   },
-
   "36": {
     "mapId": "L36",
+    "startHp": 10,
+    "canUpgrade": true,
+    "unlockedTowers": ["gun", "laser", "mortar", "tesla", "stasis", "melter"],
     "totalWaves": 12,
     "startGold": 240,
     "waves": [
@@ -3453,9 +3465,11 @@ const LEVELS_DATA = {
       { "wave": 12, "delayAfter": 0, "earlyBonus": 0, "spawns": [ { "type": "blinker", "count": 1, "hp": 30400, "hpMult": 304.0, "speed": 60, "speedMult": 0.92, "interval": 1.0, "bounty": 520, "bountyMult": 34.7, "isBoss": false, "isMiniBoss": true } ] }
     ]
   },
-
   "37": {
     "mapId": "L37",
+    "startHp": 10,
+    "canUpgrade": true,
+    "unlockedTowers": ["gun", "laser", "mortar", "tesla", "stasis", "melter"],
     "totalWaves": 12,
     "startGold": 250,
     "waves": [
@@ -3470,13 +3484,14 @@ const LEVELS_DATA = {
       { "wave": 9, "delayAfter": 15, "earlyBonus": 85, "spawns": [ { "type": "tank", "count": 6, "hp": 3480, "hpMult": 17.4, "speed": 38, "speedMult": 1.0, "interval": 1.5, "bounty": 36, "bountyMult": 2.4, "isBoss": false, "isMiniBoss": false }, { "type": "grunt", "count": 14, "hp": 1000, "hpMult": 25.0, "speed": 55, "speedMult": 1.0, "interval": 0.52, "bounty": 14, "bountyMult": 2.0, "isBoss": false, "isMiniBoss": false } ] },
       { "wave": 10, "delayAfter": 15, "earlyBonus": 85, "spawns": [ { "type": "goliath", "count": 3, "hp": 8120, "hpMult": 20.3, "speed": 34, "speedMult": 0.85, "interval": 2.0, "bounty": 70, "bountyMult": 3.5, "isBoss": false, "isMiniBoss": false }, { "type": "scout", "count": 16, "hp": 900, "hpMult": 30.0, "speed": 110, "speedMult": 1.0, "interval": 0.38, "bounty": 13, "bountyMult": 2.2, "isBoss": false, "isMiniBoss": false } ] },
       { "wave": 11, "delayAfter": 14, "earlyBonus": 90, "spawns": [ { "type": "blinker", "count": 6, "hp": 2920, "hpMult": 29.2, "speed": 65, "speedMult": 1.0, "interval": 1.3, "bounty": 38, "bountyMult": 2.5, "isBoss": false, "isMiniBoss": false }, { "type": "swarm", "count": 36, "hp": 480, "hpMult": 32.0, "speed": 170, "speedMult": 1.0, "interval": 0.15, "bounty": 7, "bountyMult": 3.5, "isBoss": false, "isMiniBoss": false } ] },
-      // 37 Мини-босс: Hive Empress (большой ромб со спавном Swarm из 20-го уровня)
       { "wave": 12, "delayAfter": 0, "earlyBonus": 0, "spawns": [ { "type": "hive_empress", "count": 1, "hp": 40000, "hpMult": 333.3, "speed": 32, "speedMult": 0.80, "interval": 1.0, "bounty": 600, "bountyMult": 30.0, "isBoss": false, "isMiniBoss": true } ] }
     ]
   },
-
   "38": {
     "mapId": "L38",
+    "startHp": 10,
+    "canUpgrade": true,
+    "unlockedTowers": ["gun", "laser", "mortar", "tesla", "stasis", "melter"],
     "totalWaves": 12,
     "startGold": 165,
     "waves": [
@@ -3494,9 +3509,11 @@ const LEVELS_DATA = {
       { "wave": 12, "delayAfter": 0, "earlyBonus": 0, "spawns": [ { "type": "scout", "count": 1, "hp": 32400, "hpMult": 1080.0, "speed": 110, "speedMult": 1.0, "interval": 1.0, "bounty": 600, "bountyMult": 100.0, "isBoss": false, "isMiniBoss": true } ] }
     ]
   },
-
   "39": {
     "mapId": "L39",
+    "startHp": 10,
+    "canUpgrade": true,
+    "unlockedTowers": ["gun", "laser", "mortar", "tesla", "stasis", "melter"],
     "totalWaves": 13,
     "startGold": 270,
     "waves": [
@@ -3515,9 +3532,11 @@ const LEVELS_DATA = {
       { "wave": 13, "delayAfter": 0, "earlyBonus": 0, "spawns": [ { "type": "tank", "count": 1, "hp": 64000, "hpMult": 320.0, "speed": 35, "speedMult": 0.92, "interval": 1.0, "bounty": 750, "bountyMult": 50.0, "isBoss": false, "isMiniBoss": true } ] }
     ]
   },
-
   "40": {
     "mapId": "L40",
+    "startHp": 10,
+    "canUpgrade": true,
+    "unlockedTowers": ["gun", "laser", "mortar", "tesla", "stasis", "melter"],
     "totalWaves": 13,
     "startGold": 280,
     "waves": [

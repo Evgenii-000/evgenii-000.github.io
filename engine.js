@@ -737,35 +737,9 @@ function nextLevel() {
 
 function retryLevel() { reallyStartLevel(currentLevel); }
 
-let devPauseClicks = 0;
-let devPauseClickTimer = null;
-
 function togglePause() {
-  devPauseClicks++;
-  if (devPauseClickTimer) clearTimeout(devPauseClickTimer);
-  devPauseClickTimer = setTimeout(() => {
-    devPauseClicks = 0;
-    devPauseClickTimer = null;
-  }, 1800);
-
-  // Ровно 5 нажатий открывают дев-мод
-  if (devPauseClicks >= 5) {
-    devPauseClicks = 0;
-    if (typeof openDevMode === 'function') {
-      openDevMode();
-    }
-  }
-
-  if (gameState !== 'PLAYING' && gameState !== 'PAUSED') return;
-  if (gameState === 'PLAYING') {
-    gameState = 'PAUSED';
-    sfxStopBeams();
-    document.getElementById('pauseScreen').classList.remove('hidden');
-    showLoadoutWidgetIn('loadoutAnchor-pause');
-  } else {
-    gameState = 'PLAYING';
-    document.getElementById('pauseScreen').classList.add('hidden');
-    lastTime = performance.now();
+  if (typeof handleHudSettingsClick === 'function') {
+    handleHudSettingsClick();
   }
 }
 
@@ -778,42 +752,50 @@ function forcePauseForBackground() {
   }
   if (gameState === 'PLAYING') {
     gameState = 'PAUSED';
-    document.getElementById('pauseScreen').classList.remove('hidden');
-    showLoadoutWidgetIn('loadoutAnchor-pause');
+    if (typeof showSettings === 'function') {
+      showSettings('combat');
+    }
   }
   saveGame();
 }
 
 function handleHardwareBack() {
-  const upgradesEl = document.getElementById('upgradesScreen');
   const settingsEl = document.getElementById('settingsScreen');
-  const levelsEl = document.getElementById('levelsScreen');
-  const shopEl = document.getElementById('shopScreen');
-  if (shopEl && !shopEl.classList.contains('hidden')) {
-    closeShopScreen();
+  if (settingsEl && !settingsEl.classList.contains('hidden')) {
+    if (typeof closeSettings === 'function') closeSettings();
     return;
   }
 
+  const shopEl = document.getElementById('shopScreen');
+  if (shopEl && !shopEl.classList.contains('hidden')) {
+    if (typeof closeShopScreen === 'function') closeShopScreen();
+    return;
+  }
+
+  const upgradesEl = document.getElementById('upgradesScreen');
   if (upgradesEl && !upgradesEl.classList.contains('hidden')) {
-    closeUpgradesScreen();
+    if (typeof closeUpgradesScreen === 'function') closeUpgradesScreen();
     return;
   }
-  if (settingsEl && !settingsEl.classList.contains('hidden')) {
-    closeSettings();
-    return;
-  }
-  if (gameState === 'PAUSED') {
-    togglePause();
-    return;
-  }
-  if (gameState === 'PLAYING') {
-    togglePause();
-    return;
-  }
+
+  const levelsEl = document.getElementById('levelsScreen');
   if (levelsEl && !levelsEl.classList.contains('hidden')) {
     showStartScreen();
     return;
   }
+
+  if (gameState === 'PAUSED') {
+    if (typeof closeSettings === 'function') closeSettings();
+    return;
+  }
+
+  if (gameState === 'PLAYING') {
+    if (typeof handleHudSettingsClick === 'function') {
+      handleHudSettingsClick();
+    }
+    return;
+  }
+
   if (gameState === 'START' && window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App && typeof window.Capacitor.Plugins.App.exitApp === 'function') {
     window.Capacitor.Plugins.App.exitApp();
   }
@@ -1968,16 +1950,25 @@ function showLevelSelect() {
 function showLevelSelectFromGame() {
   music('menu');
   if (reviveTimerInterval) { clearInterval(reviveTimerInterval); reviveTimerInterval = null; }
-  document.getElementById('pauseScreen').classList.add('hidden');
-  document.getElementById('victoryScreen').classList.add('hidden');
-  document.getElementById('defeatScreen').classList.add('hidden');
-  document.getElementById('upgradesScreen').classList.add('hidden');
+
+  const settingsSc = document.getElementById('settingsScreen');
+  if (settingsSc) settingsSc.classList.add('hidden');
+
+  const pauseSc = document.getElementById('pauseScreen');
+  if (pauseSc) pauseSc.classList.add('hidden');
+  const vicSc = document.getElementById('victoryScreen');
+  if (vicSc) vicSc.classList.add('hidden');
+  const defSc = document.getElementById('defeatScreen');
+  if (defSc) defSc.classList.add('hidden');
+  const upgSc = document.getElementById('upgradesScreen');
+  if (upgSc) upgSc.classList.add('hidden');
   const revSc = document.getElementById('reviveScreen');
   if (revSc) revSc.classList.add('hidden');
+
   document.getElementById('levelsScreen').classList.remove('hidden');
   document.getElementById('econHpSplitBadge').classList.add('hidden');
   document.getElementById('levelWaveSplitBadge').classList.add('hidden');
-  document.getElementById('hudRightGroup').classList.add('hidden');
+  document.getElementById('hudRightGroup').classList.remove('hidden');
   updateStartChapterLabel(false);
   document.getElementById('controlsWrapper').classList.add('hidden');
 
