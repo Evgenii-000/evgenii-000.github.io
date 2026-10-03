@@ -1687,6 +1687,41 @@ function showLevelSelectFromGame() {
   gameState = 'LEVELS';
 }
 
+function refreshLoadoutForProgress() {
+  const highestLvl = Math.max(maxUnlockedLevel || 1, currentLevel || 1);
+  const loadoutStart = getLoadoutStartLevel(); // 11
+  const availableTowers = (typeof getPlayerUnlockedTowers === 'function')
+    ? getPlayerUnlockedTowers()
+    : ['gun'];
+
+  // До 11 уровня лодаута нет — в набор идут все открытые на данный момент башни
+  if (highestLvl < loadoutStart) {
+    selectedLoadout = availableTowers.slice(0, LOADOUT_SIZE);
+    return;
+  }
+
+  // Если лодаут открыт (L11+): фильтруем сохранённые башни по реально открытым игроком
+  let valid = Array.isArray(selectedLoadout)
+    ? selectedLoadout.filter(t => availableTowers.includes(t))
+    : [];
+
+  // Если уже выбрано ровно LOADOUT_SIZE башен — ни в коем случае не трогаем выбор игрока!
+  if (valid.length === LOADOUT_SIZE) {
+    selectedLoadout = valid;
+    return;
+  }
+
+  // Если слотов не хватает (например, только открылся 11 уровень или сняли башню) —
+  // добираем недостающие из открытых
+  for (const t of availableTowers) {
+    if (valid.length >= LOADOUT_SIZE) break;
+    if (!valid.includes(t)) valid.push(t);
+  }
+
+  selectedLoadout = valid.slice(0, LOADOUT_SIZE);
+  saveGameSoon();
+}
+
 let loadoutWidgetExpanded = false;
 
 function showLoadoutWidgetIn(anchorId) {
@@ -1709,6 +1744,10 @@ function showLoadoutWidgetIn(anchorId) {
 
 function toggleLoadoutWidgetExpanded() {
   loadoutWidgetExpanded = !loadoutWidgetExpanded;
+  if (!loadoutWidgetExpanded) {
+    // При сворачивании селектора восстанавливаем слот, если выбор не был завершён
+    refreshLoadoutForProgress();
+  }
   renderLoadoutWidgetBody();
 }
 
@@ -1741,8 +1780,10 @@ function renderLoadoutWidgetBody() {
 function renderLoadoutWidgetGrid() {
   const grid = document.getElementById('loadoutWidgetGrid');
   if (!grid) return;
-  const ref = Math.min(getLoadoutReferenceLevel(), TOTAL_LEVELS);
-  const pool = (LEVELS_DATA[ref] && LEVELS_DATA[ref].unlockedTowers) ? LEVELS_DATA[ref].unlockedTowers : ['gun'];
+  // Показываем ВСЕ башни, которые игрок успел открыть по своему прогрессу
+  const pool = (typeof getPlayerUnlockedTowers === 'function')
+    ? getPlayerUnlockedTowers()
+    : ['gun'];
 
   const isFull = selectedLoadout.length >= LOADOUT_SIZE;
   grid.innerHTML = '';
@@ -2425,7 +2466,8 @@ function updateInspectUI() {
   if (!selectedTower) return;
   const t = selectedTower;
   const lvlConfig = LEVELS_DATA[currentLevel];
-  const canUpgradeLevel = !lvlConfig || lvlConfig.canUpgrade !== false;
+  const isL1FirstTime = (currentLevel === 1 && !hasClearedLevelBefore(1) && !devMode);
+  const canUpgradeLevel = (!lvlConfig || lvlConfig.canUpgrade !== false) && !isL1FirstTime;
 
   const iconBox = document.getElementById('inspectIconBox');
   if (iconBox) {

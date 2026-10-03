@@ -44,11 +44,9 @@ function hasClearedLevelBefore(lvl) {
   return maxUnlockedLevel > lvl;
 }
 
-const MINIBOSS_BASE_DAMAGE_TIER_LEVEL = 21;
-const BOSS_BASE_DAMAGE_TIER_LEVEL = 30;
 function getBaseDamageFor(e) {
-  if (e.isBoss) return currentLevel >= BOSS_BASE_DAMAGE_TIER_LEVEL ? 10 : 5;
-  if (e.isMiniBoss) return currentLevel >= MINIBOSS_BASE_DAMAGE_TIER_LEVEL ? 4 : 2;
+  if (e.isBoss) return 5;
+  if (e.isMiniBoss) return 2;
   return 1;
 }
 
@@ -183,6 +181,7 @@ let waveSpawnElapsedTime = 0;
 let victoryDelayTimer = 0;
 
 let selectedLoadout = [];
+let activeBattleLoadout = [];
 const LOADOUT_SIZE = 3;
 
 let draggingTower = null;
@@ -517,23 +516,47 @@ function getTowerUnlockLevel(type) {
   return 1;
 }
 
+function getPlayerUnlockedTowers() {
+  if (devMode) return Object.keys(TOWER_CONFIGS);
+  const highestLvl = Math.max(maxUnlockedLevel || 1, currentLevel || 1);
+  const canonical = Object.keys(TOWER_CONFIGS);
+  return canonical.filter(t => getTowerUnlockLevel(t) <= highestLvl);
+}
+
 function getBuildPanelPool(lvl) {
   if (devMode) return Object.keys(TOWER_CONFIGS);
-  const loadoutStart = getLoadoutStartLevel();
-  if (lvl < loadoutStart) {
-    const priorLvl = loadoutStart - 1;
-    return (LEVELS_DATA[priorLvl] && LEVELS_DATA[priorLvl].unlockedTowers)
-      ? LEVELS_DATA[priorLvl].unlockedTowers.slice() : ['gun'];
+  const highestLvl = Math.max(maxUnlockedLevel || 1, lvl || 1);
+  const loadoutStart = getLoadoutStartLevel(); // 11
+
+  // Если игрок в принципе еще не дошел до 11 уровня (ранняя игра) —
+  // даем ему ровно те башни, которые он успел открыть (от 1 до 3 штук)
+  if (highestLvl < loadoutStart) {
+    return getPlayerUnlockedTowers();
   }
-  return selectedLoadout.slice();
+
+  // Если игрок дошел до 11 уровня и выше — на ЛЮБОМ уровне используются
+  // башни из его зафиксированного боевого лодаута
+  const pool = (activeBattleLoadout && activeBattleLoadout.length > 0)
+    ? activeBattleLoadout
+    : selectedLoadout;
+  return (pool && pool.length > 0) ? pool.slice() : ['gun'];
 }
 
 function isTowerActiveThisLevel(type) {
   if (devMode) return true;
-  const lvlConfig = LEVELS_DATA[currentLevel];
-  const trueUnlocked = (lvlConfig && lvlConfig.unlockedTowers) ? lvlConfig.unlockedTowers : Object.keys(TOWER_CONFIGS);
-  if (currentLevel < getLoadoutStartLevel()) return trueUnlocked.includes(type);
-  return selectedLoadout.includes(type) && trueUnlocked.includes(type);
+  const highestLvl = Math.max(maxUnlockedLevel || 1, currentLevel || 1);
+  const loadoutStart = getLoadoutStartLevel();
+
+  // До 11 уровня: активны только те башни, которые игрок уже открыл
+  if (highestLvl < loadoutStart) {
+    return getPlayerUnlockedTowers().includes(type);
+  }
+
+  // После 11 уровня: активны ровно те башни, которые выбраны в лодаут
+  const pool = (activeBattleLoadout && activeBattleLoadout.length > 0)
+    ? activeBattleLoadout
+    : selectedLoadout;
+  return pool.includes(type);
 }
 
 function computeDefaultLoadout(lvl, pool) {
@@ -542,14 +565,29 @@ function computeDefaultLoadout(lvl, pool) {
     ? LEVELS_DATA[prevLvl].unlockedTowers : [];
   const newlyUnlocked = pool.filter(t => !prevPool.includes(t));
 
-  let picks = selectedLoadout.filter(t => pool.includes(t));
-  newlyUnlocked.forEach(t => { if (!picks.includes(t)) picks.unshift(t); });
-  picks = picks.slice(0, LOADOUT_SIZE);
+  // Базовый набор из уже выбранных башен (или сохраняем предыдущие разблокированные)
+  let picks = (selectedLoadout && selectedLoadout.length > 0)
+    ? selectedLoadout.filter(t => pool.includes(t))
+    : prevPool.slice(0, LOADOUT_SIZE);
 
+  // Новая башня заменяет только последний свободный слот, либо добавляется в конец
+  newlyUnlocked.forEach(t => {
+    if (!picks.includes(t)) {
+      if (picks.length < LOADOUT_SIZE) {
+        picks.push(t);
+      } else {
+        // Если слоты полные, заменяем последний слот, сохраняя Gatling (gun) на 1-м месте
+        picks[LOADOUT_SIZE - 1] = t;
+      }
+    }
+  });
+
+  // Дозаполняем слоты до ровно LOADOUT_SIZE башен
   for (const t of pool) {
     if (picks.length >= LOADOUT_SIZE) break;
     if (!picks.includes(t)) picks.push(t);
   }
+
   return { picks: picks.slice(0, LOADOUT_SIZE), newlyUnlocked };
 }
 
@@ -584,6 +622,17 @@ function startSpecificLevel(lvl) {
 }
 
 function reallyStartLevel(lvl) {
+	// Сброс анимации дорожки для нового боя:
+  if (typeof battleStartedOnce !== 'undefined') battleStartedOnce = false;
+  if (typeof battlePathAlpha !== 'undefined') battlePathAlpha = 1.0;
+  
+  // Убеждаемся, что лодаут игрока валиден перед новым боем
+  if (typeof refreshLoadoutForProgress === 'function') {
+    refreshLoadoutForProgress();
+  }
+  // ФИКСИРУЕМ башни для ЭТОГО боя (снимок не изменится при смене лодаута в паузе)
+  activeBattleLoadout = selectedLoadout.slice();
+  
   if (reviveTimerInterval) { clearInterval(reviveTimerInterval); reviveTimerInterval = null; }
   music('battle');
   currentLevel = lvl;
@@ -1224,6 +1273,8 @@ function getUpgradeCost(towerOrType, level) {
 function upgradeSelectedTower() {
   const lvlConfig = LEVELS_DATA[currentLevel];
   if (lvlConfig && lvlConfig.canUpgrade === false) return;
+  // На L1 апгрейды заблокированы только если игрок проходит его впервые
+  if (currentLevel === 1 && !hasClearedLevelBefore(1) && !devMode) return;
   if (!selectedTower || selectedTower.level >= 3) return;
   const cost = getUpgradeCost(selectedTower.type, selectedTower.level);
   if (gold >= cost) {
