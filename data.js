@@ -1,3 +1,7 @@
+// data.js v1.9 — L31-L40 HP x2 (per-mob hp and hpMult; counts unchanged, so
+// wave/level total HP also doubles). Applied after LEVELS_DATA is built so
+// hand-authored spawn numbers stay readable in the source block.
+//
 // data.js v1.8 — requirements.md pass (in-match physics, meta gating, early-call):
 // - Block 4a: Removed splashResist (swarm) and flatArmor (goliath/titan_core/
 //   emp_overlord) entirely from ENEMY_CONFIGS and the two hard-coded boss spawn
@@ -6681,6 +6685,18 @@ const LEVELS_DATA = {
     ]
   }
 };
+for (let lvl = 31; lvl <= 40; lvl++) {
+  const level = LEVELS_DATA[lvl];
+  if (!level || !Array.isArray(level.waves)) continue;
+  for (const wave of level.waves) {
+    const spawns = wave && wave.spawns;
+    if (!Array.isArray(spawns)) continue;
+    for (const spawn of spawns) {
+      if (typeof spawn.hp === 'number') spawn.hp = Math.round(spawn.hp * 2);
+      if (typeof spawn.hpMult === 'number') spawn.hpMult *= 2;
+    }
+  }
+}
 for (let lvl = 5; lvl <= 10; lvl++) {
   LEVELS_DATA[lvl].unlockedTowers = ['gun', 'laser', 'mortar'];
 }

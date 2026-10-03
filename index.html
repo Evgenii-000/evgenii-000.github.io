@@ -1,4 +1,6 @@
-<!-- Version: v2.12.0 -->
+<!-- Version: v2.12.2 -->
+<!-- Changelog v2.12.2: Show Damage toggle in Settings next to Enemy Health Bar. -->
+<!-- Changelog v2.12.1: hide enemy HP digits; floating damage numbers on hit. -->
 <!-- Changelog v2.12.0: volume sliders, diagnostics, perf + test fixes. -->
 <!-- - Sound and Music on/off switches replaced by volume sliders (0-100%, 0 -->
 <!--   shows as OFF and mutes). One control covers both "quieter" and "off". -->
@@ -511,11 +513,12 @@
       <div class="result-title" id="settingsTitle">Paused</div>
     </div>
     
-    <!-- 1. Боевые действия (вверху) -->
+<!-- Боевые кнопки при вызове из матча -->
     <div class="settings-combat-actions hidden" id="settingsCombatActions">
       <button class="result-btn result-btn-primary" onclick="closeSettings()"><span>RESUME</span></button>
       <button class="result-btn" onclick="retryLevel()"><span>RETRY</span></button>
-      <button class="result-btn" onclick="showLevelSelectFromGame()"><span>LEVELS</span></button>
+      <button class="result-btn" onclick="surrenderMatch()"><span>GIVE UP</span></button>
+      <div class="loadout-anchor" id="loadoutAnchor-pause"></div>
     </div>
 
     <!-- 2. Виджет Loadout (между кнопками и настройками) -->
@@ -534,6 +537,13 @@
             <span>Enemy Health Bar</span>
             <label class="switch">
               <input type="checkbox" id="settingShowHp" checked onchange="toggleSettingHp(this.checked)">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="setting-row">
+            <span>Show Damage</span>
+            <label class="switch">
+              <input type="checkbox" id="settingShowDamage" checked onchange="toggleSettingDamage(this.checked)">
               <span class="slider"></span>
             </label>
           </div>

@@ -1331,6 +1331,7 @@ function handleClearSaveClick() {
   selectedLoadout = [];
   loadoutSyncedUpToLevel = 0;
   settings.showEnemyHp = true;
+  settings.showDamageNumbers = true;
   settings.perfModeOverride = null;
   perfMode = 'high';
   perfDecided = false;
@@ -1649,6 +1650,9 @@ function showSettings(fromSource = 'start') {
   const hpCheckbox = document.getElementById('settingShowHp');
   if (hpCheckbox) hpCheckbox.checked = !!settings.showEnemyHp;
 
+  const dmgCheckbox = document.getElementById('settingShowDamage');
+  if (dmgCheckbox) dmgCheckbox.checked = settings.showDamageNumbers !== false;
+
   const vibCheckbox = document.getElementById('settingVibration');
   if (vibCheckbox) vibCheckbox.checked = settings.vibrationEnabled !== false;
 
@@ -1696,7 +1700,31 @@ function closeSettings() {
   }
 }
 
+function surrenderMatch() {
+  // Закрываем окно паузы/настроек
+  const settingsSc = document.getElementById('settingsScreen');
+  if (settingsSc) settingsSc.classList.add('hidden');
+
+  // Убираем фоновые классы оверлеев
+  ['startScreen', 'victoryScreen', 'defeatScreen'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('screen-bg-only');
+  });
+
+  // Останавливаем лазеры и вызываем штатный экран поражения
+  if (typeof sfxStopBeams === 'function') sfxStopBeams();
+  if (typeof triggerDefeat === 'function') {
+    triggerDefeat();
+  }
+}
+
 function toggleSettingHp(isChecked) { settings.showEnemyHp = isChecked; saveGameSoon(); }
+
+function toggleSettingDamage(isChecked) {
+  settings.showDamageNumbers = isChecked;
+  if (!isChecked && typeof floatingDamages !== 'undefined') floatingDamages.length = 0;
+  saveGameSoon();
+}
 
 function toggleSettingVibration(isChecked) {
   settings.vibrationEnabled = isChecked;
@@ -2776,6 +2804,25 @@ function updateUI() {
   if (selectedTower) updateInspectUI();
 }
 
+function createFloatingDamage(x, y, amount, color) {
+  if (!(amount > 0) || typeof floatingDamages === 'undefined') return;
+  if (typeof settings !== 'undefined' && settings.showDamageNumbers === false) return;
+  const shown = amount >= 10 ? Math.round(amount) : Math.max(1, Math.round(amount * 10) / 10);
+  const cap = perfMode === 'low' ? 24 : 48;
+  if (floatingDamages.length >= cap) floatingDamages.shift();
+  floatingDamages.push({
+    x: x + (Math.random() - 0.5) * 16,
+    y: y - 18 - Math.random() * 8,
+    vx: (Math.random() - 0.5) * 14,
+    vy: -46 - Math.random() * 18,
+    life: 0.72,
+    maxLife: 0.72,
+    text: shown % 1 === 0 ? String(shown) : shown.toFixed(1),
+    color: color || '#ffffff',
+    scale: shown >= 80 ? 1.28 : (shown >= 28 ? 1.12 : 1)
+  });
+}
+
 function createDamageShards(x, y, color, damage = 16, isDeath = false) {
   const count = isDeath ? (perfMode === 'low' ? 5 : 8) : Math.max(1, Math.min(3, Math.ceil(damage / 25)));
   const baseSize = isDeath ? 7.5 : Math.max(3.2, Math.min(6.0, 2.2 + damage * 0.06));
@@ -3706,18 +3753,11 @@ function drawEnemyModel(e, showHpBar = true) {
     const hpPct = Math.max(0, e.hp / (e.maxHp || 1));
     const barY = -rad - (e.isBoss ? 14 : (e.isMiniBoss ? 12 : 8));
 
-    // Фон и заполнение полоски HP
+    // Фон и заполнение полоски HP (цифры текущего/макс HP скрыты — урон рисуется попапами)
     ctx.fillStyle = 'rgba(7, 10, 20, 0.9)';
     ctx.fillRect(-barW/2, barY, barW, barH);
     ctx.fillStyle = e.isBoss ? (e.color || '#f05f9f') : (hpPct > 0.5 ? '#00e5ff' : '#ff9100');
     ctx.fillRect(-barW/2, barY, barW * hpPct, barH);
-
-    // Точные цифры здоровья над полоской
-    ctx.font = 'bold 9px monospace';
-    ctx.fillStyle = '#ffffff';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'bottom';
-    ctx.fillText(`${Math.ceil(e.hp)}/${Math.ceil(e.maxHp || e.hp)}`, 0, barY - 2);
   }
 
   ctx.restore();
@@ -4146,7 +4186,29 @@ function render(now) {
 
   ctx.globalCompositeOperation = 'source-over';
   ctx.globalAlpha = 1.0;
-  
+
+  if (typeof floatingDamages !== 'undefined' && floatingDamages.length) {
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.lineJoin = 'round';
+    for (let i = 0; i < floatingDamages.length; i++) {
+      const fd = floatingDamages[i];
+      const t = Math.max(0, Math.min(1, fd.life / fd.maxLife));
+      const rise = 1 - t;
+      ctx.save();
+      ctx.globalAlpha = t * t;
+      ctx.translate(fd.x, fd.y);
+      ctx.scale(fd.scale * (0.92 + rise * 0.18), fd.scale * (0.92 + rise * 0.18));
+      ctx.font = 'bold 13px Montserrat, sans-serif';
+      ctx.strokeStyle = 'rgba(6, 8, 16, 0.85)';
+      ctx.lineWidth = 3.2;
+      ctx.strokeText(fd.text, 0, 0);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(fd.text, 0, 0);
+      ctx.restore();
+    }
+  }
+
   if (window.perfProfiler) perfProfiler.accum.drawFx += (performance.now() - _tFxStart);
 
   if (draggingTower) {
