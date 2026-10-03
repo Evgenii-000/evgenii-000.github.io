@@ -1950,25 +1950,16 @@ function showLevelSelect() {
 function showLevelSelectFromGame() {
   music('menu');
   if (reviveTimerInterval) { clearInterval(reviveTimerInterval); reviveTimerInterval = null; }
-
-  const settingsSc = document.getElementById('settingsScreen');
-  if (settingsSc) settingsSc.classList.add('hidden');
-
-  const pauseSc = document.getElementById('pauseScreen');
-  if (pauseSc) pauseSc.classList.add('hidden');
-  const vicSc = document.getElementById('victoryScreen');
-  if (vicSc) vicSc.classList.add('hidden');
-  const defSc = document.getElementById('defeatScreen');
-  if (defSc) defSc.classList.add('hidden');
-  const upgSc = document.getElementById('upgradesScreen');
-  if (upgSc) upgSc.classList.add('hidden');
+  document.getElementById('pauseScreen').classList.add('hidden');
+  document.getElementById('victoryScreen').classList.add('hidden');
+  document.getElementById('defeatScreen').classList.add('hidden');
+  document.getElementById('upgradesScreen').classList.add('hidden');
   const revSc = document.getElementById('reviveScreen');
   if (revSc) revSc.classList.add('hidden');
-
   document.getElementById('levelsScreen').classList.remove('hidden');
   document.getElementById('econHpSplitBadge').classList.add('hidden');
   document.getElementById('levelWaveSplitBadge').classList.add('hidden');
-  document.getElementById('hudRightGroup').classList.remove('hidden');
+  document.getElementById('hudRightGroup').classList.add('hidden');
   updateStartChapterLabel(false);
   document.getElementById('controlsWrapper').classList.add('hidden');
 
@@ -2592,7 +2583,7 @@ if (e.type === 'chronos_warp') {
     if (sw.elapsed >= sw.duration) shockwaves.splice(i, 1);
   }
 
-  for (let i = lightningBolts.length - 1; i >= 0; i--) {
+for (let i = lightningBolts.length - 1; i >= 0; i--) {
     const lb = lightningBolts[i];
     if (lb.delay && lb.delay > 0) {
       lb.delay -= dt;
@@ -2601,8 +2592,15 @@ if (e.type === 'chronos_warp') {
     lb.elapsed = (lb.elapsed || 0) + dt;
     lb.life -= dt;
 
-    if (!lb.targetRef.isShielded && enemies.includes(lb.targetRef)) {
+    // Урон наносится ровно 1 раз за жизнь молнии
+    if (!lb.hasDealtDamage && !lb.targetRef.isShielded && enemies.includes(lb.targetRef)) {
+      lb.hasDealtDamage = true; // <-- блокируем повторный урон на следующих кадрах!
       lb.targetRef.hp -= lb.damage;
+
+      if (typeof createFloatingDamage === 'function') {
+        createFloatingDamage(lb.targetRef.x, lb.targetRef.y, lb.damage, '#00ffcc');
+      }
+
       if (Math.random() < 0.5) {
         if (typeof createDamageShards === 'function') {
           createDamageShards(lb.x2, lb.y2, lb.targetRef.color, lb.damage, false);

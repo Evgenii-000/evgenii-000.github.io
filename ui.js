@@ -3697,16 +3697,27 @@ function drawEnemyModel(e, showHpBar = true) {
     ctx.restore();
   }
 
+// Полоска HP и числовые значения здоровья
   if (showHpBar && typeof settings !== 'undefined' && settings.showEnemyHp && (e.isBoss || e.isMiniBoss || (e.hp < e.maxHp))) {
     ctx.shadowBlur = 0;
     const rad = e.radius || 12;
     const barW = Math.max(22, rad * 2.2);
     const barH = e.isBoss ? 5 : (e.isMiniBoss ? 4 : 3);
     const hpPct = Math.max(0, e.hp / (e.maxHp || 1));
+    const barY = -rad - (e.isBoss ? 14 : (e.isMiniBoss ? 12 : 8));
+
+    // Фон и заполнение полоски HP
     ctx.fillStyle = 'rgba(7, 10, 20, 0.9)';
-    ctx.fillRect(-barW/2, -rad - (e.isBoss ? 14 : (e.isMiniBoss ? 12 : 8)), barW, barH);
+    ctx.fillRect(-barW/2, barY, barW, barH);
     ctx.fillStyle = e.isBoss ? (e.color || '#f05f9f') : (hpPct > 0.5 ? '#00e5ff' : '#ff9100');
-    ctx.fillRect(-barW/2, -rad - (e.isBoss ? 14 : (e.isMiniBoss ? 12 : 8)), barW * hpPct, barH);
+    ctx.fillRect(-barW/2, barY, barW * hpPct, barH);
+
+    // Точные цифры здоровья над полоской
+    ctx.font = 'bold 9px monospace';
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(`${Math.ceil(e.hp)}/${Math.ceil(e.maxHp || e.hp)}`, 0, barY - 2);
   }
 
   ctx.restore();
