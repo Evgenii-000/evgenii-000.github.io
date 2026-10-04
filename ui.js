@@ -3050,6 +3050,28 @@ function createShockwave(x, y, maxRadius, color) {
   shockwaves.push({ x, y, maxRadius, color, duration: 0.32, elapsed: 0 });
 }
 
+function createTeleportGhostFx(startX, startY, endX, endY, enemy) {
+  const count = 3;
+  for (let k = 1; k <= count; k++) {
+    const t = k / (count + 1);
+    const gx = startX + (endX - startX) * t;
+    const gy = startY + (endY - startY) * t;
+    particles.push({
+      x: gx,
+      y: gy,
+      vx: 0, vy: 0,
+      radius: enemy.radius || 17,
+      color: enemy.color || "#f97316",
+      glow: enemy.glow || "#fb923c",
+      shape: enemy.shape || "octagon",
+      angle: enemy.angle || 0,
+      life: 0.35,
+      maxLife: 0.35,
+      isTeleportGhost: true
+    });
+  }
+}
+
 const STAR_TINTS = ['#ffffff', '#cfe6ff', '#ffe2f5', '#d9fbff'];
 let synthStars = [];
 let lastStarUpdateTime = performance.now();
@@ -3780,6 +3802,18 @@ function drawEnemyModel(e, showHpBar = true) {
     ctx.restore();
   }
 
+  if (e.teleportFlashTimer > 0) {
+    const prog = e.teleportFlashTimer / 0.35;
+    ctx.save();
+    ctx.strokeStyle = e.glow || "#fb923c";
+    ctx.lineWidth = 4;
+    if (typeof setGlow === "function") setGlow(e.glow || "#fb923c", 16 * prog);
+    ctx.beginPath();
+    ctx.arc(0, 0, (e.radius || 17) * (1.2 + (1.0 - prog) * 0.6), 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+
 // Полоска HP здоровья
   if (showHpBar && typeof settings !== 'undefined' && settings.showEnemyHp && (e.isBoss || e.isMiniBoss || (e.hp < e.maxHp))) {
     ctx.shadowBlur = 0;
@@ -4213,6 +4247,27 @@ function render(now) {
       ctx.globalAlpha = rawProg * (pt.alphaMult || 0.4);
       const glowSprite = getGlowSprite(pt.color || '#ff9100');
       ctx.drawImage(glowSprite, pt.x - pt.radius, pt.y - pt.radius, pt.radius * 2, pt.radius * 2);
+    } else if (pt.isTeleportGhost) {
+      ctx.globalAlpha = rawProg * 0.75;
+      ctx.save();
+      ctx.translate(pt.x, pt.y);
+      ctx.rotate(pt.angle || 0);
+      ctx.strokeStyle = pt.color || "#f97316";
+      ctx.fillStyle = (pt.glow || "#fb923c") + "55";
+      ctx.lineWidth = 3.5;
+      if (typeof setGlow === "function") setGlow(pt.color || "#f97316", 14 * rawProg);
+      const rad = pt.radius || 17;
+      ctx.beginPath();
+      for (let oc = 0; oc < 8; oc++) {
+        const a = (oc * Math.PI) / 4;
+        const ocX = Math.cos(a) * rad * 1.2;
+        const ocY = Math.sin(a) * rad * 1.2;
+        if (oc === 0) ctx.moveTo(ocX, ocY); else ctx.lineTo(ocX, ocY);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
     } else if (pt.isStreak) {
       ctx.globalAlpha = rawProg * 0.85;
       ctx.save();

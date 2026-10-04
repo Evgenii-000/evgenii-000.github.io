@@ -2116,13 +2116,29 @@ if (e.type === 'chronos_warp') {
       e.isShielded = e.shieldTimer < 1.2;
     }
 
+    if (e.teleportFlashTimer > 0) {
+      e.teleportFlashTimer -= dt;
+      if (e.teleportFlashTimer < 0) e.teleportFlashTimer = 0;
+    }
+
     if (e.type === 'titan_core') {
       e.dashTimer = (e.dashTimer || 0) + dt;
       if (e.dashTimer >= 6.0) {
         e.dashTimer -= 6.0;
+        const startX = e.x;
+        const startY = e.y;
+        const wasFrozen = (e.slowTimer > 0);
+
         e.speed = e.baseSpeed;
         e.slowTimer = 0;
-        createShockwave(e.x, e.y, 60, '#f97316');
+
+        if (wasFrozen) {
+          if (typeof createDamageShards === 'function') createDamageShards(startX, startY, '#38bdf8', 25, true);
+          if (typeof createSparks === 'function') createSparks(startX, startY, '#38bdf8', 12, '#ffffff');
+        }
+
+        if (typeof createShockwave === 'function') createShockwave(startX, startY, 50, '#f97316');
+
         let dashRemaining = 40;
         while (dashRemaining > 0 && e.wpIndex < WAYPOINTS.length) {
           const twp = WAYPOINTS[e.wpIndex];
@@ -2137,7 +2153,17 @@ if (e.type === 'chronos_warp') {
             dashRemaining = 0;
           }
         }
-        createDamageShards(e.x, e.y, '#fb923c', 20, false);
+
+        const endX = e.x;
+        const endY = e.y;
+        e.teleportFlashTimer = 0.35;
+
+        if (typeof createShockwave === 'function') createShockwave(endX, endY, 65, '#fb923c');
+        if (typeof createDamageShards === 'function') createDamageShards(endX, endY, '#fb923c', 20, false);
+        if (typeof createRailBeamFx === 'function') createRailBeamFx(startX, startY, endX, endY, '#f97316');
+        if (typeof createTeleportGhostFx === 'function') createTeleportGhostFx(startX, startY, endX, endY, e);
+
+        sfx('stasis');
       }
     }
 
