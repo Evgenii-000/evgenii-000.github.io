@@ -50,7 +50,13 @@ const MusicManager = (function () {
     battle: [
 'music/battle_01.ogg',
 'music/battle_02.ogg',
-'music/battle_03.ogg'
+'music/battle_03.ogg',
+'music/battle_04.ogg',
+'music/battle_05.ogg',
+'music/battle_06.ogg',
+'music/battle_07.ogg',
+'music/battle_08.ogg',
+'music/battle_09.ogg',
     ],
     win: [
 'music/win.ogg'
