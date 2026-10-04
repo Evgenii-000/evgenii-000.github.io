@@ -640,6 +640,7 @@ function reallyStartLevel(lvl) {
   activeBattleLoadout = selectedLoadout.slice();
   
   if (reviveTimerInterval) { clearInterval(reviveTimerInterval); reviveTimerInterval = null; }
+  musicSetDucked(false);
   music('battle');
   currentLevel = lvl;
   document.getElementById('levelsScreen').classList.add('hidden');

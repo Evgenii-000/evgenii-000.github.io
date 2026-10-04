@@ -4018,8 +4018,8 @@ var LEVELS_DATA = {
         {
           "type": "swarm",
           "count": 1,
-          "hp": 8960,
-          "hpMult": 597.38,
+          "hp": 5376,
+          "hpMult": 358.428,
           "speed": 150,
           "speedMult": 0.88,
           "interval": 1,
