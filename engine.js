@@ -2123,6 +2123,54 @@ if (e.type === 'chronos_warp') {
     }
 
     if (e.type === 'titan_core') {
+      if (e.dashAnim) {
+        e.dashAnim.timer += dt;
+        const progress = Math.min(1.0, e.dashAnim.timer / e.dashAnim.duration);
+
+        if (progress <= 0.24) {
+          e.x = e.dashAnim.startX;
+          e.y = e.dashAnim.startY;
+          e.dashMorph = progress / 0.24;
+          e.dashLineMoving = false;
+        } else if (progress <= 0.76) {
+          const moveT = (progress - 0.24) / (0.76 - 0.24);
+          e.x = e.dashAnim.startX + (e.dashAnim.endX - e.dashAnim.startX) * moveT;
+          e.y = e.dashAnim.startY + (e.dashAnim.endY - e.dashAnim.startY) * moveT;
+          const dx = e.dashAnim.endX - e.dashAnim.startX;
+          const dy = e.dashAnim.endY - e.dashAnim.startY;
+          if (dx !== 0 || dy !== 0) {
+            e.angle = Math.atan2(dy, dx);
+          }
+          e.dashMorph = 1.0;
+          e.dashLineMoving = true;
+
+          if (Math.random() < 0.6) {
+            if (typeof createSparks === 'function') createSparks(e.x, e.y, '#fb923c', 2, '#f97316');
+          }
+        } else {
+          e.x = e.dashAnim.endX;
+          e.y = e.dashAnim.endY;
+          e.wpIndex = e.dashAnim.endWp;
+          e.dashMorph = (1.0 - progress) / (1.0 - 0.76);
+          e.dashLineMoving = false;
+        }
+
+        if (progress >= 1.0) {
+          e.x = e.dashAnim.endX;
+          e.y = e.dashAnim.endY;
+          e.wpIndex = e.dashAnim.endWp;
+          e.dashAnim = null;
+          e.dashMorph = 0;
+          e.dashLineMoving = false;
+          e.teleportFlashTimer = 0.25;
+
+          if (typeof createShockwave === 'function') createShockwave(e.x, e.y, 65, '#fb923c');
+          if (typeof createDamageShards === 'function') createDamageShards(e.x, e.y, '#fb923c', 20, false);
+        }
+
+        continue;
+      }
+
       e.dashTimer = (e.dashTimer || 0) + dt;
       if (e.dashTimer >= 6.0) {
         e.dashTimer -= 6.0;
@@ -2140,29 +2188,34 @@ if (e.type === 'chronos_warp') {
 
         if (typeof createShockwave === 'function') createShockwave(startX, startY, 50, '#f97316');
 
-        let dashRemaining = 40;
-        while (dashRemaining > 0 && e.wpIndex < WAYPOINTS.length) {
-          const twp = WAYPOINTS[e.wpIndex];
-          const distToWp = Math.hypot(twp.x - e.x, twp.y - e.y);
+        let simX = e.x;
+        let simY = e.y;
+        let simWp = e.wpIndex;
+        let dashRemaining = 140;
+
+        while (dashRemaining > 0 && simWp < WAYPOINTS.length) {
+          const twp = WAYPOINTS[simWp];
+          const distToWp = Math.hypot(twp.x - simX, twp.y - simY);
           if (distToWp <= dashRemaining) {
             dashRemaining -= distToWp;
-            e.x = twp.x; e.y = twp.y;
-            e.wpIndex++;
+            simX = twp.x; simY = twp.y;
+            simWp++;
           } else {
-            e.x += ((twp.x - e.x) / distToWp) * dashRemaining;
-            e.y += ((twp.y - e.y) / distToWp) * dashRemaining;
+            simX += ((twp.x - simX) / distToWp) * dashRemaining;
+            simY += ((twp.y - simY) / distToWp) * dashRemaining;
             dashRemaining = 0;
           }
         }
 
-        const endX = e.x;
-        const endY = e.y;
-        e.teleportFlashTimer = 0.35;
-
-        if (typeof createShockwave === 'function') createShockwave(endX, endY, 65, '#fb923c');
-        if (typeof createDamageShards === 'function') createDamageShards(endX, endY, '#fb923c', 20, false);
-        if (typeof createRailBeamFx === 'function') createRailBeamFx(startX, startY, endX, endY, '#f97316');
-        if (typeof createTeleportGhostFx === 'function') createTeleportGhostFx(startX, startY, endX, endY, e);
+        e.dashAnim = {
+          startX: startX,
+          startY: startY,
+          endX: simX,
+          endY: simY,
+          endWp: simWp,
+          timer: 0,
+          duration: 0.50
+        };
 
         sfx('stasis');
       }
