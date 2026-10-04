@@ -66,8 +66,8 @@ const MusicManager = (function () {
   const CATEGORY = {
     menu:   { loop: true,  volume: 0.45, fadeIn: 1.2,  fadeOut: 0.8 },
     battle: { loop: true,  volume: 0.38, fadeIn: 0.9,  fadeOut: 0.6 },
-    win:    { loop: false, volume: 0.60, fadeIn: 0.05, fadeOut: 0.4 },
-    lose:   { loop: false, volume: 0.55, fadeIn: 0.05, fadeOut: 0.4 }
+    win:    { loop: true,  volume: 0.60, fadeIn: 0.05, fadeOut: 0.4 },
+    lose:   { loop: true,  volume: 0.55, fadeIn: 0.05, fadeOut: 0.4 }
   };
 
   const FADE_STEP_MS = 50;
@@ -154,7 +154,14 @@ const MusicManager = (function () {
     el.addEventListener('ended', function () {
       if (!current || current.el !== el) return;
       if (cfg.loop) {
-        advance(cat, cfg);
+        // For single-track categories (like win or lose), loop the same track directly
+        const catList = TRACKS[cat] || [];
+        if (catList.length === 1) {
+          const singleTrackEl = startTrack(catList[0], cat, cfg);
+          current = singleTrackEl ? { el: singleTrackEl, category: cat, cfg: cfg } : null;
+        } else {
+          advance(cat, cfg);
+        }
       } else {
         // A sting finished. Leave silence rather than guessing what follows --
         // the next screen transition will ask for whatever is right.

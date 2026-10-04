@@ -1781,12 +1781,32 @@ function showLevelSelect() {
 }
 
 function giveUpMatch() {
+  const confirmModal = document.getElementById('giveUpConfirmModal');
+  if (confirmModal) {
+    confirmModal.classList.remove('hidden');
+  } else {
+    confirmGiveUp();
+  }
+}
+
+function cancelGiveUp() {
+  const confirmModal = document.getElementById('giveUpConfirmModal');
+  if (confirmModal) {
+    confirmModal.classList.add('hidden');
+  }
+}
+
+function confirmGiveUp() {
+  const confirmModal = document.getElementById('giveUpConfirmModal');
+  if (confirmModal) confirmModal.classList.add('hidden');
+
   if (reviveTimerInterval) { clearInterval(reviveTimerInterval); reviveTimerInterval = null; }
   const settingsSc = document.getElementById('settingsScreen');
   if (settingsSc) settingsSc.classList.add('hidden');
   const pauseSc = document.getElementById('pauseScreen');
   if (pauseSc) pauseSc.classList.add('hidden');
 
+  if (typeof music === 'function') music('lose');
   if (typeof gameOver === 'function') {
     gameOver();
   } else {
@@ -1796,7 +1816,10 @@ function giveUpMatch() {
 }
 
 function showLevelSelectFromGame() {
-  music('menu');
+  const curCat = (typeof MusicManager !== 'undefined' && MusicManager.current) ? MusicManager.current() : null;
+  if (curCat !== 'win' && curCat !== 'lose') {
+    music('menu');
+  }
   if (reviveTimerInterval) { clearInterval(reviveTimerInterval); reviveTimerInterval = null; }
 
   // Скрываем экран настроек/паузы, поверх которого был вызов
