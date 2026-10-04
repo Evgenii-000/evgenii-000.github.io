@@ -1,5 +1,5 @@
 // levels_data.js - Sector & Wave level definitions
-const LEVELS_DATA = {
+var LEVELS_DATA = {
   "1": {
     "mapId": "L1",
     "startHp": 10,
@@ -9321,9 +9321,8 @@ const EDITOR_META = {
 };
 
 if (typeof console !== 'undefined') {
-  console.log('[data.js] Loaded successfully!', {
-    totalMaps: Object.keys(MAP_CATALOG).length,
-    totalLevels: TOTAL_LEVELS,
+  console.log('[levels_data.js] Loaded successfully!', {
+    totalLevels: typeof TOTAL_LEVELS !== 'undefined' ? TOTAL_LEVELS : 50,
     levelsDataKeys: Object.keys(LEVELS_DATA).length
   });
 }

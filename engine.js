@@ -50,40 +50,6 @@ function getBaseDamageFor(e) {
   return 1;
 }
 
-function spawnDamageNumber(x, y, amount, color) {
-  if (!(amount > 0)) return;
-  if (!settings || settings.showDamageNumbers === false) return;
-  if (typeof createFloatingDamage === 'function') {
-    createFloatingDamage(x, y, amount, color);
-  }
-}
-
-function applyInstantDamage(e, amount) {
-  if (!e || !(amount > 0) || e.isShielded) return;
-  e.hp -= amount;
-  spawnDamageNumber(e.x, e.y, amount, e.color);
-}
-
-function applyBeamDamage(e, amount, dt) {
-  if (!e || !(amount > 0) || e.isShielded) return;
-  e.hp -= amount;
-  e._dpsPopup = (e._dpsPopup || 0) + amount;
-  e._dpsPopupT = (e._dpsPopupT || 0) + dt;
-  e._dpsIdle = 0;
-  if (e._dpsPopupT >= 0.2) {
-    spawnDamageNumber(e.x, e.y, e._dpsPopup, e.color);
-    e._dpsPopup = 0;
-    e._dpsPopupT = 0;
-  }
-}
-
-function flushDpsPopup(e) {
-  if (!e || !(e._dpsPopup > 0)) return;
-  spawnDamageNumber(e.x, e.y, e._dpsPopup, e.color);
-  e._dpsPopup = 0;
-  e._dpsPopupT = 0;
-}
-
 function getNewlyUnlockedTowers(lvl) {
   const cur = (LEVELS_DATA[lvl] && LEVELS_DATA[lvl].unlockedTowers) || [];
   const prev = (LEVELS_DATA[lvl - 1] && LEVELS_DATA[lvl - 1].unlockedTowers) || [];
@@ -94,7 +60,6 @@ let gameState = 'START';
 let currentLevel = 1;
 let settings = {
   showEnemyHp: true,
-  showDamageNumbers: true,
   vibrationEnabled: true,
   perfModeOverride: null,
   sfxEnabled: true, musicEnabled: true,
@@ -463,7 +428,6 @@ let towers = [];
 let enemies = [];
 let projectiles = [];
 let particles = [];
-let floatingDamages = [];
 let shockwaves = [];
 let lightningBolts = [];
 let spawnQueue = [];
@@ -737,7 +701,6 @@ function resetLevelState() {
   enemies = [];
   projectiles = [];
   particles = [];
-  floatingDamages = [];
   shockwaves = [];
   lightningBolts = [];
   spawnQueue = [];
@@ -1704,7 +1667,6 @@ function handleClearSaveClick() {
   selectedLoadout = [];
   loadoutSyncedUpToLevel = 0;
   settings.showEnemyHp = true;
-  settings.showDamageNumbers = true;
   settings.perfModeOverride = null;
   perfMode = 'high';
   perfDecided = false;
@@ -2203,11 +2165,6 @@ if (e.type === 'chronos_warp') {
       if (e.slowTimer <= 0) e.speed = e.baseSpeed;
     }
 
-    if (e._dpsPopup > 0) {
-      e._dpsIdle = (e._dpsIdle || 0) + dt;
-      if (e._dpsIdle >= 0.2) flushDpsPopup(e);
-    }
-
     const targetWp = WAYPOINTS[e.wpIndex];
     if (!targetWp) continue;
 
@@ -2336,7 +2293,7 @@ if (e.type === 'chronos_warp') {
     if (t.type === 'laser' && target && isLockedOn) {
       sfx('laserHit');
       if (!target.isShielded) {
-        applyBeamDamage(target, t.damage * dt, dt);
+        target.hp -= t.damage * dt;
         if (Math.random() < 0.25) {
           createDamageShards(target.x, target.y, target.color, t.damage * dt * 4, false);
           createImpactSmoke(target.x, target.y, 8);
@@ -2461,7 +2418,7 @@ if (e.type === 'chronos_warp') {
         if (!target.isShielded) {
           const rampProgress = Math.min(t.melterFireTimer, rampTime) / rampTime;
           const rampMultiplier = Math.pow(rampCap, rampProgress);
-          applyBeamDamage(target, t.damage * rampMultiplier * dt, dt);
+          target.hp -= t.damage * rampMultiplier * dt;
           if (Math.random() < 0.3) {
             createDamageShards(target.x, target.y, target.color, t.damage * rampMultiplier * dt * 3, false);
             createImpactSmoke(target.x, target.y, 9 + rampProgress * 5);
@@ -2505,7 +2462,7 @@ if (e.type === 'chronos_warp') {
         const hitR = e.radius + 14;
 
         if (distSq <= hitR * hitR && !e.isShielded) {
-          applyInstantDamage(e, t.damage);
+          e.hp -= t.damage;
           if (railShardCount < 4) {
             createDamageShards(e.x, e.y, e.color, t.damage, false);
             if (typeof createImpactSmoke === 'function') createImpactSmoke(e.x, e.y, 12);
@@ -2531,7 +2488,7 @@ if (e.type === 'chronos_warp') {
 
       if (dist <= step) {
         if (!p.target.isShielded) {
-          applyInstantDamage(p.target, p.damage);
+          p.target.hp -= p.damage;
           createShockwave(p.target.x, p.target.y, 14, p.color || '#00e5ff');
           createDamageShards(p.target.x, p.target.y, p.target.color, p.damage, false);
           createImpactSmoke(p.target.x, p.target.y, 11);
@@ -2565,7 +2522,7 @@ if (e.type === 'chronos_warp') {
             if (!hitEnemyColor) hitEnemyColor = e.color;
             const d = Math.sqrt(distSq);
             const splashDmg = p.damage * (1 - d / (p.splash * 1.3));
-            applyInstantDamage(e, splashDmg);
+            e.hp -= splashDmg;
 
             if (shardSpawnCount < 3) {
               createDamageShards(e.x, e.y, e.color, splashDmg, false);
@@ -2584,7 +2541,6 @@ if (e.type === 'chronos_warp') {
   for (let i = enemies.length - 1; i >= 0; i--) {
     const e = enemies[i];
     if (e.hp <= 0) {
-      flushDpsPopup(e);
       const moneyMultiplier = 1 + (upgradeTreeData.base_gold || 0) * 0.05;
       gold += Math.round(e.bounty * moneyMultiplier);
       sfxDeath(e);
@@ -2621,15 +2577,6 @@ if (e.type === 'chronos_warp') {
     if (pt.life <= 0) particles.splice(i, 1);
   }
 
-  for (let i = floatingDamages.length - 1; i >= 0; i--) {
-    const fd = floatingDamages[i];
-    fd.x += fd.vx * dt;
-    fd.y += fd.vy * dt;
-    fd.vy += 28 * dt;
-    fd.life -= dt;
-    if (fd.life <= 0) floatingDamages.splice(i, 1);
-  }
-
   for (let i = shockwaves.length - 1; i >= 0; i--) {
     const sw = shockwaves[i];
     sw.elapsed += dt;
@@ -2648,7 +2595,11 @@ for (let i = lightningBolts.length - 1; i >= 0; i--) {
     // Урон наносится ровно 1 раз за жизнь молнии
     if (!lb.hasDealtDamage && !lb.targetRef.isShielded && enemies.includes(lb.targetRef)) {
       lb.hasDealtDamage = true; // <-- блокируем повторный урон на следующих кадрах!
-      applyInstantDamage(lb.targetRef, lb.damage);
+      lb.targetRef.hp -= lb.damage;
+
+      if (typeof createFloatingDamage === 'function') {
+        createFloatingDamage(lb.targetRef.x, lb.targetRef.y, lb.damage, '#00ffcc');
+      }
 
       if (Math.random() < 0.5) {
         if (typeof createDamageShards === 'function') {
