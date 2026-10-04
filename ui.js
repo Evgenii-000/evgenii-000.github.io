@@ -3034,6 +3034,18 @@ function createExplosion(x, y, radius, color1 = '#ff9100', color2 = null, kind =
   }
 }
 
+function createRailBeamFx(x1, y1, x2, y2, color) {
+  const beamColor = color || (typeof TOWER_CONFIGS !== 'undefined' && TOWER_CONFIGS.railgun ? TOWER_CONFIGS.railgun.color : '#a275df');
+  lightningBolts.push({
+    x1, y1, x2, y2,
+    isRail: true,
+    life: 0.35,
+    maxLife: 0.35,
+    hasDealtDamage: true,
+    color: beamColor
+  });
+}
+
 function createShockwave(x, y, maxRadius, color) {
   shockwaves.push({ x, y, maxRadius, color, duration: 0.32, elapsed: 0 });
 }
@@ -4086,13 +4098,26 @@ function render(now) {
     if (lb.isRail) {
       ctx.save();
       ctx.globalAlpha = alpha;
-      ctx.strokeStyle = TOWER_CONFIGS.railgun.glow;
-      setGlow(TOWER_CONFIGS.railgun.color, 8);
-      ctx.lineWidth = 5;
+      const railGlowColor = lb.color || '#a275df';
+
+      // Outer glow beam
+      ctx.strokeStyle = railGlowColor;
+      setGlow(railGlowColor, 12);
+      ctx.lineWidth = 6;
       ctx.beginPath();
       ctx.moveTo(lb.x1, lb.y1);
       ctx.lineTo(lb.x2, lb.y2);
       ctx.stroke();
+
+      // Inner intense core beam
+      ctx.strokeStyle = '#ffffff';
+      setGlow('#ffffff', 6);
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(lb.x1, lb.y1);
+      ctx.lineTo(lb.x2, lb.y2);
+      ctx.stroke();
+
       ctx.restore();
     } else {
       const prog = lb.travelTime ? Math.min(1.0, (lb.elapsed || 0) / lb.travelTime) : 1.0;
