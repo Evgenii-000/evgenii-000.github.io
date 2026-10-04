@@ -3094,6 +3094,14 @@ input:focus,
   display: none !important;
 }
 
+.settings-collapsible-widget.plain-mode .settings-collapsible-header {
+  display: none;
+}
+.settings-collapsible-widget.plain-mode .settings-collapsible-body {
+  border-top: none;
+  padding: 14px;
+}
+
 #settingsScreen .settings-box {
   background: transparent !important;
   border: none !important;

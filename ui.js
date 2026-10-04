@@ -1628,6 +1628,7 @@ function showSettings(fromSource = 'start') {
   const combatActions = document.getElementById('settingsCombatActions');
   const backBtn = document.getElementById('settingsBackBtn');
   const loadoutAnchor = document.getElementById('loadoutAnchor-pause');
+  const collapsibleWidget = document.getElementById('settingsCollapsible');
 
   if (fromSource === 'combat') {
     if (kickerEl) kickerEl.textContent = 'Game';
@@ -1635,6 +1636,7 @@ function showSettings(fromSource = 'start') {
     if (combatActions) combatActions.classList.remove('hidden');
     if (backBtn) backBtn.classList.add('hidden');
     if (loadoutAnchor) loadoutAnchor.classList.remove('hidden');
+    if (collapsibleWidget) collapsibleWidget.classList.remove('plain-mode');
     showLoadoutWidgetIn('loadoutAnchor-pause');
     toggleSettingsAccordion(false); // В бою настройки свёрнуты под Loadout
   } else {
@@ -1643,6 +1645,7 @@ function showSettings(fromSource = 'start') {
     if (combatActions) combatActions.classList.add('hidden');
     if (backBtn) backBtn.classList.remove('hidden');
     if (loadoutAnchor) loadoutAnchor.classList.add('hidden');
+    if (collapsibleWidget) collapsibleWidget.classList.add('plain-mode');
     toggleSettingsAccordion(true); // В меню настройки открыты сразу
   }
 
