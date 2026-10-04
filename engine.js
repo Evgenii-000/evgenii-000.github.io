@@ -529,9 +529,9 @@ function getBuildPanelPool(lvl) {
   const loadoutStart = getLoadoutStartLevel(); // 11
 
   // Если игрок в принципе еще не дошел до 11 уровня (ранняя игра) —
-  // даем ему ровно те башни, которые он успел открыть (от 1 до 3 штук)
+  // показываем 3 первыe башни (Gatling, Laser, Mortar), блокируя незаблокированные по уровню
   if (highestLvl < loadoutStart) {
-    return getPlayerUnlockedTowers();
+    return ['gun', 'laser', 'mortar'];
   }
 
   // Если игрок дошел до 11 уровня и выше — на ЛЮБОМ уровне используются
@@ -544,12 +544,12 @@ function getBuildPanelPool(lvl) {
 
 function isTowerActiveThisLevel(type) {
   if (devMode) return true;
-  const highestLvl = Math.max(maxUnlockedLevel || 1, currentLevel || 1);
   const loadoutStart = getLoadoutStartLevel();
 
-  // До 11 уровня: активны только те башни, которые игрок уже открыл
-  if (highestLvl < loadoutStart) {
-    return getPlayerUnlockedTowers().includes(type);
+  // До 11 уровня: активны только те башни, которые разблокированы на ТЕКУЩЕМ уровне
+  if (currentLevel < loadoutStart) {
+    const curUnlocked = (LEVELS_DATA[currentLevel] && LEVELS_DATA[currentLevel].unlockedTowers) || ['gun'];
+    return curUnlocked.includes(type);
   }
 
   // После 11 уровня: активны ровно те башни, которые выбраны в лодаут
@@ -2463,6 +2463,9 @@ if (e.type === 'chronos_warp') {
 
         if (distSq <= hitR * hitR && !e.isShielded) {
           e.hp -= t.damage;
+          if (typeof createFloatingDamage === 'function') {
+            createFloatingDamage(e.x, e.y, t.damage, '#a275df');
+          }
           if (railShardCount < 4) {
             createDamageShards(e.x, e.y, e.color, t.damage, false);
             if (typeof createImpactSmoke === 'function') createImpactSmoke(e.x, e.y, 12);
@@ -2489,6 +2492,9 @@ if (e.type === 'chronos_warp') {
       if (dist <= step) {
         if (!p.target.isShielded) {
           p.target.hp -= p.damage;
+          if (typeof createFloatingDamage === 'function') {
+            createFloatingDamage(p.target.x, p.target.y, p.damage, p.color || '#00e5ff');
+          }
           createShockwave(p.target.x, p.target.y, 14, p.color || '#00e5ff');
           createDamageShards(p.target.x, p.target.y, p.target.color, p.damage, false);
           createImpactSmoke(p.target.x, p.target.y, 11);
@@ -2523,6 +2529,9 @@ if (e.type === 'chronos_warp') {
             const d = Math.sqrt(distSq);
             const splashDmg = p.damage * (1 - d / (p.splash * 1.3));
             e.hp -= splashDmg;
+            if (typeof createFloatingDamage === 'function') {
+              createFloatingDamage(e.x, e.y, splashDmg, p.color || '#ff9100');
+            }
 
             if (shardSpawnCount < 3) {
               createDamageShards(e.x, e.y, e.color, splashDmg, false);
