@@ -330,6 +330,7 @@
     <!-- Выпадающая часть с полными инструментами -->
     <div class="dev-details-pane hidden" id="devDetailsPane">
       <div class="dev-actions-row">
+        <button type="button" class="dev-btn" id="livePauseBtn" onclick="toggleLivePause()">PAUSE GAME</button>
         <button type="button" class="dev-btn dev-danger-btn" id="devClearSaveBtn" onclick="handleClearSaveClick()">CLEAR SAVE</button>
       </div>
 
@@ -534,6 +535,13 @@
             <span>Enemy Health Bar</span>
             <label class="switch">
               <input type="checkbox" id="settingShowHp" checked onchange="toggleSettingHp(this.checked)">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="setting-row">
+            <span>Show Damage</span>
+            <label class="switch">
+              <input type="checkbox" id="settingShowDamage" checked onchange="toggleSettingDamage(this.checked)">
               <span class="slider"></span>
             </label>
           </div>

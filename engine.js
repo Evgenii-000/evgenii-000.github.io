@@ -60,6 +60,7 @@ let gameState = 'START';
 let currentLevel = 1;
 let settings = {
   showEnemyHp: true,
+  showDamage: true,
   vibrationEnabled: true,
   perfModeOverride: null,
   sfxEnabled: true, musicEnabled: true,
@@ -133,6 +134,11 @@ function musicSuspend() {
 function musicResume() {
   try {
     if (typeof MusicManager !== 'undefined' && MusicManager) MusicManager.resume();
+  } catch (e) {}
+}
+function musicSetDucked(on, dur) {
+  try {
+    if (typeof MusicManager !== 'undefined' && MusicManager && MusicManager.setDucked) MusicManager.setDucked(on, dur);
   } catch (e) {}
 }
 
@@ -969,6 +975,7 @@ function playVictoryUnlockFx() {
 }
 
 function triggerDefeat() {
+  musicSetDucked(false);
   sfxStopBeams();
   music('lose');
   sfx('defeat');
@@ -1039,6 +1046,7 @@ function updateDefeatWaveLine() {
 
 function triggerEmergencyRevivePrompt() {
   gameState = 'DEFEAT';
+  musicSetDucked(true);
   reviveRemainingSeconds = 3;
   const reviveBtn = document.getElementById('reviveBtn');
   const skipBtn = document.getElementById('reviveSkipBtn');
@@ -1088,6 +1096,8 @@ function triggerEmergencyRevivePrompt() {
 function finishRevivePromptWindow() {
   if (reviveTimerInterval) { clearInterval(reviveTimerInterval); reviveTimerInterval = null; }
   if (reviveSkipShowTimer) { clearTimeout(reviveSkipShowTimer); reviveSkipShowTimer = null; }
+  musicSetDucked(false);
+  music('lose');
   const reviveBtn = document.getElementById('reviveBtn');
   const skipBtn = document.getElementById('reviveSkipBtn');
   const retryBtn = document.getElementById('defeatRetryBtn');
@@ -1119,6 +1129,7 @@ function acceptEmergencyRevive() {
   document.getElementById('defeatScreen').classList.add('hidden');
 
   const executeRevive = () => {
+    musicSetDucked(false);
     baseHp = Math.max(3, Math.round(baseHp + 3));
     reviveUsedThisMatch = true;
     updateUI();
@@ -1280,6 +1291,8 @@ function upgradeSelectedTower() {
     }
 
     if (selectedTower.type === 'melter') {
+      selectedTower.melterFireTimer = 0;
+      selectedTower.melterCoolingTimer = 0;
       const powerLvl = upgradeTreeData.melter_power || 0;
       const rateBonus = 1 + powerLvl * (conf.powerRate || 0);
       if (selectedTower.level === 2) {
@@ -1773,12 +1786,14 @@ function setGameSpeed(speed) { gameTimeScale = speed; }
 function toggleLivePause() {
   isLivePaused = !isLivePaused;
   const btn = document.getElementById('livePauseBtn');
-  if (isLivePaused) {
-    btn.innerHTML = '<span>▶ Play</span>';
-    btn.classList.add('paused');
-  } else {
-    btn.innerHTML = '<span>⏸ Pause</span>';
-    btn.classList.remove('paused');
+  if (btn) {
+    if (isLivePaused) {
+      btn.textContent = 'RESUME GAME';
+      btn.classList.add('paused');
+    } else {
+      btn.textContent = 'PAUSE GAME';
+      btn.classList.remove('paused');
+    }
   }
 }
 
