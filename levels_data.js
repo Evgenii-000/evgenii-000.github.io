@@ -4076,8 +4076,8 @@ var LEVELS_DATA = {
         {
           "type": "grunt",
           "count": 10,
-          "hp": 220,
-          "hpMult": 5.5,
+          "hp": 110,
+          "hpMult": 2.75,
           "speed": 55,
           "speedMult": 1,
           "interval": 0.6,
@@ -4089,8 +4089,8 @@ var LEVELS_DATA = {
         {
           "type": "scout",
           "count": 8,
-          "hp": 200,
-          "hpMult": 6.66,
+          "hp": 100,
+          "hpMult": 3.33,
           "speed": 110,
           "speedMult": 1,
           "interval": 0.45,
@@ -4347,8 +4347,8 @@ var LEVELS_DATA = {
         {
           "type": "goliath",
           "count": 1,
-          "hp": 13400,
-          "hpMult": 33.5,
+          "hp": 18760,
+          "hpMult": 46.9,
           "speed": 30,
           "speedMult": 0.75,
           "interval": 1,
@@ -5069,15 +5069,15 @@ var LEVELS_DATA = {
       "earlyBonus": 0,
       "spawns": [
         {
-          "type": "swarm",
+          "type": "hive_empress",
           "count": 1,
           "hp": 19800,
-          "hpMult": 1320,
-          "speed": 150,
-          "speedMult": 0.88,
+          "hpMult": 9.0,
+          "speed": 38,
+          "speedMult": 1.0,
           "interval": 1,
           "bounty": 600,
-          "bountyMult": 30,
+          "bountyMult": 10,
           "isBoss": false,
           "isMiniBoss": true
         }
