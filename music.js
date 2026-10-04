@@ -76,6 +76,8 @@ const MusicManager = (function () {
 
   let enabled = true;
   let volume = 1;          // player's master music trim, 0..1
+  let ducked = false;      // menu/pause ducking state for in-battle music
+  const DUCK_FACTOR = 0.35;
   let current = null;      // { el, category, cfg }
   let category = null;     // category currently requested
   let pending = null;      // category queued until the first user gesture
@@ -139,7 +141,12 @@ const MusicManager = (function () {
 
   // --- Playback -----------------------------------------------------------
 
-  function levelFor(cfg) { return cfg.volume * volume; }
+  function levelFor(cfg) { return cfg.volume * volume * (ducked ? DUCK_FACTOR : 1.0); }
+
+  function setDucked(on, dur) {
+    ducked = !!on;
+    if (current) fadeTo(current.el, levelFor(current.cfg), dur != null ? dur : 0.4);
+  }
 
   function startTrack(path, cat, cfg) {
     let el;
@@ -208,6 +215,7 @@ const MusicManager = (function () {
   // that is already playing does nothing, so screen code can call it freely on
   // every transition without tracking what came before.
   function playCategory(cat) {
+    ducked = false;
     const cfg = CATEGORY[cat];
     if (!cfg) return;
 
@@ -243,6 +251,7 @@ const MusicManager = (function () {
 
     play: playCategory,
     current: function () { return category; },
+    setDucked: function (on, dur) { setDucked(on, dur); },
 
     stop: function (fadeOut) {
       category = null;

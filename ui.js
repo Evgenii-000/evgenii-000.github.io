@@ -1451,13 +1451,15 @@ function stepDevSpeed(direction) {
 
 function toggleLivePause() {
   isLivePaused = !isLivePaused;
-  
-  if (isLivePaused) {
-    btn.innerHTML = '<span>▶ Play</span>';
-    btn.classList.add('paused');
-  } else {
-    btn.innerHTML = '<span>⏸ Pause</span>';
-    btn.classList.remove('paused');
+  const btn = document.getElementById('livePauseBtn');
+  if (btn) {
+    if (isLivePaused) {
+      btn.textContent = 'RESUME GAME';
+      btn.classList.add('paused');
+    } else {
+      btn.textContent = 'PAUSE GAME';
+      btn.classList.remove('paused');
+    }
   }
 }
 
@@ -1595,6 +1597,9 @@ function handleHudSettingsClick() {
 
 function showSettings(fromSource = 'start') {
   settingsPreviousSource = fromSource;
+  if (fromSource === 'combat' || fromSource === 'pause') {
+    musicSetDucked(true);
+  }
 
   // Прячем экран вызова или переводим экраны победы/поражения в фоновый режим,
   // чтобы настройки отображались поверх них без замыливания
@@ -1652,6 +1657,9 @@ function showSettings(fromSource = 'start') {
   const hpCheckbox = document.getElementById('settingShowHp');
   if (hpCheckbox) hpCheckbox.checked = !!settings.showEnemyHp;
 
+  const dmgCheckbox = document.getElementById('settingShowDamage');
+  if (dmgCheckbox) dmgCheckbox.checked = settings.showDamage !== false;
+
   const vibCheckbox = document.getElementById('settingVibration');
   if (vibCheckbox) vibCheckbox.checked = settings.vibrationEnabled !== false;
 
@@ -1668,7 +1676,8 @@ function closeSettings() {
     if (el) el.classList.remove('screen-bg-only');
   });
 
-  if (settingsPreviousSource === 'combat') {
+  if (settingsPreviousSource === 'combat' || settingsPreviousSource === 'pause') {
+    musicSetDucked(false);
     gameState = 'PLAYING';
     lastTime = performance.now();
   } else if (settingsPreviousSource === 'victory') {
@@ -1700,6 +1709,8 @@ function closeSettings() {
 }
 
 function toggleSettingHp(isChecked) { settings.showEnemyHp = isChecked; saveGameSoon(); }
+
+function toggleSettingDamage(isChecked) { settings.showDamage = isChecked; saveGameSoon(); }
 
 function toggleSettingVibration(isChecked) {
   settings.vibrationEnabled = isChecked;
@@ -1809,7 +1820,8 @@ function confirmGiveUp() {
   const pauseSc = document.getElementById('pauseScreen');
   if (pauseSc) pauseSc.classList.add('hidden');
 
-  if (typeof music === 'function') music('lose');
+  musicSetDucked(false);
+  music('menu');
   if (typeof gameOver === 'function') {
     gameOver();
   } else {
@@ -2818,7 +2830,7 @@ function updateUI() {
 }
 
 function createFloatingDamage(x, y, damage, color = '#ff3366') {
-  if (typeof settings !== 'undefined' && settings.showEnemyHp === false) return;
+  if (typeof settings !== 'undefined' && settings.showDamage === false) return;
   const dmgVal = typeof damage === 'number' ? Math.round(damage) : damage;
   if (!dmgVal || dmgVal <= 0) return;
 
