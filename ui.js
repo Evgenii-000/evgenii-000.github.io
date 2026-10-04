@@ -1780,6 +1780,21 @@ function showLevelSelect() {
   gameState = 'LEVELS';
 }
 
+function giveUpMatch() {
+  if (reviveTimerInterval) { clearInterval(reviveTimerInterval); reviveTimerInterval = null; }
+  const settingsSc = document.getElementById('settingsScreen');
+  if (settingsSc) settingsSc.classList.add('hidden');
+  const pauseSc = document.getElementById('pauseScreen');
+  if (pauseSc) pauseSc.classList.add('hidden');
+
+  if (typeof gameOver === 'function') {
+    gameOver();
+  } else {
+    document.getElementById('defeatScreen').classList.remove('hidden');
+    if (typeof replayDefeatFlash === 'function') replayDefeatFlash();
+  }
+}
+
 function showLevelSelectFromGame() {
   music('menu');
   if (reviveTimerInterval) { clearInterval(reviveTimerInterval); reviveTimerInterval = null; }
@@ -2776,6 +2791,24 @@ function updateUI() {
   if (selectedTower) updateInspectUI();
 }
 
+function createFloatingDamage(x, y, damage, color = '#ff3366') {
+  if (typeof settings !== 'undefined' && settings.showEnemyHp === false) return;
+  const dmgVal = typeof damage === 'number' ? Math.round(damage) : damage;
+  if (!dmgVal || dmgVal <= 0) return;
+
+  pushParticle({
+    x: x + (Math.random() - 0.5) * 12,
+    y: y - 8 + (Math.random() - 0.5) * 6,
+    vx: (Math.random() - 0.5) * 18,
+    vy: -28 - Math.random() * 22,
+    text: `-${dmgVal}`,
+    color: color,
+    life: 0.65,
+    maxLife: 0.65,
+    isText: true
+  });
+}
+
 function createDamageShards(x, y, color, damage = 16, isDeath = false) {
   const count = isDeath ? (perfMode === 'low' ? 5 : 8) : Math.max(1, Math.min(3, Math.ceil(damage / 25)));
   const baseSize = isDeath ? 7.5 : Math.max(3.2, Math.min(6.0, 2.2 + damage * 0.06));
@@ -3697,7 +3730,7 @@ function drawEnemyModel(e, showHpBar = true) {
     ctx.restore();
   }
 
-// Полоска HP и числовые значения здоровья
+// Полоска HP здоровья
   if (showHpBar && typeof settings !== 'undefined' && settings.showEnemyHp && (e.isBoss || e.isMiniBoss || (e.hp < e.maxHp))) {
     ctx.shadowBlur = 0;
     const rad = e.radius || 12;
@@ -3711,13 +3744,6 @@ function drawEnemyModel(e, showHpBar = true) {
     ctx.fillRect(-barW/2, barY, barW, barH);
     ctx.fillStyle = e.isBoss ? (e.color || '#f05f9f') : (hpPct > 0.5 ? '#00e5ff' : '#ff9100');
     ctx.fillRect(-barW/2, barY, barW * hpPct, barH);
-
-    // Точные цифры здоровья над полоской
-    ctx.font = 'bold 9px monospace';
-    ctx.fillStyle = '#ffffff';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'bottom';
-    ctx.fillText(`${Math.ceil(e.hp)}/${Math.ceil(e.maxHp || e.hp)}`, 0, barY - 2);
   }
 
   ctx.restore();
@@ -4142,6 +4168,24 @@ function render(now) {
       const curRadius = pt.radius * (0.4 + easeProg * 0.6);
       ctx.drawImage(sprite, pt.x - curRadius, pt.y - curRadius, curRadius * 2, curRadius * 2);
     }
+  }
+
+  // Слой 4: Всплывающий урон (floating damage text)
+  ctx.globalCompositeOperation = 'source-over';
+  for (let i = 0; i < particles.length; i++) {
+    const pt = particles[i];
+    if (!pt.isText) continue;
+
+    const rawProg = Math.max(0, Math.min(1, pt.life / pt.maxLife));
+    ctx.globalAlpha = rawProg > 0.3 ? 1.0 : rawProg / 0.3;
+    ctx.font = '900 12px Montserrat, sans-serif';
+    ctx.fillStyle = pt.color || '#ff3366';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+    ctx.shadowBlur = 4;
+    ctx.fillText(pt.text, pt.x, pt.y);
+    ctx.shadowBlur = 0;
   }
 
   ctx.globalCompositeOperation = 'source-over';
