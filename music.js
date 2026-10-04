@@ -251,7 +251,9 @@ const MusicManager = (function () {
     },
 
     setEnabled: function (on) {
-      enabled = !!on;
+      const next = !!on;
+      if (enabled === next) return;
+      enabled = next;
       if (!enabled) {
         pending = category;
         stopCurrent(0.35);
