@@ -2452,9 +2452,11 @@ if (e.type === 'chronos_warp') {
       }
     }
 
-    if (t.type === 'railgun' && target && isLockedOn && t.lastFire >= t.fireRate) {
-      t.lastFire = 0;
-      sfx('railgun');
+    if (t.type === 'railgun') {
+      t.lastFire += dt;
+      if (target && isLockedOn && t.lastFire >= t.fireRate) {
+        t.lastFire = 0;
+        sfx('railgun');
       
       const beamLength = 3500;
       const beamEndX = t.x + Math.cos(t.angle) * beamLength;
@@ -2489,8 +2491,9 @@ if (e.type === 'chronos_warp') {
         }
       }
 
-      if (typeof createRailBeamFx === 'function') {
-        createRailBeamFx(t.x, t.y, beamEndX, beamEndY, t.color || '#00e5ff');
+        if (typeof createRailBeamFx === 'function') {
+          createRailBeamFx(t.x, t.y, beamEndX, beamEndY, t.color || '#00e5ff');
+        }
       }
     }
   });
