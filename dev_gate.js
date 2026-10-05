@@ -18,7 +18,7 @@
   overlay.innerHTML = `
     <div style="text-align: center; max-width: 320px; padding: 20px; box-sizing: border-box;">
       <h2 style="margin-bottom: 8px; text-shadow: 0 0 10px #00ffcc;">DEV ACCESS</h2>
-      <p style="color: #888; font-size: 13px; margin-bottom: 20px;">Введите PIN-код</p>
+      <p style="color: #888; font-size: 13px; margin-bottom: 20px;">PIN</p>
       <input type="password" id="dev-pin-input" placeholder="PIN" style="
           width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #00ffcc;
           background: #151528; color: #fff; text-align: center; font-size: 20px;
@@ -26,8 +26,8 @@
       <button id="dev-unlock-btn" style="
           width: 100%; padding: 12px; border-radius: 8px; border: none;
           background: #00ffcc; color: #000; font-weight: bold; font-size: 14px;
-          cursor: pointer;">РАЗБЛОКИРОВАТЬ</button>
-      <p id="dev-error-msg" style="color: #ff3366; font-size: 12px; margin-top: 10px; display: none;">Неверный PIN</p>
+          cursor: pointer;">ENTER</button>
+      <p id="dev-error-msg" style="color: #ff3366; font-size: 12px; margin-top: 10px; display: none;">Incorrect</p>
     </div>
   `;
 
