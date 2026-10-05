@@ -2130,8 +2130,13 @@ if (e.type === 'chronos_warp') {
         if (progress <= 0.24) {
           e.x = e.dashAnim.startX;
           e.y = e.dashAnim.startY;
-          e.dashMorph = progress / 0.24;
           e.dashLineMoving = false;
+
+          // Before jump: materializes particles around himself
+          if (Math.random() < 0.8) {
+            if (typeof createDamageShards === 'function') createDamageShards(e.x, e.y, '#f97316', 15, false);
+            if (typeof createSparks === 'function') createSparks(e.x, e.y, '#fb923c', 3, '#f97316');
+          }
         } else if (progress <= 0.76) {
           const moveT = (progress - 0.24) / (0.76 - 0.24);
           e.x = e.dashAnim.startX + (e.dashAnim.endX - e.dashAnim.startX) * moveT;
@@ -2141,17 +2146,17 @@ if (e.type === 'chronos_warp') {
           if (dx !== 0 || dy !== 0) {
             e.angle = Math.atan2(dy, dx);
           }
-          e.dashMorph = 1.0;
           e.dashLineMoving = true;
 
-          if (Math.random() < 0.6) {
-            if (typeof createSparks === 'function') createSparks(e.x, e.y, '#fb923c', 2, '#f97316');
+          // During jump: throws particles around as he moves forward
+          if (Math.random() < 0.7) {
+            if (typeof createDamageShards === 'function') createDamageShards(e.x, e.y, '#f97316', 20, false);
+            if (typeof createSparks === 'function') createSparks(e.x, e.y, '#fb923c', 4, '#f97316');
           }
         } else {
           e.x = e.dashAnim.endX;
           e.y = e.dashAnim.endY;
           e.wpIndex = e.dashAnim.endWp;
-          e.dashMorph = (1.0 - progress) / (1.0 - 0.76);
           e.dashLineMoving = false;
         }
 
@@ -2160,12 +2165,12 @@ if (e.type === 'chronos_warp') {
           e.y = e.dashAnim.endY;
           e.wpIndex = e.dashAnim.endWp;
           e.dashAnim = null;
-          e.dashMorph = 0;
           e.dashLineMoving = false;
           e.teleportFlashTimer = 0.25;
 
           if (typeof createShockwave === 'function') createShockwave(e.x, e.y, 65, '#fb923c');
-          if (typeof createDamageShards === 'function') createDamageShards(e.x, e.y, '#fb923c', 20, false);
+          if (typeof createDamageShards === 'function') createDamageShards(e.x, e.y, '#f97316', 40, false);
+          if (typeof createSparks === 'function') createSparks(e.x, e.y, '#fb923c', 10, '#f97316');
         }
 
         continue;
@@ -2244,6 +2249,7 @@ if (e.type === 'chronos_warp') {
       e.empTimer = (e.empTimer || 0) + dt;
       if (e.empTimer >= 5.0) {
         e.empTimer -= 5.0;
+        sfx('stasis');
         createShockwave(e.x, e.y, 180, '#f05f9f');
         towers.forEach(t => {
           if (Math.hypot(t.x - e.x, t.y - e.y) <= 180) {
@@ -2653,6 +2659,7 @@ if (e.type === 'chronos_warp') {
       sfxDeath(e);
 
       if (e.type === 'emp_bomber') {
+        sfx('stasis');
         createShockwave(e.x, e.y, 110, '#f05f9f');
         towers.forEach(t => {
           if (Math.hypot(t.x - e.x, t.y - e.y) <= 110) {
