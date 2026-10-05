@@ -83,7 +83,7 @@ const MusicManager = (function () {
   let enabled = true;
   let volume = 1;          // player's master music trim, 0..1
   let ducked = false;      // menu/pause ducking state for in-battle music
-  const DUCK_FACTOR = 0.35;
+  const DUCK_FACTOR = 0.80;
   const DUCK_FILTER_FREQ = 800;   // Hz low-pass cutoff when paused/ducked
   const NORMAL_FILTER_FREQ = 20000; // Hz low-pass cutoff during normal playback
 

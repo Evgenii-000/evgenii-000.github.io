@@ -2244,12 +2244,12 @@ if (e.type === 'chronos_warp') {
       e.empTimer = (e.empTimer || 0) + dt;
       if (e.empTimer >= 5.0) {
         e.empTimer -= 5.0;
-        createShockwave(e.x, e.y, 180, '#fb923c');
+        createShockwave(e.x, e.y, 180, '#f05f9f');
         towers.forEach(t => {
           if (Math.hypot(t.x - e.x, t.y - e.y) <= 180) {
             t.disabledTimer = Math.max(t.disabledTimer || 0, 2.5);
             sfx('steam');
-            createDamageShards(t.x, t.y, '#fb923c', 16, false);
+            createDamageShards(t.x, t.y, '#f05f9f', 16, false);
           }
         });
       }
@@ -2653,12 +2653,12 @@ if (e.type === 'chronos_warp') {
       sfxDeath(e);
 
       if (e.type === 'emp_bomber') {
-        createShockwave(e.x, e.y, 110, '#fb923c');
+        createShockwave(e.x, e.y, 110, '#f05f9f');
         towers.forEach(t => {
           if (Math.hypot(t.x - e.x, t.y - e.y) <= 110) {
             t.disabledTimer = Math.max(t.disabledTimer || 0, 3.0);
             sfx('steam');
-            createDamageShards(t.x, t.y, '#fb923c', 16, false);
+            createDamageShards(t.x, t.y, '#f05f9f', 16, false);
           }
         });
       }

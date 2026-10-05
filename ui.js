@@ -119,11 +119,12 @@ function getNeonDiscSprite(color) {
 // --- Кэш оффскрин-спрайтов геометрии мобов (Crash-Safe) ---
 const ENEMY_SPRITE_CACHE = Object.create(null);
 
-function getEnemyShapeSprite(shape, color, radius) {
+function getEnemyShapeSprite(shape, color, radius, glowColor) {
   const safeShape = shape || 'circle';
   const safeColor = color || '#00e5ff';
+  const safeGlow = glowColor || safeColor;
   const safeR = Math.max(4, Math.round(radius || 12));
-  const key = `${safeShape}_${safeColor}_${safeR}`;
+  const key = `${safeShape}_${safeColor}_${safeGlow}_${safeR}`;
 
   if (ENEMY_SPRITE_CACHE[key]) return ENEMY_SPRITE_CACHE[key];
 
@@ -141,8 +142,8 @@ function getEnemyShapeSprite(shape, color, radius) {
 
   // Мягкий рассеянный неоновый отсвет
   const grad = sCtx.createRadialGradient(0, 0, 2, 0, 0, safeR * 2.2);
-  grad.addColorStop(0, safeColor + '55');
-  grad.addColorStop(0.5, safeColor + '15');
+  grad.addColorStop(0, safeGlow + '66');
+  grad.addColorStop(0.5, safeGlow + '20');
   grad.addColorStop(1, 'transparent');
   sCtx.fillStyle = grad;
   sCtx.beginPath();
@@ -150,7 +151,7 @@ function getEnemyShapeSprite(shape, color, radius) {
   sCtx.fill();
 
   // Основное тело и неоновый контур
-  sCtx.fillStyle = safeColor + '22';
+  sCtx.fillStyle = safeGlow + '33';
   sCtx.strokeStyle = safeColor;
   sCtx.lineWidth = 2.4;
 
@@ -3686,7 +3687,7 @@ function drawEnemyModel(e, showHpBar = true) {
   const isHeavyMob = e.isBoss || e.isMiniBoss || isBlinkerShielded;
 
   if (!isHeavyMob && typeof getEnemyShapeSprite === 'function') {
-    const spr = getEnemyShapeSprite(e.shape || 'circle', renderColor, e.radius || 12);
+    const spr = getEnemyShapeSprite(e.shape || 'circle', renderColor, e.radius || 12, e.glow);
     if (spr && spr.canvas) {
       const needsRotation = (e.shape === 'triangle' || e.shape === 'trapezoid' || e.shape === 'triangle_inverted' || e.shape === 'kite');
       if (needsRotation && typeof e.angle === 'number') {
@@ -3699,9 +3700,10 @@ function drawEnemyModel(e, showHpBar = true) {
     }
   } else {
     const rad = e.radius || 16;
+    const glowColor = e.glow || renderColor;
     const glowGrad = ctx.createRadialGradient(0, 0, 2, 0, 0, rad * 2.5);
-    glowGrad.addColorStop(0, renderColor + (e.isBoss ? '88' : '66'));
-    glowGrad.addColorStop(0.5, renderColor + (e.isBoss ? '30' : '20'));
+    glowGrad.addColorStop(0, glowColor + (e.isBoss ? '88' : '66'));
+    glowGrad.addColorStop(0.5, glowColor + (e.isBoss ? '30' : '20'));
     glowGrad.addColorStop(1, 'transparent');
     ctx.fillStyle = glowGrad;
     ctx.beginPath();
@@ -3712,11 +3714,11 @@ function drawEnemyModel(e, showHpBar = true) {
     if (isBlinkerShielded) ctx.globalAlpha = 0.52;
 
     const strokeW = e.isBoss ? 5.0 : 3.6;
-    ctx.fillStyle = isBlinkerShielded ? '#334155' : renderColor + (e.isBoss ? '28' : '22');
+    ctx.fillStyle = isBlinkerShielded ? '#334155' : glowColor + (e.isBoss ? '33' : '22');
     ctx.strokeStyle = renderColor;
     ctx.lineWidth = strokeW;
     if (typeof setGlow === 'function') {
-      setGlow(isBlinkerShielded ? 'transparent' : renderColor, isBlinkerShielded ? 0 : 8);
+      setGlow(isBlinkerShielded ? 'transparent' : glowColor, isBlinkerShielded ? 0 : 8);
     }
 
     if (e.dashMorph > 0) {
@@ -4010,15 +4012,15 @@ function render(now) {
   });
 
   enemies.forEach(e => {
-    if (e.type === 'emp_overlord') {
+    if (e.type === 'emp_bomber' || e.type === 'emp_overlord') {
+      const effectRadius = e.type === 'emp_overlord' ? 180 : 110;
       ctx.save();
-      const empGrad = ctx.createRadialGradient(e.x, e.y, 0, e.x, e.y, 180);
-      empGrad.addColorStop(0, 'rgba(251, 146, 60, 0.16)');
-      empGrad.addColorStop(1, 'rgba(251, 146, 60, 0)');
-      ctx.fillStyle = empGrad;
       ctx.beginPath();
-      ctx.arc(e.x, e.y, 180, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.arc(e.x, e.y, effectRadius, 0, Math.PI * 2);
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 1.5;
+      if (typeof setGlow === 'function') setGlow('#38bdf8', 6);
+      ctx.stroke();
       ctx.restore();
     }
   });
