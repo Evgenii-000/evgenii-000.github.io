@@ -393,11 +393,11 @@ const ENEMY_CONFIGS = {
   swarm: { shape: 'diamond', color: '#00ffcc', glow: '#00ffcc', size: 8, baseSpeed: 170, baseHp: 16, baseBounty: 3 },
   blinker: { shape: 'hexagon', color: '#3b82f6', glow: '#60a5fa', size: 12, baseSpeed: 62, baseHp: 65, baseBounty: 8 },
   goliath: { shape: 'octagon', color: '#8964c4', glow: '#7050a4', size: 15, baseSpeed: 30, baseHp: 260, baseBounty: 18 },
-  emp_bomber: { shape: 'triangle_inverted', color: '#38bdf8', glow: '#0284c7', size: 13, baseSpeed: 40, baseHp: 170, baseBounty: 14 },
+  emp_bomber: { shape: 'triangle_inverted', color: '#38bdf8', glow: '#f05f9f', size: 13, baseSpeed: 40, baseHp: 170, baseBounty: 14 },
   hive_empress: { shape: 'diamond', color: '#00ffcc', glow: '#00ffcc', size: 15, baseSpeed: 38, baseHp: 2200, baseBounty: 60 },
   chronos_warp: { shape: 'hexagon', color: '#3b82f6', glow: '#60a5fa', size: 16, baseSpeed: 40, baseHp: 4200, baseBounty: 85 },
   titan_core: { shape: 'octagon', color: '#f97316', glow: '#fb923c', size: 17, baseSpeed: 28, baseHp: 5800, baseBounty: 110 },
-  emp_overlord: { shape: 'triangle_inverted', color: '#38bdf8', glow: '#0284c7', size: 17, baseSpeed: 30, baseHp: 7200, baseBounty: 140 }
+  emp_overlord: { shape: 'triangle_inverted', color: '#38bdf8', glow: '#f05f9f', size: 17, baseSpeed: 30, baseHp: 7200, baseBounty: 140 }
 };
 
 const MAP_CATALOG = {
