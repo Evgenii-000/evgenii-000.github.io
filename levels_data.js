@@ -5355,8 +5355,8 @@ var LEVELS_DATA = {
         {
           "type": "scout",
           "count": 1,
-          "hp": 16200,
-          "hpMult": 540,
+          "hp": 9720,
+          "hpMult": 324,
           "speed": 110,
           "speedMult": 1,
           "interval": 1,
@@ -6041,8 +6041,8 @@ var LEVELS_DATA = {
         {
           "type": "titan_core",
           "count": 1,
-          "hp": 28000,
-          "hpMult": 280,
+          "hp": 36400,
+          "hpMult": 364,
           "speed": 40,
           "speedMult": 1,
           "interval": 1,

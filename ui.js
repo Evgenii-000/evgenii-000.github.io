@@ -3719,6 +3719,14 @@ function drawEnemyModel(e, showHpBar = true) {
       setGlow(isBlinkerShielded ? 'transparent' : renderColor, isBlinkerShielded ? 0 : 8);
     }
 
+    if (e.dashMorph > 0) {
+      const morph = Math.max(0, Math.min(1, e.dashMorph));
+      ctx.rotate(e.angle || 0);
+      const scaleX = 1.0 + morph * 2.2;
+      const scaleY = Math.max(0.05, 1.0 - morph * 0.95);
+      ctx.scale(scaleX, scaleY);
+    }
+
     if (e.shape === 'circle' || !e.shape) {
       ctx.beginPath();
       ctx.arc(0, 0, rad, 0, Math.PI * 2);
@@ -3799,6 +3807,20 @@ function drawEnemyModel(e, showHpBar = true) {
     ctx.font = 'bold 11px Montserrat, sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('❄', (e.radius || 12) * 0.85, -(e.radius || 12) * 0.85);
+    ctx.restore();
+  }
+
+  if (e.dashLineMoving) {
+    ctx.save();
+    ctx.translate(e.x, e.y);
+    ctx.rotate(e.angle || 0);
+    ctx.strokeStyle = e.glow || '#fb923c';
+    ctx.lineWidth = 4;
+    if (typeof setGlow === 'function') setGlow(e.color || '#f97316', 12);
+    ctx.beginPath();
+    ctx.moveTo(-50, 0);
+    ctx.lineTo(0, 0);
+    ctx.stroke();
     ctx.restore();
   }
 
