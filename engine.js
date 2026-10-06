@@ -40,13 +40,24 @@ let activeBossAlertType = null;
 let bossAlertHideTimer = 0;
 let newTowerBannerHideTimer = 0;
 
+let cameraShakeTimer = 0;
+let cameraShakeIntensity = 0;
+
+function triggerCameraShake(dur = 0.5, intensity = 15) {
+  cameraShakeTimer = dur;
+  cameraShakeIntensity = intensity;
+}
+
 function hasClearedLevelBefore(lvl) {
   return maxUnlockedLevel > lvl;
 }
 
 function getBaseDamageFor(e) {
   if (e.isBoss) return 5;
-  if (e.isMiniBoss) return 2;
+  if (e.isMiniBoss) {
+    if (typeof currentLevel !== 'undefined' && currentLevel === 34) return 1;
+    return 2;
+  }
   return 1;
 }
 
@@ -1131,21 +1142,94 @@ function acceptEmergencyRevive() {
 
   const executeRevive = () => {
     musicSetDucked(false);
-    baseHp = Math.max(3, Math.round(baseHp + 3));
+    baseHp = Math.max(3, Math.round(matchStartBaseHp * 0.5));
     reviveUsedThisMatch = true;
     updateUI();
 
-    if (WAYPOINTS && WAYPOINTS.length > 0) {
+    if (WAYPOINTS && WAYPOINTS.length > 1) {
       const basePt = WAYPOINTS[WAYPOINTS.length - 1];
-      createShockwave(basePt.x, basePt.y, 160, '#00e5ff');
-      createExplosion(basePt.x, basePt.y, 80);
-      for (let i = enemies.length - 1; i >= 0; i--) {
-        const e = enemies[i];
-        if (Math.hypot(e.x - basePt.x, e.y - basePt.y) <= 160) {
-          createDamageShards(e.x, e.y, e.color, 25, false);
-          enemies.splice(i, 1);
-        }
+      const fw = typeof FIELD_WIDTH !== 'undefined' ? FIELD_WIDTH : 700;
+      createShockwave(basePt.x, basePt.y, fw * 0.9, '#00e5ff');
+      createShockwave(basePt.x, basePt.y, fw * 0.6, '#ffffff');
+      createShockwave(basePt.x, basePt.y, fw * 0.3, '#38bdf8');
+      if (typeof createExplosion === 'function') createExplosion(basePt.x, basePt.y, 100);
+      if (typeof createDamageShards === 'function') createDamageShards(basePt.x, basePt.y, '#00e5ff', 50, false);
+      triggerCameraShake(0.5, 16);
+      vibrate('heavy');
+      sfx('bossIncoming');
+      sfx('revive');
+
+      const numWps = WAYPOINTS.length;
+      const cumDist = [0];
+      for (let k = 1; k < numWps; k++) {
+        const d = Math.hypot(WAYPOINTS[k].x - WAYPOINTS[k - 1].x, WAYPOINTS[k].y - WAYPOINTS[k - 1].y);
+        cumDist.push(cumDist[k - 1] + d);
       }
+      const totalRouteDistance = cumDist[numWps - 1];
+      const pushDistance = totalRouteDistance * 0.45;
+
+      enemies.forEach(e => {
+        let k = e.wpIndex;
+        if (k < 1) k = 1;
+        if (k >= numWps) k = numWps - 1;
+
+        const prevWp = WAYPOINTS[k - 1];
+        const targetWp = WAYPOINTS[k];
+        const segDx = targetWp.x - prevWp.x;
+        const segDy = targetWp.y - prevWp.y;
+        const segLen = Math.hypot(segDx, segDy);
+
+        let dInSeg = 0;
+        if (segLen > 0) {
+          const ex = e.x - prevWp.x;
+          const ey = e.y - prevWp.y;
+          const proj = (ex * segDx + ey * segDy) / segLen;
+          dInSeg = Math.max(0, Math.min(segLen, proj));
+        }
+
+        const currentDistFromSpawn = cumDist[k - 1] + dInSeg;
+        const newDistFromSpawn = Math.max(0, currentDistFromSpawn - pushDistance);
+
+        let newK = 1;
+        while (newK < numWps - 1 && cumDist[newK] < newDistFromSpawn) {
+          newK++;
+        }
+
+        const pSegStart = WAYPOINTS[newK - 1];
+        const pSegEnd = WAYPOINTS[newK];
+        const pSegLen = cumDist[newK] - cumDist[newK - 1];
+        const pSegDist = newDistFromSpawn - cumDist[newK - 1];
+
+        let t = 0;
+        if (pSegLen > 0) {
+          t = Math.max(0, Math.min(1, pSegDist / pSegLen));
+        }
+
+        let newX = pSegStart.x + t * (pSegEnd.x - pSegStart.x);
+        let newY = pSegStart.y + t * (pSegEnd.y - pSegStart.y);
+
+        if (e.laneOffset) {
+          const sDx = pSegEnd.x - pSegStart.x;
+          const sDy = pSegEnd.y - pSegStart.y;
+          const sLen = Math.hypot(sDx, sDy) || 1;
+          let offX = -sDy / sLen;
+          let offY = sDx / sLen;
+          const nextWp = WAYPOINTS[newK + 1];
+          if (nextWp) {
+            const s2Dx = nextWp.x - pSegEnd.x;
+            const s2Dy = nextWp.y - pSegEnd.y;
+            const s2Len = Math.hypot(s2Dx, s2Dy) || 1;
+            offX += -s2Dy / s2Len;
+            offY += s2Dx / s2Len;
+          }
+          newX += offX * e.laneOffset;
+          newY += offY * e.laneOffset;
+        }
+
+        e.x = newX;
+        e.y = newY;
+        e.wpIndex = newK;
+      });
     }
     gameState = 'PLAYING';
     lastTime = performance.now();
@@ -1992,6 +2076,10 @@ function showLevelSelectFromGame() {
 }
 
 function update(dt) {
+  if (cameraShakeTimer > 0) {
+    cameraShakeTimer -= dt;
+    if (cameraShakeTimer < 0) cameraShakeTimer = 0;
+  }
   const lvlConfig = LEVELS_DATA[currentLevel];
   const maxW = lvlConfig ? lvlConfig.totalWaves : 10;
   const btn = el('waveBtn');
@@ -2309,7 +2397,7 @@ if (e.type === 'chronos_warp') {
         updateUI();
         if (baseHp <= 0) {
           baseHp = 0;
-          if (wave >= Math.ceil(maxW * 0.8) && !reviveUsedThisMatch) {
+          if (!reviveUsedThisMatch) {
             triggerEmergencyRevivePrompt();
             return;
           }

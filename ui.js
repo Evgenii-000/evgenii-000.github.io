@@ -3980,8 +3980,15 @@ function render(now) {
   drawCosmicNebulaBackground(window.innerWidth, window.innerHeight);
   updateAndDrawStars(window.innerWidth, window.innerHeight, now);
 
+  let shakeX = 0;
+  let shakeY = 0;
+  if (typeof cameraShakeTimer !== 'undefined' && cameraShakeTimer > 0) {
+    shakeX = (Math.random() - 0.5) * cameraShakeIntensity;
+    shakeY = (Math.random() - 0.5) * cameraShakeIntensity;
+  }
+
   ctx.save();
-  ctx.translate(camX, camY);
+  ctx.translate(camX + shakeX, camY + shakeY);
   ctx.scale(camZoom, camZoom);
 
   if (offscreenGridDirty || !offscreenGridCanvas) {
