@@ -334,9 +334,12 @@ function hideIncomingAlert() {
 }
 
 function resizeCanvasAndCamera() {
+  const vpWidth = window.visualViewport ? window.visualViewport.width : window.innerWidth;
+  const vpHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
   const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-  canvas.width = window.innerWidth * dpr;
-  canvas.height = window.innerHeight * dpr;
+
+  canvas.width = vpWidth * dpr;
+  canvas.height = vpHeight * dpr;
   ctx.setTransform(1, 0, 0, 1, 0, 0);
 
   FIELD_WIDTH = COLS * TILE_SIZE;
@@ -351,21 +354,23 @@ function resizeCanvasAndCamera() {
     ? bottomEl.getBoundingClientRect().height
     : 110;
 
-  const usableHeight = Math.max(220, window.innerHeight - topH - bottomH);
+  const usableHeight = Math.max(220, vpHeight - topH - bottomH);
 
   const PADDING_CELLS = 1;
   const paddedWidth = FIELD_WIDTH + (TILE_SIZE * PADDING_CELLS * 2);
   const paddedHeight = FIELD_HEIGHT + (TILE_SIZE * PADDING_CELLS * 2);
 
-  baseZoom = Math.min(window.innerWidth / paddedWidth, usableHeight / paddedHeight);
+  const oldBaseZoom = baseZoom || 1.0;
+  const zoomRatio = (camZoom && oldBaseZoom) ? (camZoom / oldBaseZoom) : 1.0;
+
+  baseZoom = Math.min(vpWidth / paddedWidth, usableHeight / paddedHeight);
   minZoom = baseZoom * 0.90;
   maxZoom = Math.max(1.8, baseZoom * 2.2);
 
-  if (camZoom < minZoom || !camZoom) camZoom = baseZoom;
-  if (camZoom > maxZoom) camZoom = maxZoom;
+  camZoom = Math.min(maxZoom, Math.max(minZoom, baseZoom * zoomRatio));
 
   const targetCenterY = topH + (usableHeight / 2);
-  camX = (window.innerWidth / 2) - (FIELD_WIDTH * camZoom / 2);
+  camX = (vpWidth / 2) - (FIELD_WIDTH * camZoom / 2);
   camY = targetCenterY - (FIELD_HEIGHT * camZoom / 2);
 
   clampCamera();
@@ -375,8 +380,8 @@ function resizeCanvasAndCamera() {
 }
 
 function clampCamera() {
-  const screenW = window.innerWidth;
-  const screenH = window.innerHeight;
+  const screenW = window.visualViewport ? window.visualViewport.width : window.innerWidth;
+  const screenH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
   const viewFieldW = FIELD_WIDTH * camZoom;
   const viewFieldH = FIELD_HEIGHT * camZoom;
 
@@ -407,21 +412,42 @@ function clampCamera() {
 }
 
 function screenToWorld(sx, sy) {
+  const rect = canvas.getBoundingClientRect();
+  const relX = sx - rect.left;
+  const relY = sy - rect.top;
   return {
-    x: (sx - camX) / camZoom,
-    y: (sy - camY) / camZoom
+    x: (relX - camX) / camZoom,
+    y: (relY - camY) / camZoom
   };
 }
 
 function worldToScreen(wx, wy) {
+  const rect = canvas.getBoundingClientRect();
   return {
-    x: wx * camZoom + camX,
-    y: wy * camZoom + camY
+    x: wx * camZoom + camX + rect.left,
+    y: wy * camZoom + camY + rect.top
   };
 }
 
 window.addEventListener('resize', resizeCanvasAndCamera);
+window.addEventListener('orientationchange', () => {
+  setTimeout(resizeCanvasAndCamera, 100);
+});
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', resizeCanvasAndCamera);
+  window.visualViewport.addEventListener('scroll', resizeCanvasAndCamera);
+}
 window.addEventListener('load', resizeCanvasAndCamera);
+
+// Lock out browser default touch behaviors (overscroll bounce, pull-to-refresh) over active gameplay canvas/UI
+document.addEventListener('touchmove', (e) => {
+  if (gameState === 'PLAYING') {
+    const isScrollableOverlay = e.target.closest && e.target.closest('.result-stack, .upgrades-row-list, .settings-box');
+    if (!isScrollableOverlay && e.cancelable) {
+      e.preventDefault();
+    }
+  }
+}, { passive: false });
 
 function initTutorialForLevel(lvl) {
   tutorialActive = false;
