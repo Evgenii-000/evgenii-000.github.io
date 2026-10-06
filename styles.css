@@ -16,13 +16,22 @@
       touch-action: none;
 	  -webkit-tap-highlight-color: transparent;
     }
+    html {
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      overscroll-behavior: none;
+    }
     body {
       background: #06070d;
       color: #f1f5f9;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       width: 100vw;
       height: 100vh;
+      height: 100dvh;
       overflow: hidden;
+      overscroll-behavior: none;
       position: fixed;
       top: 0;
       left: 0;
@@ -44,21 +53,25 @@
       top: 0;
       left: 0;
       width: 100%;
-      height: 100%;
+      height: 100vh;
+      height: 100dvh;
       z-index: 10;
       pointer-events: none;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       padding: max(20px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+      overscroll-behavior: none;
     }
 
     /* Top Navigation & Status Bar */
 .hud-top-bar {
       position: fixed;
       top: max(16px, env(safe-area-inset-top));
-      left: max(16px, env(safe-area-inset-left));
-      right: max(16px, env(safe-area-inset-right));
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100vw - max(32px, env(safe-area-inset-left) + env(safe-area-inset-right)));
+      max-width: 960px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -370,7 +383,7 @@
 	  display: none !important;
       position: fixed;
       top: max(80px, calc(env(safe-area-inset-top) + 68px));
-      right: max(16px, env(safe-area-inset-right));
+      right: max(max(16px, env(safe-area-inset-right)), calc(50vw - 480px + 16px));
       display: flex;
       align-items: center;
       gap: 6px;
@@ -919,7 +932,7 @@
     /* Вынос кнопки вызова волны над панелью управления */
     .action-btn.floating-wave-btn {
       position: fixed;
-      right: max(16px, env(safe-area-inset-right));
+      right: max(max(16px, env(safe-area-inset-right)), calc(50vw - 480px + 16px));
       bottom: max(118px, calc(112px + env(safe-area-inset-bottom)));
       width: 78px;
       height: 78px;
@@ -1784,7 +1797,8 @@
       top: 0;
       left: 0;
       width: 100%;
-      height: 100%;
+      height: 100vh;
+      height: 100dvh;
       background: rgba(8, 10, 19, 0.82);
       backdrop-filter: blur(8px);
       display: flex;
@@ -1794,6 +1808,7 @@
       gap: 12px;
       z-index: 50;
       pointer-events: auto;
+      overscroll-behavior: none;
       padding-top: max(76px, calc(env(safe-area-inset-top) + 68px));
     }
     .overlay-screen.transparent-bg {
@@ -2083,8 +2098,10 @@
     .levels-top-bar {
       position: fixed;
       top: max(16px, env(safe-area-inset-top));
-      left: 16px;
-      right: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100vw - max(32px, env(safe-area-inset-left) + env(safe-area-inset-right)));
+      max-width: 960px;
       height: 52px;
       border-radius: 26px;
       background: rgba(10, 14, 28, 0.45);
@@ -2661,7 +2678,7 @@
 
     .tutorial-skip-btn {
       position: fixed;
-      right: max(14px, env(safe-area-inset-right));
+      right: max(max(14px, env(safe-area-inset-right)), calc(50vw - 480px + 14px));
       bottom: max(96px, calc(96px + env(safe-area-inset-bottom)));
       z-index: 501;
       pointer-events: auto;
