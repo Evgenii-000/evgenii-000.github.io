@@ -146,14 +146,24 @@ const MusicManager = (function () {
   }
 
   function connectElementToWebAudio(el) {
-    if (!ensureAudioCtx()) return;
-    if (el._mediaSource) return;
+    if (!ensureAudioCtx()) return null;
+    if (el._gainNode) return el._gainNode;
     try {
-      const source = audioCtx.createMediaElementSource(el);
-      source.connect(filterNode);
+      const source = el._mediaSource || audioCtx.createMediaElementSource(el);
       el._mediaSource = source;
+
+      const gNode = audioCtx.createGain();
+      const initVol = el.volume !== undefined ? el.volume : 1;
+      gNode.gain.setValueAtTime(initVol, audioCtx.currentTime);
+
+      source.disconnect();
+      source.connect(gNode);
+      gNode.connect(filterNode);
+      el._gainNode = gNode;
+      try { el.volume = 1.0; } catch (e) {}
+      return gNode;
     } catch (e) {
-      // Fallback: if Web Audio routing fails, HTMLAudioElement plays directly
+      return null;
     }
   }
 
@@ -172,7 +182,7 @@ const MusicManager = (function () {
   // paused and dropped, and the timer stops itself once nothing is moving, so
   // an idle menu isn't burning a 20 Hz interval forever.
 
-  const fading = [];   // { el, from, to, elapsed, dur, stopAtEnd }
+  const fading = [];   // { el, gNode, from, to, elapsed, dur, stopAtEnd }
 
   function stepFades() {
     for (let i = fading.length - 1; i >= 0; i--) {
@@ -180,7 +190,13 @@ const MusicManager = (function () {
       f.elapsed += FADE_STEP_MS / 1000;
       const k = f.dur > 0 ? Math.min(1, f.elapsed / f.dur) : 1;
       const v = f.from + (f.to - f.from) * k;
-      try { f.el.volume = Math.max(0, Math.min(1, v)); } catch (e) { }
+
+      if (!f.gNode) {
+        try { f.el.volume = Math.max(0, Math.min(1, v)); } catch (e) { }
+      } else {
+        try { if (f.el.volume !== 1) f.el.volume = 1; } catch (e) { }
+      }
+
       if (k >= 1) {
         if (f.stopAtEnd) {
           // Pause and drop the reference; that's all. Do NOT clear src and call
@@ -203,11 +219,31 @@ const MusicManager = (function () {
 
   function fadeTo(el, to, dur, stopAtEnd) {
     if (!el) return;
+    const duration = Math.max(0.01, dur || 0);
+    const targetVol = Math.max(0, Math.min(1, to));
+
+    const gNode = connectElementToWebAudio(el);
+
+    if (gNode && audioCtx) {
+      try {
+        const now = audioCtx.currentTime;
+        gNode.gain.cancelScheduledValues(now);
+        gNode.gain.setValueAtTime(gNode.gain.value, now);
+        gNode.gain.linearRampToValueAtTime(targetVol, now + duration);
+      } catch (e) { }
+    }
+
     // Drop any fade already running on this element, otherwise two ramps fight.
     for (let i = fading.length - 1; i >= 0; i--) if (fading[i].el === el) fading.splice(i, 1);
+
     let from = 0;
-    try { from = el.volume; } catch (e) { }
-    fading.push({ el: el, from: from, to: to, elapsed: 0, dur: dur || 0, stopAtEnd: !!stopAtEnd });
+    if (gNode) {
+      from = gNode.gain ? gNode.gain.value : 0;
+    } else {
+      try { from = el.volume; } catch (e) { }
+    }
+
+    fading.push({ el: el, gNode: gNode, from: from, to: targetVol, elapsed: 0, dur: duration, stopAtEnd: !!stopAtEnd });
     if (!fadeTimer) fadeTimer = setInterval(stepFades, FADE_STEP_MS);
   }
 
@@ -225,8 +261,7 @@ const MusicManager = (function () {
       try {
         const now = audioCtx.currentTime;
         filterNode.frequency.cancelScheduledValues(now);
-        filterNode.frequency.setValueAtTime(filterNode.frequency.value, now);
-        filterNode.frequency.exponentialRampToValueAtTime(Math.max(10, targetFreq), now + duration);
+        filterNode.frequency.setTargetAtTime(Math.max(10, targetFreq), now, Math.max(0.01, duration / 3));
       } catch (e) {
         try { filterNode.frequency.value = targetFreq; } catch (err) {}
       }
