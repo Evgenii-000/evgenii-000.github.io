@@ -1821,11 +1821,13 @@ function confirmGiveUp() {
   const pauseSc = document.getElementById('pauseScreen');
   if (pauseSc) pauseSc.classList.add('hidden');
 
-  musicSetDucked(false);
-  music('menu');
-  if (typeof gameOver === 'function') {
-    gameOver();
+  if (typeof triggerDefeat === 'function') {
+    triggerDefeat();
   } else {
+    musicSetDucked(false);
+    music('lose');
+    sfx('defeat');
+    gameState = 'DEFEAT';
     document.getElementById('defeatScreen').classList.remove('hidden');
     if (typeof replayDefeatFlash === 'function') replayDefeatFlash();
   }
@@ -3721,13 +3723,6 @@ function drawEnemyModel(e, showHpBar = true) {
       setGlow(isBlinkerShielded ? 'transparent' : glowColor, isBlinkerShielded ? 0 : 8);
     }
 
-    if (e.dashMorph > 0) {
-      const morph = Math.max(0, Math.min(1, e.dashMorph));
-      ctx.rotate(e.angle || 0);
-      const scaleX = 1.0 + morph * 2.2;
-      const scaleY = Math.max(0.05, 1.0 - morph * 0.95);
-      ctx.scale(scaleX, scaleY);
-    }
 
     if (e.shape === 'circle' || !e.shape) {
       ctx.beginPath();
@@ -4015,11 +4010,12 @@ function render(now) {
     if (e.type === 'emp_bomber' || e.type === 'emp_overlord') {
       const effectRadius = e.type === 'emp_overlord' ? 180 : 110;
       ctx.save();
+      ctx.fillStyle = 'rgba(240, 95, 159, 0.07)';
+      ctx.strokeStyle = 'rgba(240, 95, 159, 0.22)';
+      ctx.lineWidth = 1.2;
       ctx.beginPath();
       ctx.arc(e.x, e.y, effectRadius, 0, Math.PI * 2);
-      ctx.strokeStyle = '#38bdf8';
-      ctx.lineWidth = 1.5;
-      if (typeof setGlow === 'function') setGlow('#38bdf8', 6);
+      ctx.fill();
       ctx.stroke();
       ctx.restore();
     }
