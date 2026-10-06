@@ -887,5 +887,15 @@ setTimeout(finishLoading, Math.max(0, LOADING_MIN_MS - (Date.now() - loadingStar
 <button class="tutorial-skip-btn hidden" id="tutorialSkipBtn" onclick="skipTutorial()">Skip Tutorial</button>
 
 <div class="hint-toast" id="hintToast"></div>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').catch(function (err) {
+      console.warn('Service worker registration failed:', err);
+    });
+  });
+}
+</script>
 </body>
 </html>
