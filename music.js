@@ -94,6 +94,23 @@ const MusicManager = (function () {
   let fadeTimer = null;
   let playlist = [];       // remaining shuffled tracks for a looping category
 
+  const preloadedAudio = Object.create(null);
+  function preloadTracks() {
+    Object.keys(TRACKS).forEach(cat => {
+      (TRACKS[cat] || []).forEach(path => {
+        if (!preloadedAudio[path]) {
+          try {
+            const a = new Audio();
+            a.src = path;
+            a.preload = 'auto';
+            preloadedAudio[path] = a;
+          } catch (e) {}
+        }
+      });
+    });
+  }
+  try { preloadTracks(); } catch (e) {}
+
   // Web Audio graph for filtering
   let audioCtx = null;
   let filterNode = null;
@@ -200,7 +217,7 @@ const MusicManager = (function () {
 
   function setDucked(on, dur) {
     ducked = !!on;
-    const duration = dur != null ? dur : 0.4;
+    const duration = dur != null ? dur : 0.08;
     const targetFreq = ducked ? DUCK_FILTER_FREQ : NORMAL_FILTER_FREQ;
 
     ensureAudioCtx();
@@ -221,12 +238,22 @@ const MusicManager = (function () {
   function startTrack(path, cat, cfg) {
     let el;
     try {
-      el = new Audio();
-      el.src = path;
+      if (preloadedAudio[path] && preloadedAudio[path].paused && !preloadedAudio[path]._inUse) {
+        el = preloadedAudio[path];
+        el._inUse = true;
+        el.currentTime = 0;
+      } else {
+        el = new Audio();
+        el.src = path;
+      }
       el.loop = false;          // looping handled below so playlists can advance
       el.preload = 'auto';
       el.volume = 0;
     } catch (e) { return null; }
+
+    const releaseTrack = function () {
+      el._inUse = false;
+    };
 
     connectElementToWebAudio(el);
 
@@ -250,6 +277,7 @@ const MusicManager = (function () {
       } else {
         // A sting finished. Leave silence rather than guessing what follows --
         // the next screen transition will ask for whatever is right.
+        releaseTrack();
         current = null;
       }
     });
@@ -257,6 +285,7 @@ const MusicManager = (function () {
     // A missing or corrupt file must not strand the category: skip to the next
     // entry if there is one, otherwise go quiet.
     el.addEventListener('error', function () {
+      releaseTrack();
       if (!current || current.el !== el) return;
       current = null;
       if (cfg.loop && playlist.length) advance(cat, cfg);
@@ -287,6 +316,7 @@ const MusicManager = (function () {
 
   function stopCurrent(fadeOut) {
     if (!current) return;
+    if (current.el) current.el._inUse = false;
     fadeTo(current.el, 0, fadeOut == null ? 0.6 : fadeOut, true);
     current = null;
   }
@@ -308,7 +338,7 @@ const MusicManager = (function () {
 
     // Always restore ducking state when requesting a category
     if (ducked) {
-      setDucked(false, 0.4);
+      setDucked(false, 0.08);
     }
 
     if (category === cat && current) {

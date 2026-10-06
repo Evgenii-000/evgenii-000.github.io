@@ -4053,10 +4053,10 @@ function render(now) {
       ctx.beginPath();
       ctx.arc(0, 0, 8, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = '#fb923c';
+      ctx.strokeStyle = '#f05f9f';
       ctx.lineWidth = 1.5;
       ctx.stroke();
-      ctx.strokeStyle = '#fb923c';
+      ctx.strokeStyle = '#f05f9f';
       ctx.lineWidth = 1.8;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
@@ -4068,7 +4068,7 @@ function render(now) {
       ctx.lineTo(3, -1);
       ctx.lineTo(0, -1);
       ctx.closePath();
-      ctx.fillStyle = '#fb923c';
+      ctx.fillStyle = '#f05f9f';
       ctx.fill();
       ctx.restore();
     }

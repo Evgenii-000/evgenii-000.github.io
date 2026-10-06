@@ -751,12 +751,12 @@ function togglePause() {
 }
 
 function forcePauseForBackground() {
-  sfxStopBeams();
-  musicSuspend();
   if (devInputOpen || Date.now() < suppressBackgroundPauseUntil) {
     saveGame();
     return;
   }
+  sfxStopBeams();
+  musicSuspend();
   if (gameState === 'PLAYING') {
     gameState = 'PAUSED';
     if (typeof showSettings === 'function') {
