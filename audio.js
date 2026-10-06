@@ -4,7 +4,7 @@
 const SFX = (function () {
   'use strict';
 
-  const MASTER_VOLUME = 0.55;
+  const MASTER_VOLUME = 0.45;
   const MAX_VOICES = 32;
   const BEAM_KEEPALIVE = 0.14;
 
@@ -60,11 +60,11 @@ function ensureCtx() {
 
       // 1. Создание и настройка компрессора/лимитера
       comp = ctx.createDynamicsCompressor();
-      comp.threshold.setValueAtTime(-14, ctx.currentTime);
-      comp.knee.setValueAtTime(12, ctx.currentTime);
+      comp.threshold.setValueAtTime(-18, ctx.currentTime);
+      comp.knee.setValueAtTime(8, ctx.currentTime);
       comp.ratio.setValueAtTime(20, ctx.currentTime);
       comp.attack.setValueAtTime(0.001, ctx.currentTime);
-      comp.release.setValueAtTime(0.12, ctx.currentTime);
+      comp.release.setValueAtTime(0.10, ctx.currentTime);
 
       // 2. Шины громкости
       master = ctx.createGain();
