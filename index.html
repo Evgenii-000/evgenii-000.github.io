@@ -1,5 +1,7 @@
-<!-- Version: v2.12.0 -->
-<!-- Changelog v2.12.0: volume sliders, diagnostics, perf + test fixes. -->
+<!-- Version: 1.36.01 -->
+<!-- Versioning scheme: X.YY.ZZ (e.g. 1.36.01) -->
+<!-- Major version X (Top 1) remains unchanged unless explicitly requested. -->
+<!-- Increments: 1.36.01 -> 1.36.02 ... -> 1.36.99 -> 1.37.00 -->
 <!-- - Sound and Music on/off switches replaced by volume sliders (0-100%, 0 -->
 <!--   shows as OFF and mutes). One control covers both "quieter" and "off". -->
 <!--   applySfxVolume/applyMusicVolume also keep the boolean enabled flag in sync, -->
@@ -601,6 +603,7 @@
             <input type="range" class="vol-range" id="settingSfxVol" min="0" max="100" step="5" value="100"
                    oninput="setSfxVolume(this.value)">
           </div>
+          <div class="setting-version-label" id="settingsVersionLabel">Version: 1.36.01</div>
         </div>
       </div>
     </div>
