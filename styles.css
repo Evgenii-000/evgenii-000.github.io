@@ -1403,7 +1403,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
       text-align: center;
       padding: 0 20px;
     }
@@ -1431,6 +1431,11 @@
       letter-spacing: 3px;
       color: #8ef3ff;
       text-transform: uppercase;
+    }
+    .audio-gate-ok-btn {
+      margin-top: 10px;
+      width: 140px;
+      min-height: 48px;
     }
 
     /* Milestone screens */
