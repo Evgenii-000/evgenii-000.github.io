@@ -219,6 +219,7 @@ let hasClaimedX2ThisLevel = false;
 let noAdsPurchased = false;
 let dailyGiftsClaimedDate = '';
 let dailyGiftsClaimedCount = 0; // 0, 1, 2 или 3 в день
+let timeModTier = 0; // 0 = locked, 1 = Tier 1 (0.8x, 1.0x, 1.5x), 2 = Tier 2 (0.5x, 0.8x, 1.0x, 1.5x, 2.0x)
 let shopPreviousSource = 'start'; // откуда пришли в магазин: 'start', 'victory', 'defeat'
 
 let reviveUsedThisMatch = false;
@@ -255,7 +256,8 @@ function serializeSaveData() {
     tutorialSeen,
     noAdsPurchased,
     dailyGiftsClaimedDate,
-    dailyGiftsClaimedCount
+    dailyGiftsClaimedCount,
+    timeModTier
   };
 }
 
@@ -294,6 +296,7 @@ function loadGame() {
   if (typeof data.noAdsPurchased === 'boolean') noAdsPurchased = data.noAdsPurchased;
   if (typeof data.dailyGiftsClaimedDate === 'string') dailyGiftsClaimedDate = data.dailyGiftsClaimedDate;
   if (typeof data.dailyGiftsClaimedCount === 'number') dailyGiftsClaimedCount = data.dailyGiftsClaimedCount;
+  if (typeof data.timeModTier === 'number') timeModTier = data.timeModTier;
 
   if (typeof data.diamonds === 'number' && data.diamonds >= 0) diamonds = data.diamonds;
   if (typeof data.maxUnlockedLevel === 'number' && data.maxUnlockedLevel >= 1) {
@@ -1778,6 +1781,7 @@ function handleClearSaveClick() {
   noAdsPurchased = false;
   dailyGiftsClaimedDate = '';
   dailyGiftsClaimedCount = 0;
+  timeModTier = 0;
 
   showStartScreen();
   renderLevelsGrid();
@@ -1930,7 +1934,43 @@ function claimDailyGiftsPack() {
 // Заглушка покупок (симуляция Google Play Billing)
 function buyShopIAP(productId) {
   sfx('confirm');
-  if (productId === 'no_ads') {
+  if (productId === 'time_mod_t1') {
+    if (timeModTier >= 1) {
+      showHintToast('Already unlocked!');
+      return;
+    }
+    if (diamonds < 40) {
+      showHintToast('Not enough Diamonds! (40 required)');
+      return;
+    }
+    diamonds -= 40;
+    timeModTier = 1;
+    updateDiamondUI();
+    saveGame();
+    sfx('reward');
+    renderShopScreen();
+    showHintToast('Time Control Tier 1 unlocked!');
+  } else if (productId === 'time_mod_t2') {
+    if (timeModTier >= 2) {
+      showHintToast('Already maxed!');
+      return;
+    }
+    if (timeModTier < 1) {
+      showHintToast('Unlock Tier 1 first!');
+      return;
+    }
+    if (diamonds < 50) {
+      showHintToast('Not enough Diamonds! (50 required)');
+      return;
+    }
+    diamonds -= 50;
+    timeModTier = 2;
+    updateDiamondUI();
+    saveGame();
+    sfx('reward');
+    renderShopScreen();
+    showHintToast('Time Control Tier 2 unlocked!');
+  } else if (productId === 'no_ads') {
     if (noAdsPurchased) {
       showHintToast('Already purchased!');
       return;
