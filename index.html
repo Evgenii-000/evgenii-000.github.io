@@ -49,6 +49,21 @@
 </head>
 <body>
 
+<!-- Loading / Headphones Onboarding Screen -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="loading-inner audio-gate-content hidden" id="audioGateContent">
+    <div class="audio-gate-icon">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 18v-6a9 9 0 0 1 18 0v6"></path>
+        <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
+      </svg>
+    </div>
+    <div class="audio-gate-title">Nice Music Incoming</div>
+    <div class="audio-gate-subtitle">Headphones Recommended</div>
+    <button class="menu-btn-primary-capsule audio-gate-ok-btn" id="audioGateOkBtn"><span>OK</span></button>
+  </div>
+</div>
+
 <!-- CRASH SAFETY NET -->
 <div id="crashFallbackScreen" style="display:none; position:fixed; inset:0; z-index:999999; background:#06070d; color:#f1f5f9; flex-direction:column; align-items:center; justify-content:center; text-align:center; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; padding:24px;">
   <div style="font-size:42px; margin-bottom:14px;">😵</div>
@@ -782,6 +797,40 @@ try {
 try { if (typeof SFX !== 'undefined' && SFX) SFX.autoload(); } catch (e) {}
 applyMusicVolume(settings.musicVolume != null ? settings.musicVolume : (settings.musicEnabled === false ? 0 : 70), false);
 
+function finishLoading() {
+  const isMusicActive = settings.musicVolume > 0 && settings.musicEnabled !== false && typeof MusicManager !== 'undefined' && MusicManager.isEnabled();
+  const screen = document.getElementById('loadingScreen');
+
+  if (!isMusicActive) {
+    if (screen) {
+      screen.classList.add('fading');
+      setTimeout(() => screen.classList.add('hidden'), 420);
+    }
+    return;
+  }
+
+  // Active music: show Audio Onboarding Gate
+  const gateContent = document.getElementById('audioGateContent');
+  if (gateContent) gateContent.classList.remove('hidden');
+
+  const onGateTap = () => {
+    try { if (typeof SFX !== 'undefined' && SFX) SFX.unlock(); } catch (e) {}
+    musicUnlock();
+    music('menu');
+    if (screen) {
+      screen.classList.add('fading');
+      setTimeout(() => screen.classList.add('hidden'), 420);
+    }
+  };
+
+  if (screen) {
+    screen.style.cursor = 'pointer';
+    screen.addEventListener('pointerdown', onGateTap, { once: true, capture: true });
+  } else {
+    onGateTap();
+  }
+}
+
 document.addEventListener('pointerdown', musicUnlock, { once: true, capture: true });
 if (settings.perfModeOverride === 'low' || settings.perfModeOverride === 'high') {
   perfMode = settings.perfModeOverride;
@@ -796,6 +845,8 @@ window.__gameBooted = true;
 safeTrack('app_launch', {});
 
 requestAnimationFrame(gameLoop);
+
+finishLoading();
 </script>
 
 <!-- First-run tutorial overlay -->

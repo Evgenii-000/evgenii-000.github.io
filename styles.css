@@ -1363,6 +1363,44 @@
       box-shadow: none;
     }
 
+    /* Loading screen */
+    .loading-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(80% 60% at 50% 35%, rgba(45, 55, 115, 0.40), transparent 70%),
+        radial-gradient(60% 50% at 70% 70%, rgba(15, 75, 120, 0.35), transparent 70%),
+        #06070d;
+      transition: opacity 0.4s ease;
+    }
+
+    .loading-screen.fading { opacity: 0; }
+    .loading-screen.hidden { display: none; }
+    .loading-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .loading-word {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: #ffffff;
+      text-shadow: 0 0 20px rgba(0, 229, 255, 0.8);
+    }
+    .loading-dots {
+      display: inline-block;
+      width: 22px;
+      text-align: left;
+      color: #8ef3ff;
+    }
 
     .audio-gate-content {
       display: flex;
@@ -2269,12 +2307,10 @@
     .screen-bg-only > .defeat-flash { display: none !important; }
 
     .upgrades-bg {
-      padding-top: max(76px, calc(env(safe-area-inset-top) + 68px)) !important;
-      padding-bottom: max(18px, env(safe-area-inset-bottom)) !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
       justify-content: flex-start !important;
-      overflow-y: auto !important;
-      touch-action: pan-y !important;
-      -webkit-overflow-scrolling: touch;
+      overflow: hidden !important;
     }
     .upgrades-bg.from-main {
       background: rgba(4, 6, 14, 0.65) !important;
@@ -2318,6 +2354,9 @@
       flex: 1;
       min-height: 0;
       height: 100%;
+      padding-top: max(20px, calc(env(safe-area-inset-top) + 16px));
+      padding-bottom: max(18px, env(safe-area-inset-bottom));
+      box-sizing: border-box;
     }
     .upgrades-row-group-label {
       font-family: 'Montserrat', sans-serif;
