@@ -449,7 +449,7 @@ const MusicManager = (function () {
 
     // Call from the first real user gesture. Mobile browsers and WebView both
     // refuse to start audio before one, so whatever category was requested
-    // during the loading screen is held in `pending` and released here.
+    // before user interaction is held in `pending` and released here.
     unlock: function () {
       ensureAudioCtx();
       if (!unlocked) {
