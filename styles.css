@@ -182,6 +182,9 @@
     }
 
     .hud-chapter-label {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
       font-family: 'Montserrat', sans-serif;
       font-size: 12px;
       font-weight: 800;
@@ -189,7 +192,7 @@
       color: #8ef3ff;
       text-transform: uppercase;
       white-space: nowrap;
-      padding-right: 4px;
+      pointer-events: none;
     }
     .hud-chapter-label.hidden { display: none; }
 
@@ -2302,9 +2305,7 @@
     }
 
     /* Upgrades Screen -- Visual Direction 11B */
-    .screen-bg-only > .result-stack,
-    .screen-bg-only > .start-screen-container,
-    .screen-bg-only > .defeat-flash { display: none !important; }
+    .screen-bg-only > * { display: none !important; }
 
     .upgrades-bg {
       padding-top: 0 !important;
@@ -2379,6 +2380,10 @@
       -webkit-overflow-scrolling: touch;
       padding: 4px 4px 12px;
       pointer-events: auto;
+    }
+    .upgrade-row-card,
+    .upgrade-row-card * {
+      touch-action: pan-y !important;
     }
     .upgrade-row-card {
       border-radius: 18px;
@@ -3008,6 +3013,13 @@ input:focus,
 .dev-spawner-grid input {
   width: 36px;
   text-align: center;
+}
+.dev-track-info {
+  font-size: 10px;
+  font-weight: 700;
+  color: #00e5ff;
+  letter-spacing: 0.5px;
+  word-break: break-all;
 }
 
 /* --- Settings & Pause Merged Screen Styles --- */
