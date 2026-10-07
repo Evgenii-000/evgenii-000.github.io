@@ -153,7 +153,7 @@ const MusicManager = (function () {
       el._mediaSource = source;
 
       const gNode = audioCtx.createGain();
-      const initVol = el.volume !== undefined ? el.volume : 1;
+      const initVol = typeof el.volume === 'number' ? el.volume : 0;
       gNode.gain.setValueAtTime(initVol, audioCtx.currentTime);
 
       source.disconnect();
@@ -224,15 +224,6 @@ const MusicManager = (function () {
 
     const gNode = connectElementToWebAudio(el);
 
-    if (gNode && audioCtx) {
-      try {
-        const now = audioCtx.currentTime;
-        gNode.gain.cancelScheduledValues(now);
-        gNode.gain.setValueAtTime(gNode.gain.value, now);
-        gNode.gain.linearRampToValueAtTime(targetVol, now + duration);
-      } catch (e) { }
-    }
-
     // Drop any fade already running on this element, otherwise two ramps fight.
     for (let i = fading.length - 1; i >= 0; i--) if (fading[i].el === el) fading.splice(i, 1);
 
@@ -241,6 +232,15 @@ const MusicManager = (function () {
       from = gNode.gain ? gNode.gain.value : 0;
     } else {
       try { from = el.volume; } catch (e) { }
+    }
+
+    if (gNode && audioCtx) {
+      try {
+        const now = audioCtx.currentTime;
+        gNode.gain.cancelScheduledValues(now);
+        gNode.gain.setValueAtTime(from, now);
+        gNode.gain.linearRampToValueAtTime(targetVol, now + duration);
+      } catch (e) { }
     }
 
     fading.push({ el: el, gNode: gNode, from: from, to: targetVol, elapsed: 0, dur: duration, stopAtEnd: !!stopAtEnd });
