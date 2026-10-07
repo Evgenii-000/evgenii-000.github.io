@@ -4,7 +4,7 @@
 // Synth Wave Defense.
 // ============================================================================
 
-const CACHE_NAME = 'synth-wave-td-v1';
+const CACHE_NAME = 'synth-wave-td-v1.36.02';
 
 const PRECACHE_ASSETS = [
   './',
@@ -81,13 +81,10 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Static app assets follow Cache-First strategy, falling back to network
+  // Static app assets follow Network-First strategy, falling back to cache
   event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(event.request).then((networkResponse) => {
+    fetch(event.request)
+      .then((networkResponse) => {
         if (
           networkResponse &&
           networkResponse.status === 200 &&
@@ -99,7 +96,9 @@ self.addEventListener('fetch', (event) => {
           });
         }
         return networkResponse;
-      });
-    })
+      })
+      .catch(() => {
+        return caches.match(event.request);
+      })
   );
 });
