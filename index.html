@@ -239,6 +239,15 @@
 <div class="ui-layer">
   <div></div>
 
+  <!-- HUD Time Modulation Speed Control Widget (Upper Right, partially visible through like Go button) -->
+  <div class="hud-speed-capsule hidden" id="hudSpeedWidget">
+    <button class="hud-speed-btn" id="hudSpeedFasterBtn" type="button" onclick="stepHudSpeed(1)" title="Faster speed">▲</button>
+    <div class="hud-speed-center" id="hudSpeedCenter" title="Hold & pull up/down to adjust speed">
+      <span class="hud-speed-val" id="hudSpeedVal">1.0x</span>
+    </div>
+    <button class="hud-speed-btn" id="hudSpeedSlowerBtn" type="button" onclick="stepHudSpeed(-1)" title="Slower speed">▼</button>
+  </div>
+
   <!-- Кнопка Go вынесена из controls-wrapper, чтобы не обрезаться overflow:hidden -->
   <button class="action-btn floating-wave-btn" id="waveBtn" onclick="triggerManualWave()">
     <div class="wave-circle-wrap">
@@ -322,7 +331,9 @@
 </label>
 
 <select id="speedContainer" class="dev-speed-floating hidden" onchange="setGameSpeed(parseFloat(this.value))">
-  <option value="1">1x</option>
+  <option value="0.5">0.5x</option>
+  <option value="0.8">0.8x</option>
+  <option value="1" selected>1x</option>
   <option value="1.5">1.5x</option>
   <option value="2">2x</option>
   <option value="4">4x</option>
@@ -341,7 +352,9 @@
       <button type="button" class="dev-icon-btn dev-speed-step-btn" onclick="stepDevSpeed(-1)" title="Decrease speed">−</button>
       
       <select id="speedContainer" class="dev-speed-select" onchange="setGameSpeed(parseFloat(this.value))">
-        <option value="1">1x</option>
+        <option value="0.5">0.5x</option>
+        <option value="0.8">0.8x</option>
+        <option value="1" selected>1x</option>
         <option value="1.5">1.5x</option>
         <option value="2">2x</option>
         <option value="4">4x</option>
@@ -457,6 +470,43 @@
 
       <!-- Section 2: Permanent Perks -->
       <div class="upgrades-row-group-label">Special Perks</div>
+      <div class="shop-card">
+        <div class="shop-card-left">
+          <div class="shop-card-icon cyan-glow">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <div class="shop-card-info">
+            <span class="shop-card-title">Time Modulation Tier 1</span>
+            <span class="shop-card-sub">Unlock HUD speed controls (0.8x, 1.0x, 1.5x)</span>
+          </div>
+        </div>
+        <button id="timeModT1Btn" class="shop-item-btn shop-btn-buy" onclick="buyShopIAP('time_mod_t1')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2.2" stroke-linejoin="round" style="flex:none;"><polygon points="6 3 18 3 22 9 12 22 2 9" fill="rgba(0,229,255,.25)"/><polyline points="2 9 12 13 22 9"/><line x1="12" y1="22" x2="12" y2="13"/></svg>
+          <span>40</span>
+        </button>
+      </div>
+
+      <div class="shop-card">
+        <div class="shop-card-left">
+          <div class="shop-card-icon cyan-glow">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+          </div>
+          <div class="shop-card-info">
+            <span class="shop-card-title">Time Modulation Tier 2</span>
+            <span class="shop-card-sub">Unlock extreme pacing limits (0.5x, 2.0x)</span>
+          </div>
+        </div>
+        <button id="timeModT2Btn" class="shop-item-btn shop-btn-buy" onclick="buyShopIAP('time_mod_t2')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2.2" stroke-linejoin="round" style="flex:none;"><polygon points="6 3 18 3 22 9 12 22 2 9" fill="rgba(0,229,255,.25)"/><polyline points="2 9 12 13 22 9"/><line x1="12" y1="22" x2="12" y2="13"/></svg>
+          <span>50</span>
+        </button>
+      </div>
+
       <div class="shop-card">
         <div class="shop-card-left">
           <div class="shop-card-icon gold-glow">
