@@ -1,7 +1,11 @@
-<!-- Version: 1.36.01 -->
+<!-- Version: 1.36.02 -->
 <!-- Versioning scheme: X.YY.ZZ (e.g. 1.36.01) -->
 <!-- Major version X (Top 1) remains unchanged unless explicitly requested. -->
 <!-- Increments: 1.36.01 -> 1.36.02 ... -> 1.36.99 -> 1.37.00 -->
+<!-- - Fixed Service Worker caching behavior: switched static assets fetch -->
+<!--   strategy from Cache-First to Network-First with Cache fallback. This ensures -->
+<!--   that web and app clients receive live game updates immediately when online -->
+<!--   while preserving full offline support when disconnected. -->
 <!-- - Sound and Music on/off switches replaced by volume sliders (0-100%, 0 -->
 <!--   shows as OFF and mutes). One control covers both "quieter" and "off". -->
 <!--   applySfxVolume/applyMusicVolume also keep the boolean enabled flag in sync, -->
@@ -603,7 +607,7 @@
             <input type="range" class="vol-range" id="settingSfxVol" min="0" max="100" step="5" value="100"
                    oninput="setSfxVolume(this.value)">
           </div>
-          <div class="setting-version-label" id="settingsVersionLabel">Version: 1.36.01</div>
+          <div class="setting-version-label" id="settingsVersionLabel">Version: 1.36.02</div>
         </div>
       </div>
     </div>
