@@ -2232,7 +2232,7 @@ function showUpgradesScreen(fromSource) {
   if (devSpawner) devSpawner.classList.add('hidden');
 
   const topHud = document.getElementById('topHud');
-  if (topHud) topHud.classList.remove('hidden');
+  if (topHud) topHud.classList.add('hidden');
 
   const upg = document.getElementById('upgradesScreen');
   const isResultBg = (bgScreenId === 'victoryScreen' || bgScreenId === 'defeatScreen');

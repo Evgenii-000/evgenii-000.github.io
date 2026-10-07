@@ -966,10 +966,13 @@
       align-items: center;
       gap: 10px;
       width: 100%;
+      max-width: 100%;
       padding: 0 16px;
       max-height: 100%;
       overflow-y: auto;
+      overflow-x: hidden !important;
       touch-action: pan-y;
+      box-sizing: border-box !important;
     }
     .result-heading {
       display: flex;
@@ -1374,7 +1377,7 @@
         #06070d;
       transition: opacity 0.4s ease;
     }
-	
+
     .loading-screen.fading { opacity: 0; }
     .loading-screen.hidden { display: none; }
     .loading-inner {
@@ -1802,6 +1805,7 @@
       top: 0;
       left: 0;
       width: 100%;
+      max-width: 100vw;
       height: 100vh;
       height: 100dvh;
       background: rgba(8, 10, 19, 0.82);
@@ -1815,6 +1819,8 @@
       pointer-events: auto;
       overscroll-behavior: none;
       padding-top: max(76px, calc(env(safe-area-inset-top) + 68px));
+      overflow-x: hidden !important;
+      box-sizing: border-box !important;
     }
     .overlay-screen.transparent-bg {
       background: transparent !important;
@@ -2301,12 +2307,10 @@
     .screen-bg-only > .defeat-flash { display: none !important; }
 
     .upgrades-bg {
-      padding-top: max(76px, calc(env(safe-area-inset-top) + 68px)) !important;
-      padding-bottom: max(18px, env(safe-area-inset-bottom)) !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
       justify-content: flex-start !important;
-      overflow-y: auto !important;
-      touch-action: pan-y !important;
-      -webkit-overflow-scrolling: touch;
+      overflow: hidden !important;
     }
     .upgrades-bg.from-main {
       background: rgba(4, 6, 14, 0.65) !important;
@@ -2350,6 +2354,9 @@
       flex: 1;
       min-height: 0;
       height: 100%;
+      padding-top: max(20px, calc(env(safe-area-inset-top) + 16px));
+      padding-bottom: max(18px, env(safe-area-inset-bottom));
+      box-sizing: border-box;
     }
     .upgrades-row-group-label {
       font-family: 'Montserrat', sans-serif;
@@ -3046,6 +3053,7 @@ input:focus,
   border: 1px solid rgba(140, 200, 255, 0.2);
   border-radius: 18px;
   overflow: hidden;
+  box-sizing: border-box !important;
   transition: border-color 0.2s ease, background 0.2s ease;
 }
 
