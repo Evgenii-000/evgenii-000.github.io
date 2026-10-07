@@ -41,19 +41,16 @@
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Synth Wave Defense</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16.png">
   <link rel="stylesheet" href="fonts.css">
   <link rel="stylesheet" href="styles.css">
   <link rel="manifest" href="./manifest.json">
 </head>
 <body>
 
-<!-- Loading screen: the very first thing painted, before any game code runs. -->
-<!-- The synthwave field behind it is the same canvas scene the menus use, so -->
-<!-- the transition into the main menu is just this overlay fading out. -->
+<!-- Loading / Headphones Onboarding Screen -->
 <div class="loading-screen" id="loadingScreen">
-  <div class="loading-inner" id="loadingInner">
-    <div class="loading-word">Loading<span class="loading-dots" id="loadingDots"></span></div>
-  </div>
   <div class="loading-inner audio-gate-content hidden" id="audioGateContent">
     <div class="audio-gate-icon">
       <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -61,8 +58,9 @@
         <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path>
       </svg>
     </div>
-    <div class="audio-gate-title">Headphones Recommended</div>
-    <div class="audio-gate-subtitle">Tap anywhere to start</div>
+    <div class="audio-gate-title">Nice Music Incoming</div>
+    <div class="audio-gate-subtitle">Headphones Recommended</div>
+    <button class="menu-btn-primary-capsule audio-gate-ok-btn" id="audioGateOkBtn"><span>OK</span></button>
   </div>
 </div>
 
@@ -788,16 +786,6 @@ window.addEventListener('popstate', () => {
 const devCheckboxEl = document.getElementById('devModeCheckbox');
 const initialDevState = devCheckboxEl ? devCheckboxEl.checked : false;
 
-const LOADING_DOT_MS = 220;
-const LOADING_MIN_MS = LOADING_DOT_MS * 3;
-const loadingStartedAt = Date.now();
-let loadingDotCount = 0;
-const loadingDotsEl = document.getElementById('loadingDots');
-const loadingDotTimer = setInterval(() => {
-  loadingDotCount = (loadingDotCount % 3) + 1;
-  if (loadingDotsEl) loadingDotsEl.textContent = '.'.repeat(loadingDotCount);
-}, LOADING_DOT_MS);
-
 loadGame();
 applySfxVolume(settings.sfxVolume != null ? settings.sfxVolume : (settings.sfxEnabled === false ? 0 : 100), false);
 try { 
@@ -810,9 +798,6 @@ try { if (typeof SFX !== 'undefined' && SFX) SFX.autoload(); } catch (e) {}
 applyMusicVolume(settings.musicVolume != null ? settings.musicVolume : (settings.musicEnabled === false ? 0 : 70), false);
 
 function finishLoading() {
-  clearInterval(loadingDotTimer);
-  if (loadingDotsEl) loadingDotsEl.textContent = '...';
-
   const isMusicActive = settings.musicVolume > 0 && settings.musicEnabled !== false && typeof MusicManager !== 'undefined' && MusicManager.isEnabled();
   const screen = document.getElementById('loadingScreen');
 
@@ -825,9 +810,6 @@ function finishLoading() {
   }
 
   // Active music: show Audio Onboarding Gate
-  const loadingInner = document.getElementById('loadingInner');
-  if (loadingInner) loadingInner.classList.add('hidden');
-
   const gateContent = document.getElementById('audioGateContent');
   if (gateContent) gateContent.classList.remove('hidden');
 
@@ -864,7 +846,7 @@ safeTrack('app_launch', {});
 
 requestAnimationFrame(gameLoop);
 
-setTimeout(finishLoading, Math.max(0, LOADING_MIN_MS - (Date.now() - loadingStartedAt)));
+finishLoading();
 </script>
 
 <!-- First-run tutorial overlay -->

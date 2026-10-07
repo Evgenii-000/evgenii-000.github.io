@@ -20,8 +20,11 @@ const PRECACHE_ASSETS = [
   './music.js',
   './sfx-manifest.js',
   './telemetry.js',
+  './favicon-16.png',
+  './favicon-32.png',
   './icon-192.png',
-  './icon-512.png'
+  './icon-512.png',
+  './icon-512-maskable.png'
 ];
 
 // --- Install Phase: Pre-cache static assets & skip waiting -----------------
