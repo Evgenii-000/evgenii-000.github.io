@@ -1004,10 +1004,54 @@ const BASE_BRANCH_ICONS = {
 };
 const BASE_BRANCH_COLORS = { base_hp: '#f05f9f', base_gold: '#f59e0b' };
 
+function enablePointerScroll(el) {
+  if (!el || el.dataset.pointerScrollBound) return;
+  el.dataset.pointerScrollBound = '1';
+
+  let isDown = false;
+  let startY = 0;
+  let scrollTop = 0;
+  let isDragging = false;
+
+  el.addEventListener('pointerdown', (e) => {
+    isDown = true;
+    isDragging = false;
+    startY = e.clientY;
+    scrollTop = el.scrollTop;
+  });
+
+  el.addEventListener('pointermove', (e) => {
+    if (!isDown) return;
+    const dy = e.clientY - startY;
+    if (Math.abs(dy) > 4) {
+      isDragging = true;
+      el.scrollTop = scrollTop - dy;
+    }
+  });
+
+  const endDrag = (e) => {
+    if (isDragging && e) {
+      const preventClick = (clickEv) => {
+        clickEv.stopPropagation();
+        clickEv.preventDefault();
+      };
+      el.addEventListener('click', preventClick, { capture: true, once: true });
+      setTimeout(() => el.removeEventListener('click', preventClick, { capture: true }), 50);
+    }
+    isDown = false;
+    isDragging = false;
+  };
+
+  el.addEventListener('pointerup', endDrag);
+  el.addEventListener('pointercancel', endDrag);
+  el.addEventListener('pointerleave', endDrag);
+}
+
 function renderUpgradeTree() {
   updateDiamondUI();
   const container = document.getElementById('upgradesTreeBody');
   if (!container) return;
+  enablePointerScroll(container);
   container.innerHTML = '';
 
   const maxStep = devMode ? 10 : getMaxUpgradeStep();
@@ -1259,8 +1303,15 @@ function toggleDevPanelExpand() {
   const pane = document.getElementById('devDetailsPane');
   const btn = document.getElementById('devExpandBtn');
   if (pane) {
-    if (isDevExpanded) pane.classList.remove('hidden');
-    else pane.classList.add('hidden');
+    if (isDevExpanded) {
+      pane.classList.remove('hidden');
+      const trackEl = document.getElementById('devTrackTitle');
+      if (trackEl && typeof MusicManager !== 'undefined' && MusicManager.currentTrack) {
+        trackEl.textContent = MusicManager.currentTrack();
+      }
+    } else {
+      pane.classList.add('hidden');
+    }
   }
   if (btn) {
     btn.textContent = isDevExpanded ? '▴' : '▾';
@@ -1490,13 +1541,16 @@ function toggleLivePause() {
   }
 }
 
-function updateStartChapterLabel(show) {
+function updateStartChapterLabel(show, text) {
   const el = document.getElementById('startChapterLabel');
   if (!el) return;
   if (show) {
-    const sector = Math.max(1, Math.min(TOTAL_SECTIONS,
-      Math.ceil(Math.min(maxUnlockedLevel, TOTAL_LEVELS) / LEVELS_PER_SECTION)));
-    el.textContent = `CHAPTER ${sector}`;
+    if (text) {
+      el.textContent = text;
+    } else {
+      const ch = Math.min(TOTAL_SECTIONS, Math.max(1, Math.ceil(currentLevel / LEVELS_PER_SECTION)));
+      el.textContent = 'CHAPTER ' + ch;
+    }
     el.classList.remove('hidden');
   } else {
     el.classList.add('hidden');
@@ -2335,6 +2389,8 @@ function closeShopScreen() {
 
 function renderShopScreen() {
   checkDailyGiftReset();
+  const shopBody = document.getElementById('shopBodyList');
+  if (shopBody) enablePointerScroll(shopBody);
   const diamondLabel = document.getElementById('shopDiamondVal');
   if (diamondLabel) diamondLabel.textContent = diamonds;
 
@@ -3990,6 +4046,13 @@ function render(now) {
       }
       window._fpsFrames = 0;
       window._fpsLastTime = now;
+
+      if (isDevExpanded) {
+        const trackEl = document.getElementById('devTrackTitle');
+        if (trackEl && typeof MusicManager !== 'undefined' && MusicManager.currentTrack) {
+          trackEl.textContent = MusicManager.currentTrack();
+        }
+      }
     }
   }
 

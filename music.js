@@ -417,6 +417,16 @@ const MusicManager = (function () {
 
     play: playCategory,
     current: function () { return category; },
+    currentTrack: function () {
+      if (!current || !current.el || !current.el.src) return 'None';
+      try {
+        const src = current.el.src;
+        const parts = src.split('/');
+        return parts[parts.length - 1] || 'None';
+      } catch (e) {
+        return 'None';
+      }
+    },
     setDucked: function (on, dur) { setDucked(on, dur); },
 
     stop: function (fadeOut) {
