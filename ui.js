@@ -1504,17 +1504,27 @@ function updateHudSpeedWidget() {
   const curSpeed = typeof gameTimeScale !== 'undefined' ? gameTimeScale : 1.0;
   const valEl = document.getElementById('hudSpeedVal');
   if (valEl) {
-    valEl.textContent = `${curSpeed.toFixed(1)}x`;
+    valEl.textContent = `${curSpeed}x`;
   }
 
   const allowed = devMode ? DEV_SPEED_STEPS : getHudAllowedSpeeds();
-  const curIdx = allowed.indexOf(curSpeed);
+  let curIdx = allowed.indexOf(curSpeed);
+  if (curIdx === -1) {
+    curIdx = allowed.reduce((closest, val, idx) =>
+      Math.abs(val - curSpeed) < Math.abs(allowed[closest] - curSpeed) ? idx : closest, 0);
+  }
 
   const fasterBtn = document.getElementById('hudSpeedFasterBtn');
   const slowerBtn = document.getElementById('hudSpeedSlowerBtn');
 
-  if (fasterBtn) fasterBtn.disabled = (curIdx !== -1 && curIdx >= allowed.length - 1);
-  if (slowerBtn) slowerBtn.disabled = (curIdx !== -1 && curIdx <= 0);
+  if (fasterBtn) {
+    fasterBtn.disabled = curIdx >= allowed.length - 1;
+    fasterBtn.classList.toggle('disabled', curIdx >= allowed.length - 1);
+  }
+  if (slowerBtn) {
+    slowerBtn.disabled = curIdx <= 0;
+    slowerBtn.classList.toggle('disabled', curIdx <= 0);
+  }
 }
 
 function setGameSpeed(speed) {
@@ -1542,8 +1552,10 @@ function stepHudSpeed(direction) {
 
   const nextIdx = Math.max(0, Math.min(allowed.length - 1, curIdx + direction));
   const newSpeed = allowed[nextIdx];
-  setGameSpeed(newSpeed);
-  sfx('tap');
+  if (newSpeed !== curSpeed) {
+    setGameSpeed(newSpeed);
+    try { sfx('tap'); } catch (err) {}
+  }
 }
 
 function stepDevSpeed(direction) {
@@ -1578,35 +1590,51 @@ function stepDevSpeed(direction) {
   setGameSpeed(newSpeed);
 }
 
-// [UI116] Revolver long-tap pull gesture on HUD speed indicator.
-(function initHudSpeedRevolverGesture() {
+// [UI116] Interactive speed drum drag and scroll gesture controller.
+(function initHudSpeedDrumGesture() {
   let isDragging = false;
   let startY = 0;
   let startSpeedIndex = 0;
   let allowedSpeeds = [1.0];
-  let initialSpeed = 1.0;
+  let tipShown = false;
+
+  function dismissTip() {
+    tipShown = true;
+    const dragTip = document.getElementById('hudDragTip');
+    if (dragTip) dragTip.classList.remove('show');
+  }
+
+  function showTipIfNeeded() {
+    if (tipShown) return;
+    const widget = document.getElementById('hudSpeedWidget');
+    const dragTip = document.getElementById('hudDragTip');
+    if (widget && !widget.classList.contains('hidden') && dragTip) {
+      dragTip.classList.add('show');
+    }
+  }
+
+  setTimeout(showTipIfNeeded, 1500);
 
   function onPointerDown(e) {
-    const centerEl = document.getElementById('hudSpeedCenter');
-    if (!centerEl || !centerEl.contains(e.target)) return;
+    dismissTip();
+    const drumEl = document.getElementById('hudSpeedDrum');
+    if (!drumEl || !drumEl.contains(e.target)) return;
 
     allowedSpeeds = devMode ? DEV_SPEED_STEPS : getHudAllowedSpeeds();
     if (allowedSpeeds.length <= 1) return;
 
     isDragging = true;
     startY = e.touches ? e.touches[0].clientY : e.clientY;
-    initialSpeed = typeof gameTimeScale !== 'undefined' ? gameTimeScale : 1.0;
+    const currentSpeed = typeof gameTimeScale !== 'undefined' ? gameTimeScale : 1.0;
 
-    let idx = allowedSpeeds.indexOf(initialSpeed);
+    let idx = allowedSpeeds.indexOf(currentSpeed);
     if (idx === -1) {
       idx = allowedSpeeds.reduce((closest, val, i) =>
-        Math.abs(val - initialSpeed) < Math.abs(allowedSpeeds[closest] - initialSpeed) ? i : closest, 0);
+        Math.abs(val - currentSpeed) < Math.abs(allowedSpeeds[closest] - currentSpeed) ? i : closest, 0);
     }
     startSpeedIndex = idx;
 
-    centerEl.classList.add('active-grab');
-    const capsule = document.getElementById('hudSpeedWidget');
-    if (capsule) capsule.classList.add('dragging');
+    drumEl.classList.add('dragging');
 
     window.addEventListener('mousemove', onPointerMove, { passive: false });
     window.addEventListener('mouseup', onPointerUp);
@@ -1619,10 +1647,10 @@ function stepDevSpeed(direction) {
     if (e.cancelable) e.preventDefault();
 
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    const dy = clientY - startY;
+    const dy = startY - clientY;
 
-    const stepPx = 25;
-    const stepDelta = Math.round(-dy / stepPx);
+    const stepPx = 30;
+    const stepDelta = Math.round(dy / stepPx);
 
     const targetIdx = Math.max(0, Math.min(allowedSpeeds.length - 1, startSpeedIndex + stepDelta));
     const newSpeed = allowedSpeeds[targetIdx];
@@ -1638,10 +1666,8 @@ function stepDevSpeed(direction) {
     if (!isDragging) return;
     isDragging = false;
 
-    const centerEl = document.getElementById('hudSpeedCenter');
-    if (centerEl) centerEl.classList.remove('active-grab');
-    const capsule = document.getElementById('hudSpeedWidget');
-    if (capsule) capsule.classList.remove('dragging');
+    const drumEl = document.getElementById('hudSpeedDrum');
+    if (drumEl) drumEl.classList.remove('dragging');
 
     window.removeEventListener('mousemove', onPointerMove);
     window.removeEventListener('mouseup', onPointerUp);
@@ -1649,13 +1675,32 @@ function stepDevSpeed(direction) {
     window.removeEventListener('touchend', onPointerUp);
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    const centerEl = document.getElementById('hudSpeedCenter');
-    if (centerEl) {
-      centerEl.addEventListener('mousedown', onPointerDown);
-      centerEl.addEventListener('touchstart', onPointerDown, { passive: true });
+  function onWheel(e) {
+    dismissTip();
+    const drumEl = document.getElementById('hudSpeedDrum');
+    if (!drumEl || !drumEl.contains(e.target)) return;
+    e.preventDefault();
+    stepHudSpeed(e.deltaY < 0 ? 1 : -1);
+  }
+
+  function setupListeners() {
+    const drumEl = document.getElementById('hudSpeedDrum');
+    if (drumEl) {
+      drumEl.addEventListener('mousedown', onPointerDown);
+      drumEl.addEventListener('touchstart', onPointerDown, { passive: true });
+      drumEl.addEventListener('wheel', onWheel, { passive: false });
     }
-  });
+    const fasterBtn = document.getElementById('hudSpeedFasterBtn');
+    const slowerBtn = document.getElementById('hudSpeedSlowerBtn');
+    if (fasterBtn) fasterBtn.addEventListener('click', dismissTip);
+    if (slowerBtn) slowerBtn.addEventListener('click', dismissTip);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupListeners);
+  } else {
+    setupListeners();
+  }
 })();
 
 function toggleLivePause() {

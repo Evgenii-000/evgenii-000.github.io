@@ -1,4 +1,4 @@
-<!-- [HTM100] Version: 1.36.03 - Synth Wave Defense HTML application layout and script bindings. -->
+<!-- [HTM100] Version: 1.36.04 - Synth Wave Defense HTML application layout and script bindings. -->
 <!DOCTYPE html>
 
 <html lang="en">
@@ -191,6 +191,33 @@
 
 <div class="incoming-alert-banner" id="incomingAlertBanner">
   <span class="incoming-alert-text" id="incomingAlertText">Boss Incoming</span>
+</div>
+
+<!-- [HTM104.01] Speed Control Widget: Purchased time modulation drum control. -->
+<div class="speed-widget hidden" id="hudSpeedWidget">
+  <button class="spd-btn" id="hudSpeedFasterBtn" title="Speed Up" onclick="stepHudSpeed(1)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="5 15 12 8 19 15"></polyline>
+    </svg>
+  </button>
+
+  <div class="spd-drum" id="hudSpeedDrum">
+    <div class="drum-ridges"></div>
+    <div class="drum-value" id="hudSpeedVal">1.0x</div>
+    <div class="drum-hint">
+      <svg class="hint-up" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,4 20,14 4,14"/></svg>
+      <svg class="hint-down" viewBox="0 0 24 24" fill="currentColor"><polygon points="12,20 4,10 20,10"/></svg>
+    </div>
+  </div>
+
+  <button class="spd-btn" id="hudSpeedSlowerBtn" title="Slow Down" onclick="stepHudSpeed(-1)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="5 9 12 16 19 9"></polyline>
+    </svg>
+  </button>
+
+  <span class="spd-label">Roll</span>
+  <div class="drag-tip" id="hudDragTip">Крути барабан ↕</div>
 </div>
 
 <div class="new-tower-banner" id="newTowerBanner">
@@ -596,7 +623,7 @@
             <input type="range" class="vol-range" id="settingSfxVol" min="0" max="100" step="5" value="100"
                    oninput="setSfxVolume(this.value)">
           </div>
-          <div class="setting-version-label" id="settingsVersionLabel">Version: 1.36.03</div>
+          <div class="setting-version-label" id="settingsVersionLabel">Version: 1.36.04</div>
         </div>
       </div>
     </div>
