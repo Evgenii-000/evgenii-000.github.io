@@ -1,3 +1,4 @@
+// [ENG100] Game Engine Module: Primary simulation state, game loop, persistent storage, and entity managers.
 // Synth Wave Defense -- engine.js
 //
 // The simulation layer: everything about *what happens* in a match, with no
@@ -43,6 +44,7 @@ let newTowerBannerHideTimer = 0;
 let cameraShakeTimer = 0;
 let cameraShakeIntensity = 0;
 
+// [ENG101] Camera Shake & Audio Integration Wrappers: FX triggers, volume control, and haptic feedback.
 function triggerCameraShake(dur = 0.5, intensity = 15) {
   cameraShakeTimer = dur;
   cameraShakeIntensity = intensity;
@@ -215,6 +217,7 @@ let upgradesPreviousSource = 'main';
 let lastVictoryDiamondsReward = 2;
 let hasClaimedX2ThisLevel = false;
 
+// [ENG102] Persistent Save State & LocalStorage Synchronization: Game progress serialization, save, and load pipeline.
 // --- Gifts & Shop State ---
 let noAdsPurchased = false;
 let dailyGiftsClaimedDate = '';
@@ -340,6 +343,7 @@ function safeTrack(name, params) {
   } catch (e) { }
 }
 
+// [ENG103] Map Geometry & Path Grid Construction: Path nodes, cell blocking, and grid topology initialization.
 function buildLevelGeometry(pathNodes, colsCount, rowsCount, blockedCells) {
   COLS = colsCount || 10;
   ROWS = rowsCount || 7;
@@ -458,6 +462,7 @@ let perfDecided = false;
 let perfSampleFrames = 0;
 let perfSampleTime = 0;
 
+// [ENG104] Meta-Upgrade Tech Tree & Player Loadout Management: Tower unlocks, loadout slots, and skill tree node handlers.
 function getMaxUpgradeStep() {
   const lvl = getLoadoutReferenceLevel();
   if (lvl < 11) return 0;
@@ -636,6 +641,7 @@ function refreshLoadoutForProgress() {
   }
 }
 
+// [ENG105] Game Match Lifecycle & State Controller: Level start, pause, hardware back button, and level reset routines.
 function startSpecificLevel(lvl) {
   refreshLoadoutForProgress();
   reallyStartLevel(lvl);
@@ -822,6 +828,7 @@ function handleHardwareBack() {
   }
 }
 
+// [ENG106] Match Result & Victory/Defeat Handlers: Star calculations, rewards, revive prompt, and victory/defeat sequences.
 function calculateLevelStarsAndReward(lvl, currentHp, startingHp) {
   const hpRatio = startingHp > 0 ? (currentHp / startingHp) : 1;
   let earnedStars = 1;
@@ -1250,6 +1257,7 @@ function acceptEmergencyRevive() {
   }
 }
 
+// [ENG107] Tower Construction & Inspection Management: Build, upgrade, sell, and drag-and-drop placement logic.
 function buildTowerAt(type, c, r) {
   const conf = TOWER_CONFIGS[type];
   if (grid[r][c] === 0 && gold >= conf.cost) {
@@ -1428,6 +1436,7 @@ function sellSelectedTower() {
   updateUI();
 }
 
+// [ENG108] Wave Spawning & Enemy Queue Management: Auto/manual wave triggers, miniboss/boss delays, and spawn timers.
 function getAutoWaveDelay() {
   if (currentLevel >= 40) return 9.0;
   if (currentLevel >= 30) return 7.0;
@@ -1573,6 +1582,7 @@ function startWave() {
   if (devMode) refreshDevDropdowns();
 }
 
+// [ENG109] Developer Tools & Spawner Integration: Custom spawner injections, dev controls, and cheat handlers.
 function handleDevSpawnClick() {
   if (!devMode || gameState !== 'PLAYING') return;
   const typeSel = document.getElementById('devSpawnType');
@@ -1698,6 +1708,7 @@ function injectCustomSpawn(type, count, interval, hpMult, speedMult) {
 
 let lastTime = performance.now();
 
+// [ENG110] Performance Monitor & Main Game Loop: Dynamic performance downgrades and main requestAnimationFrame loop.
 function samplePerfAndMaybeDowngrade(rawDt) {
   if (perfDecided) return;
   if (settings.perfModeOverride) { perfDecided = true; return; }
@@ -1886,6 +1897,7 @@ function toggleLivePause() {
   }
 }
 
+// [ENG111] Daily Rewards & In-App Purchases (IAP): Daily gifts login packs, shop state, and simulated IAP transactions.
 function getTodayDateString() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -2003,6 +2015,7 @@ function buyShopIAP(productId) {
   }
 }
 
+// [ENG112] Navigation & Screen Transition Helpers: Start screen, level selection, and chapter label controllers.
 function updateStartChapterLabel(show) {
   const el = document.getElementById('startChapterLabel');
   if (!el) return;
@@ -2115,6 +2128,7 @@ function showLevelSelectFromGame() {
   gameState = 'LEVELS';
 }
 
+// [ENG113] Simulation Step Update Pipeline: Enemy movement, tower targeting, projectile physics, and status effects.
 // javascript-obfuscator: disable
 function update(dt) {
   if (cameraShakeTimer > 0) {
