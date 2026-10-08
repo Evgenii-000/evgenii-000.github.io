@@ -1187,6 +1187,7 @@ function navLevelSection(dir) {
 
   isNavigatingSection = true;
   grid.classList.remove('grid-swipe-out-left', 'grid-swipe-out-right', 'grid-swipe-in-left', 'grid-swipe-in-right');
+  void grid.offsetWidth;
   const outClass = dir > 0 ? 'grid-swipe-out-left' : 'grid-swipe-out-right';
   const inClass = dir > 0 ? 'grid-swipe-in-right' : 'grid-swipe-in-left';
 
@@ -1196,6 +1197,7 @@ function navLevelSection(dir) {
     currentLevelSection = target;
     renderLevelsGrid();
     grid.classList.remove(outClass);
+    void grid.offsetWidth;
     grid.classList.add(inClass);
 
     setTimeout(() => {
@@ -1523,7 +1525,10 @@ function updateHudSpeedWidget() {
   const widget = document.getElementById('hudSpeedWidget');
   if (!widget) return;
 
-  const showWidget = (gameState === 'PLAYING' || gameState === 'PAUSED') && ((typeof timeModTier !== 'undefined' && timeModTier > 0) || devMode);
+  const isCombatPause = (gameState === 'PAUSED' && (typeof settingsPreviousSource === 'undefined' || settingsPreviousSource === 'combat' || settingsPreviousSource === 'pause'));
+  const isBattle = (gameState === 'PLAYING' || isCombatPause);
+
+  const showWidget = isBattle && ((typeof timeModTier !== 'undefined' && timeModTier > 0) || devMode);
   widget.classList.toggle('hidden', !showWidget);
 
   if (!showWidget) return;
@@ -1801,6 +1806,7 @@ function showStartScreen() {
   if (l1) buildLevelGeometry(l1.path, l1.cols, l1.rows, l1.blocked);
   resizeCanvasAndCamera();
   gameState = 'START';
+  updateHudSpeedWidget();
   updateUpgradeButtonsLock();
 }
 
@@ -2056,6 +2062,7 @@ function toggleSettingPerf(isChecked) {
   let touchStartY = 0;
   let touchStartTime = 0;
   let isSwiping = false;
+  let swipeTriggered = false;
 
   function onPointerDown(e) {
     if (gameState !== 'LEVELS') return;
@@ -2069,10 +2076,36 @@ function toggleSettingPerf(isChecked) {
     touchStartY = clientY;
     touchStartTime = performance.now();
     isSwiping = false;
+    swipeTriggered = false;
+  }
+
+  function onPointerMove(e) {
+    if (gameState !== 'LEVELS' || swipeTriggered || isNavigatingSection) return;
+    const levelsScreen = document.getElementById('levelsScreen');
+    if (!levelsScreen || levelsScreen.classList.contains('hidden')) return;
+
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+    const deltaX = clientX - touchStartX;
+    const deltaY = clientY - touchStartY;
+    const minDistance = 35;
+
+    if (Math.abs(deltaX) >= minDistance && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
+      swipeTriggered = true;
+      isSwiping = true;
+      if (deltaX < 0) {
+        navLevelSection(1);
+      } else {
+        navLevelSection(-1);
+      }
+    }
   }
 
   function onPointerUp(e) {
     if (gameState !== 'LEVELS') return;
+    if (swipeTriggered) return;
+
     const levelsScreen = document.getElementById('levelsScreen');
     if (!levelsScreen || levelsScreen.classList.contains('hidden')) return;
 
@@ -2083,10 +2116,11 @@ function toggleSettingPerf(isChecked) {
     const deltaY = clientY - touchStartY;
     const duration = performance.now() - touchStartTime;
 
-    const minDistance = 45;
+    const minDistance = 35;
     const maxDuration = 600;
 
     if (duration <= maxDuration && Math.abs(deltaX) >= minDistance && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
+      swipeTriggered = true;
       isSwiping = true;
       if (deltaX < 0) {
         navLevelSection(1);
@@ -2108,8 +2142,10 @@ function toggleSettingPerf(isChecked) {
     const levelsScreen = document.getElementById('levelsScreen');
     if (levelsScreen) {
       levelsScreen.addEventListener('touchstart', onPointerDown, { passive: true });
+      levelsScreen.addEventListener('touchmove', onPointerMove, { passive: true });
       levelsScreen.addEventListener('touchend', onPointerUp, { passive: true });
       levelsScreen.addEventListener('mousedown', onPointerDown);
+      levelsScreen.addEventListener('mousemove', onPointerMove);
       levelsScreen.addEventListener('mouseup', onPointerUp);
       levelsScreen.addEventListener('click', onClickCapture, true);
     }
@@ -2143,6 +2179,7 @@ function showLevelSelect() {
   renderLevelsGrid();
   showLoadoutWidgetIn('loadoutAnchor-levels');
   gameState = 'LEVELS';
+  updateHudSpeedWidget();
 }
 
 function giveUpMatch() {
@@ -2226,6 +2263,7 @@ function showLevelSelectFromGame() {
   renderLevelsGrid();
   showLoadoutWidgetIn('loadoutAnchor-levels');
   gameState = 'LEVELS';
+  updateHudSpeedWidget();
 }
 
 // [UI119] Player loadout slot configuration and milestone sequence manager.
@@ -2556,6 +2594,7 @@ function showUpgradesScreen(fromSource) {
   upg.classList.toggle('from-main', !isResultBg);
   upg.classList.remove('hidden');
   gameState = 'UPGRADES';
+  updateHudSpeedWidget();
   renderUpgradeTree();
 }
 
@@ -2623,6 +2662,7 @@ function showShopScreen(fromSource) {
   shopEl.classList.remove('hidden');
   gameState = 'SHOP';
 
+  updateHudSpeedWidget();
   renderShopScreen();
 }
 
