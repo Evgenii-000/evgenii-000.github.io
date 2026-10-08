@@ -1477,8 +1477,73 @@ function devJumpToWave(targetWave) {
 }
 
 
-//все по скорости в дев режиме-------------
-const DEV_SPEED_STEPS = [1, 1.5, 2, 4, 8];
+// --- Time Modulation & Speed Controls ---
+const DEV_SPEED_STEPS = [0.5, 0.8, 1, 1.5, 2, 4, 8];
+
+function getHudAllowedSpeeds() {
+  const tier = typeof timeModTier !== 'undefined' ? timeModTier : 0;
+  if (tier >= 2) {
+    return [0.5, 0.8, 1.0, 1.5, 2.0];
+  } else if (tier >= 1) {
+    return [0.8, 1.0, 1.5];
+  }
+  return [1.0];
+}
+
+function updateHudSpeedWidget() {
+  const widget = document.getElementById('hudSpeedWidget');
+  if (!widget) return;
+
+  // Show HUD speed widget in combat only if timeModTier > 0 or devMode
+  const showWidget = (gameState === 'PLAYING' || gameState === 'PAUSED') && ((typeof timeModTier !== 'undefined' && timeModTier > 0) || devMode);
+  widget.classList.toggle('hidden', !showWidget);
+
+  if (!showWidget) return;
+
+  const curSpeed = typeof gameTimeScale !== 'undefined' ? gameTimeScale : 1.0;
+  const valEl = document.getElementById('hudSpeedVal');
+  if (valEl) {
+    valEl.textContent = `${curSpeed.toFixed(1)}x`;
+  }
+
+  const allowed = devMode ? DEV_SPEED_STEPS : getHudAllowedSpeeds();
+  const curIdx = allowed.indexOf(curSpeed);
+
+  const fasterBtn = document.getElementById('hudSpeedFasterBtn');
+  const slowerBtn = document.getElementById('hudSpeedSlowerBtn');
+
+  if (fasterBtn) fasterBtn.disabled = (curIdx !== -1 && curIdx >= allowed.length - 1);
+  if (slowerBtn) slowerBtn.disabled = (curIdx !== -1 && curIdx <= 0);
+}
+
+function setGameSpeed(speed) {
+  if (typeof gameTimeScale !== 'undefined') {
+    gameTimeScale = speed;
+  }
+  // Sync dev dropdowns
+  const selects = document.querySelectorAll('#speedContainer, .dev-speed-select, .dev-bar select');
+  selects.forEach(s => {
+    s.value = String(speed);
+  });
+  updateHudSpeedWidget();
+}
+
+function stepHudSpeed(direction) {
+  const allowed = devMode ? DEV_SPEED_STEPS : getHudAllowedSpeeds();
+  if (allowed.length <= 1) return;
+
+  const curSpeed = typeof gameTimeScale !== 'undefined' ? gameTimeScale : 1.0;
+  let curIdx = allowed.indexOf(curSpeed);
+  if (curIdx === -1) {
+    curIdx = allowed.reduce((closest, val, idx) =>
+      Math.abs(val - curSpeed) < Math.abs(allowed[closest] - curSpeed) ? idx : closest, 0);
+  }
+
+  const nextIdx = Math.max(0, Math.min(allowed.length - 1, curIdx + direction));
+  const newSpeed = allowed[nextIdx];
+  setGameSpeed(newSpeed);
+  sfx('tap');
+}
 
 function stepDevSpeed(direction) {
   // Находим все возможные варианты селектора скорости
@@ -1513,19 +1578,91 @@ function stepDevSpeed(direction) {
     if (s.options && s.options[nextIndex]) {
       s.options[nextIndex].selected = true;
     }
-
-    // Вызываем нативное событие change
-    s.dispatchEvent(new Event('change', { bubbles: true }));
   });
 
   // 4. Применяем скорость игры
-  if (typeof setGameSpeed === 'function') {
-    setGameSpeed(newSpeed);
-  }
-  if (typeof gameTimeScale !== 'undefined') {
-    gameTimeScale = newSpeed;
-  }
+  setGameSpeed(newSpeed);
 }
+
+// --- Revolver / Long-Tap Pull Gesture on HUD Speed Center Element ---
+(function initHudSpeedRevolverGesture() {
+  let isDragging = false;
+  let startY = 0;
+  let startSpeedIndex = 0;
+  let allowedSpeeds = [1.0];
+  let initialSpeed = 1.0;
+
+  function onPointerDown(e) {
+    const centerEl = document.getElementById('hudSpeedCenter');
+    if (!centerEl || !centerEl.contains(e.target)) return;
+
+    allowedSpeeds = devMode ? DEV_SPEED_STEPS : getHudAllowedSpeeds();
+    if (allowedSpeeds.length <= 1) return;
+
+    isDragging = true;
+    startY = e.touches ? e.touches[0].clientY : e.clientY;
+    initialSpeed = typeof gameTimeScale !== 'undefined' ? gameTimeScale : 1.0;
+
+    let idx = allowedSpeeds.indexOf(initialSpeed);
+    if (idx === -1) {
+      idx = allowedSpeeds.reduce((closest, val, i) =>
+        Math.abs(val - initialSpeed) < Math.abs(allowedSpeeds[closest] - initialSpeed) ? i : closest, 0);
+    }
+    startSpeedIndex = idx;
+
+    centerEl.classList.add('active-grab');
+    const capsule = document.getElementById('hudSpeedWidget');
+    if (capsule) capsule.classList.add('dragging');
+
+    window.addEventListener('mousemove', onPointerMove, { passive: false });
+    window.addEventListener('mouseup', onPointerUp);
+    window.addEventListener('touchmove', onPointerMove, { passive: false });
+    window.addEventListener('touchend', onPointerUp);
+  }
+
+  function onPointerMove(e) {
+    if (!isDragging) return;
+    if (e.cancelable) e.preventDefault();
+
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const dy = clientY - startY; // Pulling UP (negative dy) = faster (increase index), pulling DOWN (positive dy) = slower (decrease index)
+
+    const stepPx = 25; // 25px drag threshold per speed step
+    const stepDelta = Math.round(-dy / stepPx);
+
+    const targetIdx = Math.max(0, Math.min(allowedSpeeds.length - 1, startSpeedIndex + stepDelta));
+    const newSpeed = allowedSpeeds[targetIdx];
+
+    if (newSpeed !== gameTimeScale) {
+      setGameSpeed(newSpeed);
+      if (typeof vibrate === 'function') vibrate('light');
+      else if (navigator.vibrate) { try { navigator.vibrate(15); } catch(err){} }
+    }
+  }
+
+  function onPointerUp() {
+    if (!isDragging) return;
+    isDragging = false;
+
+    const centerEl = document.getElementById('hudSpeedCenter');
+    if (centerEl) centerEl.classList.remove('active-grab');
+    const capsule = document.getElementById('hudSpeedWidget');
+    if (capsule) capsule.classList.remove('dragging');
+
+    window.removeEventListener('mousemove', onPointerMove);
+    window.removeEventListener('mouseup', onPointerUp);
+    window.removeEventListener('touchmove', onPointerMove);
+    window.removeEventListener('touchend', onPointerUp);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const centerEl = document.getElementById('hudSpeedCenter');
+    if (centerEl) {
+      centerEl.addEventListener('mousedown', onPointerDown);
+      centerEl.addEventListener('touchstart', onPointerDown, { passive: true });
+    }
+  });
+})();
 
 function toggleLivePause() {
   isLivePaused = !isLivePaused;
@@ -2417,6 +2554,36 @@ function renderShopScreen() {
     }
   }
 
+  const t1Btn = document.getElementById('timeModT1Btn');
+  if (t1Btn) {
+    if (timeModTier >= 1) {
+      t1Btn.disabled = true;
+      t1Btn.className = 'shop-item-btn shop-btn-claimed';
+      t1Btn.innerHTML = '<span>OWNED</span>';
+    } else {
+      t1Btn.disabled = false;
+      t1Btn.className = 'shop-item-btn shop-btn-buy';
+      t1Btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2.2" stroke-linejoin="round" style="flex:none;"><polygon points="6 3 18 3 22 9 12 22 2 9" fill="rgba(0,229,255,.25)"/><polyline points="2 9 12 13 22 9"/><line x1="12" y1="22" x2="12" y2="13"/></svg><span>40</span>';
+    }
+  }
+
+  const t2Btn = document.getElementById('timeModT2Btn');
+  if (t2Btn) {
+    if (timeModTier >= 2) {
+      t2Btn.disabled = true;
+      t2Btn.className = 'shop-item-btn shop-btn-claimed';
+      t2Btn.innerHTML = '<span>OWNED</span>';
+    } else if (timeModTier < 1) {
+      t2Btn.disabled = false;
+      t2Btn.className = 'shop-item-btn shop-btn-buy locked-buy';
+      t2Btn.innerHTML = '<span style="font-size:11px; filter:grayscale(1) brightness(.7);">🔒</span><span style="font-size:10px;">TIER 1 REQUIRED</span>';
+    } else {
+      t2Btn.disabled = false;
+      t2Btn.className = 'shop-item-btn shop-btn-buy';
+      t2Btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2.2" stroke-linejoin="round" style="flex:none;"><polygon points="6 3 18 3 22 9 12 22 2 9" fill="rgba(0,229,255,.25)"/><polyline points="2 9 12 13 22 9"/><line x1="12" y1="22" x2="12" y2="13"/></svg><span>50</span>';
+    }
+  }
+
   const noAdsBtn = document.getElementById('noAdsBuyBtn');
   if (noAdsBtn) {
     if (noAdsPurchased) {
@@ -2910,6 +3077,9 @@ function updateUI() {
   if (waveBtn) {
     waveBtn.disabled = (waveInProgress || spawnQueue.length > 0 || wave >= maxW);
   }
+
+  // Update HUD Speed Control Widget
+  updateHudSpeedWidget();
 
   if (selectedTower) updateInspectUI();
 }
