@@ -1508,7 +1508,7 @@ function devJumpToWave(targetWave) {
 }
 
 
-const DEV_SPEED_STEPS = [0.5, 0.75, 0.8, 0.9, 1, 1.25, 1.5, 2, 4, 8];
+const DEV_SPEED_STEPS = [0.5, 0.75, 0.9, 1, 1.25, 1.5, 2, 4, 8];
 
 // [UI115] Time modulation speed levels and HUD controls.
 function getHudAllowedSpeeds() {
@@ -1564,7 +1564,7 @@ function setGameSpeed(speed) {
     gameTimeScale = speed;
   }
   // [UI115.01] Synchronize speed dropdown selectors.
-  const selects = document.querySelectorAll('#speedContainer, .dev-speed-select, .dev-bar select');
+  const selects = document.querySelectorAll('.dev-speed-floating, .dev-speed-select, #speedContainer, .dev-bar select');
   selects.forEach(s => {
     s.value = String(speed);
   });
@@ -1591,7 +1591,7 @@ function stepHudSpeed(direction) {
 }
 
 function stepDevSpeed(direction) {
-  const selects = document.querySelectorAll('#speedContainer, .dev-speed-select, .dev-bar select');
+  const selects = document.querySelectorAll('.dev-speed-floating, .dev-speed-select, #speedContainer, .dev-bar select');
   if (!selects || selects.length === 0) return;
 
   const sel = selects[0];
@@ -2063,12 +2063,19 @@ function toggleSettingPerf(isChecked) {
   let touchStartTime = 0;
   let isSwiping = false;
   let swipeTriggered = false;
+  let isPointerDown = false;
 
   function onPointerDown(e) {
     if (gameState !== 'LEVELS') return;
     const levelsScreen = document.getElementById('levelsScreen');
     if (!levelsScreen || levelsScreen.classList.contains('hidden')) return;
 
+    if (e.target && e.target.closest && e.target.closest('button, .part-nav-btn, .level-card')) {
+      isPointerDown = false;
+      return;
+    }
+
+    isPointerDown = true;
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
 
@@ -2080,7 +2087,12 @@ function toggleSettingPerf(isChecked) {
   }
 
   function onPointerMove(e) {
-    if (gameState !== 'LEVELS' || swipeTriggered || isNavigatingSection) return;
+    if (!isPointerDown || gameState !== 'LEVELS' || swipeTriggered || isNavigatingSection) return;
+    if (!e.touches && e.buttons === 0) {
+      isPointerDown = false;
+      return;
+    }
+
     const levelsScreen = document.getElementById('levelsScreen');
     if (!levelsScreen || levelsScreen.classList.contains('hidden')) return;
 
@@ -2094,6 +2106,7 @@ function toggleSettingPerf(isChecked) {
     if (Math.abs(deltaX) >= minDistance && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
       swipeTriggered = true;
       isSwiping = true;
+      isPointerDown = false;
       if (deltaX < 0) {
         navLevelSection(1);
       } else {
@@ -2103,7 +2116,11 @@ function toggleSettingPerf(isChecked) {
   }
 
   function onPointerUp(e) {
-    if (gameState !== 'LEVELS') return;
+    if (!isPointerDown || gameState !== 'LEVELS') {
+      isPointerDown = false;
+      return;
+    }
+    isPointerDown = false;
     if (swipeTriggered) return;
 
     const levelsScreen = document.getElementById('levelsScreen');
@@ -2144,9 +2161,11 @@ function toggleSettingPerf(isChecked) {
       levelsScreen.addEventListener('touchstart', onPointerDown, { passive: true });
       levelsScreen.addEventListener('touchmove', onPointerMove, { passive: true });
       levelsScreen.addEventListener('touchend', onPointerUp, { passive: true });
+      levelsScreen.addEventListener('touchcancel', () => { isPointerDown = false; }, { passive: true });
       levelsScreen.addEventListener('mousedown', onPointerDown);
       levelsScreen.addEventListener('mousemove', onPointerMove);
       levelsScreen.addEventListener('mouseup', onPointerUp);
+      levelsScreen.addEventListener('mouseleave', () => { isPointerDown = false; });
       levelsScreen.addEventListener('click', onClickCapture, true);
     }
   }
@@ -2415,20 +2434,22 @@ function buildMilestoneSteps(clearedLevel) {
   const upgradesJustUnlocked = (clearedLevel + 1) === upgradesUnlockLevel;
   const loadoutJustUnlocked = upgradesJustUnlocked;
 
-  if (clearedLevel === LEVELS_PER_SECTION) {
-    steps.push({
-      kicker: `Sector ${sector}`,
-      title: 'Complete',
-      body: `You've cleared all ${LEVELS_PER_SECTION} levels of the first sector.<br><br>` +
-            `<b>Global Upgrades</b> are now unlocked \u2014 spend diamonds there to permanently ` +
-            `strengthen every tower and your base, for every battle from here on.`
-    });
-  } else {
-    steps.push({
-      kicker: `Sector ${sector}`,
-      title: 'Complete',
-      body: `Sector ${sector} cleared. The next sector brings tougher enemies \u2014 and a new tower.`
-    });
+  if (clearedLevel < TOTAL_LEVELS) {
+    if (clearedLevel === LEVELS_PER_SECTION) {
+      steps.push({
+        kicker: `Sector ${sector}`,
+        title: 'Complete',
+        body: `You've cleared all ${LEVELS_PER_SECTION} levels of the first sector.<br><br>` +
+              `<b>Global Upgrades</b> are now unlocked \u2014 spend diamonds there to permanently ` +
+              `strengthen every tower and your base, for every battle from here on.`
+      });
+    } else {
+      steps.push({
+        kicker: `Sector ${sector}`,
+        title: 'Complete',
+        body: `Sector ${sector} cleared. The next sector brings tougher enemies \u2014 and a new tower.`
+      });
+    }
   }
 
   newTowers.forEach(type => {
