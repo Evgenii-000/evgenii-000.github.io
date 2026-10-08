@@ -761,10 +761,10 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  width: 72px;
-  padding: 8px 6px;
-  border-radius: 26px;
+  gap: 3px;
+  width: 38px;
+  padding: 4px 3px;
+  border-radius: 16px;
   background: rgba(8, 12, 24, 0.75);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
@@ -774,9 +774,9 @@ body {
 }
 
 .spd-btn {
-  width: 46px;
-  height: 34px;
-  border-radius: 12px;
+  width: 26px;
+  height: 20px;
+  border-radius: 7px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(140, 200, 255, 0.18);
   display: flex;
@@ -807,16 +807,16 @@ body {
 }
 
 .spd-btn svg {
-  width: 16px;
-  height: 16px;
+  width: 11px;
+  height: 11px;
   filter: drop-shadow(0 0 4px currentColor);
 }
 
 .spd-drum {
   position: relative;
-  width: 58px;
-  height: 76px;
-  border-radius: 18px;
+  width: 32px;
+  height: 42px;
+  border-radius: 10px;
   background:
     radial-gradient(60% 60% at 50% 50%, rgba(0, 229, 255, 0.16), rgba(0, 229, 255, 0.02)),
     rgba(10, 14, 26, 0.9);
@@ -865,8 +865,8 @@ body {
   z-index: 2;
   font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-weight: 900;
-  font-size: 16px;
-  letter-spacing: 0.5px;
+  font-size: 10px;
+  letter-spacing: 0.3px;
   color: #ffffff;
   text-shadow: 0 0 12px rgba(0, 229, 255, 0.8);
   pointer-events: none;
@@ -878,15 +878,15 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 1px;
   opacity: 0.65;
   pointer-events: none;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 .drum-hint svg {
-  width: 9px;
-  height: 9px;
+  width: 6px;
+  height: 6px;
   color: #00e5ff;
 }
 
@@ -905,27 +905,27 @@ body {
 
 .spd-label {
   font-family: 'Montserrat', sans-serif;
-  font-size: 9px;
+  font-size: 7px;
   font-weight: 800;
-  letter-spacing: 1.5px;
+  letter-spacing: 0.8px;
   color: #8ea3c4;
   text-transform: uppercase;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 /* Tooltip popup shown on the left of the upper right widget */
 .drag-tip {
   position: absolute;
   right: 100%;
-  margin-right: 10px;
+  margin-right: 6px;
   top: 50%;
   transform: translateY(-50%);
   white-space: nowrap;
   background: rgba(10, 13, 26, 0.95);
   border: 1.5px solid #00e5ff;
-  border-radius: 10px;
-  padding: 6px 10px;
-  font-size: 11px;
+  border-radius: 8px;
+  padding: 4px 6px;
+  font-size: 9px;
   font-weight: 700;
   color: #e8f9ff;
   box-shadow: 0 0 14px rgba(0, 229, 255, 0.35);
@@ -1695,6 +1695,34 @@ body {
   min-width: 126px;
   text-align: center;
   text-shadow: 0 0 16px rgba(0, 229, 255, 0.6);
+}
+
+.levels-swipe-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 2px;
+  color: #8ef3ff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  opacity: 0.75;
+  pointer-events: none;
+  animation: swipeHintPulse 2.4s ease-in-out infinite;
+}
+
+.swipe-arrow {
+  font-size: 9px;
+  color: #00e5ff;
+  opacity: 0.85;
+}
+
+@keyframes swipeHintPulse {
+  0%, 100% { opacity: 0.55; transform: scale(0.98); }
+  50%      { opacity: 0.95; transform: scale(1.02); }
 }
 
 .levels-grid {
