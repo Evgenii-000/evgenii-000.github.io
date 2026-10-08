@@ -225,6 +225,7 @@ let dailyGiftsClaimedCount = 0; // 0, 1, 2 или 3 в день
 let timeModTier = 0; // 0 = locked, 1 = Tier 1 (0.8x, 1.0x, 1.5x), 2 = Tier 2 (0.5x, 0.8x, 1.0x, 1.5x, 2.0x)
 let shopPreviousSource = 'start'; // откуда пришли в магазин: 'start', 'victory', 'defeat'
 
+let consecutiveFails = 0;
 let reviveUsedThisMatch = false;
 let reviveTimerInterval = null;
 let reviveRemainingSeconds = 3;
@@ -260,7 +261,8 @@ function serializeSaveData() {
     noAdsPurchased,
     dailyGiftsClaimedDate,
     dailyGiftsClaimedCount,
-    timeModTier
+    timeModTier,
+    consecutiveFails
   };
 }
 
@@ -300,6 +302,7 @@ function loadGame() {
   if (typeof data.dailyGiftsClaimedDate === 'string') dailyGiftsClaimedDate = data.dailyGiftsClaimedDate;
   if (typeof data.dailyGiftsClaimedCount === 'number') dailyGiftsClaimedCount = data.dailyGiftsClaimedCount;
   if (typeof data.timeModTier === 'number') timeModTier = data.timeModTier;
+  if (typeof data.consecutiveFails === 'number' && data.consecutiveFails >= 0) consecutiveFails = data.consecutiveFails;
 
   if (typeof data.diamonds === 'number' && data.diamonds >= 0) diamonds = data.diamonds;
   if (typeof data.maxUnlockedLevel === 'number' && data.maxUnlockedLevel >= 1) {
@@ -860,6 +863,39 @@ function calculateLevelStarsAndReward(lvl, currentHp, startingHp) {
   return { stars: earnedStars, reward: rewardDiamonds, rewardLabel: rewardLabel };
 }
 
+function showAdPlaceholder(onRewarded, onNotRewarded) {
+  const adOverlay = document.getElementById('adSimOverlay');
+  const yesBtn = document.getElementById('adSimYesBtn');
+  const noBtn = document.getElementById('adSimNoBtn');
+
+  if (!adOverlay) {
+    if (onRewarded) onRewarded();
+    return;
+  }
+
+  adOverlay.classList.remove('hidden');
+
+  const cleanup = () => {
+    adOverlay.classList.add('hidden');
+    if (yesBtn) yesBtn.onclick = null;
+    if (noBtn) noBtn.onclick = null;
+  };
+
+  if (yesBtn) {
+    yesBtn.onclick = () => {
+      cleanup();
+      if (onRewarded) onRewarded();
+    };
+  }
+
+  if (noBtn) {
+    noBtn.onclick = () => {
+      cleanup();
+      if (onNotRewarded) onNotRewarded();
+    };
+  }
+}
+
 function claimX2Reward() {
   if (hasClaimedX2ThisLevel) return;
   const claimBtn = document.getElementById('claimX2Btn');
@@ -877,12 +913,7 @@ function claimX2Reward() {
   };
 
   if (!noAdsPurchased) {
-    const adOverlay = document.getElementById('adSimOverlay');
-    if (adOverlay) adOverlay.classList.remove('hidden');
-    setTimeout(() => {
-      if (adOverlay) adOverlay.classList.add('hidden');
-      executeGrant();
-    }, 1000);
+    showAdPlaceholder(executeGrant, null);
   } else {
     executeGrant();
   }
@@ -919,6 +950,7 @@ function triggerVictory() {
   lastVictoryDiamondsReward = reward;
   hasClaimedX2ThisLevel = false;
 
+  consecutiveFails = 0;
   diamonds += reward;
   updateDiamondUI();
   renderVictoryStars(stars);
@@ -959,6 +991,9 @@ function triggerVictory() {
     document.getElementById('victoryScreen').classList.remove('hidden');
     showLoadoutWidgetIn('loadoutAnchor-victory');
     playVictoryUnlockFx();
+    if (currentLevel === 50) {
+      showGameCompletionModal();
+    }
   };
 
   saveGame();
@@ -1026,6 +1061,41 @@ function triggerDefeat() {
   replayDefeatFlash();
   showLoadoutWidgetIn('loadoutAnchor-defeat');
   safeTrack('level_failed', { level: currentLevel, wave });
+
+  consecutiveFails++;
+  if (consecutiveFails >= 3) {
+    consecutiveFails = 0;
+    showRecommendationsModal();
+  }
+  saveGameSoon();
+}
+
+function showGameCompletionModal() {
+  const modal = document.getElementById('gameCompletionModal');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeGameCompletionModal() {
+  const modal = document.getElementById('gameCompletionModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function showRecommendationsModal() {
+  const modal = document.getElementById('recommendationsModal');
+  const maxTechItem = document.getElementById('recMaxTechItem');
+  if (!modal) return;
+
+  const showMaxTech = (typeof maxUnlockedLevel !== 'undefined' && maxUnlockedLevel > 10) || (typeof currentLevel !== 'undefined' && currentLevel > 10);
+  if (maxTechItem) {
+    maxTechItem.style.display = showMaxTech ? 'list-item' : 'none';
+  }
+
+  modal.classList.remove('hidden');
+}
+
+function closeRecommendationsModal() {
+  const modal = document.getElementById('recommendationsModal');
+  if (modal) modal.classList.add('hidden');
 }
 
 function setReviveBtnLabel(seconds) {
@@ -1246,12 +1316,7 @@ function acceptEmergencyRevive() {
   };
 
   if (!noAdsPurchased) {
-    const adOverlay = document.getElementById('adSimOverlay');
-    if (adOverlay) adOverlay.classList.remove('hidden');
-    setTimeout(() => {
-      if (adOverlay) adOverlay.classList.add('hidden');
-      executeRevive();
-    }, 1000);
+    showAdPlaceholder(executeRevive, null);
   } else {
     executeRevive();
   }
@@ -1932,12 +1997,7 @@ function claimDailyGiftsPack() {
   };
 
   if (needsAd) {
-    const adOverlay = document.getElementById('adSimOverlay');
-    if (adOverlay) adOverlay.classList.remove('hidden');
-    setTimeout(() => {
-      if (adOverlay) adOverlay.classList.add('hidden');
-      grantGift();
-    }, 1000);
+    showAdPlaceholder(grantGift, null);
   } else {
     grantGift();
   }
