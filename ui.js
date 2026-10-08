@@ -1,5 +1,4 @@
-// Synth Wave Defense -- ui.js
-// Presentation layer: renders screens, HUD, canvas graphics, and user input.
+// [UI100] Presentation layer and rendering pipeline initialization.
 
 window.perfProfiler = {
   times: { sim: 0, towers: 0, drawMobs: 0, drawFx: 0, total: 0 },
@@ -8,7 +7,7 @@ window.perfProfiler = {
   report: ''
 };
 
-// --- Glow Sprites Cache for High-Performance Additive Blending ---
+// [UI101] Glow sprites cache for high-performance additive blending.
 const GLOW_SPRITES = Object.create(null);
 function createGlowSprite(color) {
   const size = 64;
@@ -28,7 +27,7 @@ function createGlowSprite(color) {
   return c;
 }
 
-// --- Кэш статической сетки и дорожки (Offscreen Canvas) ---
+// [UI102] Offscreen canvas cache for static grid and track rendering.
 let offscreenGridCanvas = null;
 let offscreenGridDirty = true;
 
@@ -52,7 +51,7 @@ function updateOffscreenGrid() {
   const oCtx = offscreenGridCanvas.getContext('2d');
   oCtx.clearRect(0, 0, w, h);
   
-  // 1. Отрисовка базовой сетки ячеек
+  // [UI102.01] Static grid cell background rendering.
   for (let r = 0; r < ROWS; r++) {
     for (let c = 0; c < COLS; c++) {
       const cellVal = grid[r] ? grid[r][c] : 0;
@@ -64,11 +63,11 @@ function updateOffscreenGrid() {
     }
   }
 
-  // 2. Отрисовка статических боковых направляющих/рельсов дорожки
   oCtx.save();
   oCtx.strokeStyle = 'rgba(0, 229, 255, 0.22)';
   oCtx.lineWidth = 1.5;
   
+  // [UI102.02] Static track side rails rendering.
   if (typeof pathCells !== 'undefined' && Array.isArray(pathCells)) {
     pathCells.forEach(cell => {
       if (cell.rails) {
@@ -93,7 +92,7 @@ function updateOffscreenGrid() {
   offscreenGridDirty = false;
 }
 
-// Кешированные круглые неоновые диски (заменяют dynamic createRadialGradient на каждой частице)
+// [UI103] Offscreen neon disc sprite cache for particle rendering optimization.
 const NEON_DISC_SPRITES = Object.create(null);
 function getNeonDiscSprite(color) {
   if (NEON_DISC_SPRITES[color]) return NEON_DISC_SPRITES[color];
@@ -116,7 +115,7 @@ function getNeonDiscSprite(color) {
   return c;
 }
 
-// --- Кэш оффскрин-спрайтов геометрии мобов (Crash-Safe) ---
+// [UI104] Offscreen sprite cache for enemy geometry rendering.
 const ENEMY_SPRITE_CACHE = Object.create(null);
 
 function getEnemyShapeSprite(shape, color, radius, glowColor) {
@@ -140,7 +139,7 @@ function getEnemyShapeSprite(shape, color, radius, glowColor) {
   sCtx.save();
   sCtx.translate(cx, cy);
 
-  // Мягкий рассеянный неоновый отсвет
+  // [UI104.01] Diffuse neon glow lighting pass.
   const grad = sCtx.createRadialGradient(0, 0, 2, 0, 0, safeR * 2.2);
   grad.addColorStop(0, safeGlow + '66');
   grad.addColorStop(0.5, safeGlow + '20');
@@ -150,7 +149,7 @@ function getEnemyShapeSprite(shape, color, radius, glowColor) {
   sCtx.arc(0, 0, safeR * 2.2, 0, Math.PI * 2);
   sCtx.fill();
 
-  // Основное тело и неоновый контур
+  // [UI104.02] Primary geometry body and neon outline pass.
   sCtx.fillStyle = safeGlow + '33';
   sCtx.strokeStyle = safeColor;
   sCtx.lineWidth = 2.4;
@@ -220,7 +219,7 @@ function getEnemyShapeSprite(shape, color, radius, glowColor) {
   return ENEMY_SPRITE_CACHE[key];
 }
 
-// --- Кешированные спрайты дыма (контрастный концентрический дым) ---
+// [UI105] Offscreen concentric smoke sprite cache.
 let SMOKE_SPRITE = null;
 function getSmokeSprite() {
   if (SMOKE_SPRITE) return SMOKE_SPRITE;
@@ -243,7 +242,7 @@ function getSmokeSprite() {
   return c;
 }
 
-// --- Кешированные синтвейв-вспышки (Анаморфный блик / Световой крест) ---
+// [UI106] Anamorphic flare and cross sprite cache.
 const FLARE_SPRITES = Object.create(null);
 function getFlareSprite(color) {
   if (FLARE_SPRITES[color]) return FLARE_SPRITES[color];
@@ -288,6 +287,7 @@ function getGlowSprite(color) {
   return GLOW_SPRITES[color];
 }
 
+// [UI107] Banner and incoming threat alert visual indicators.
 function showNewTowerBanner(type) {
   const banner = document.getElementById('newTowerBanner');
   if (!banner) return;
@@ -333,6 +333,7 @@ function hideIncomingAlert() {
   activeBossAlertType = null;
 }
 
+// [UI108] Viewport canvas resize and camera coordinate transform system.
 function resizeCanvasAndCamera() {
   const vpWidth = window.visualViewport ? window.visualViewport.width : window.innerWidth;
   const vpHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
@@ -439,7 +440,7 @@ if (window.visualViewport) {
 }
 window.addEventListener('load', resizeCanvasAndCamera);
 
-// Lock out browser default touch behaviors (overscroll bounce, pull-to-refresh) over active gameplay canvas/UI
+// [UI109] Lock default touch behaviors on active canvas and UI overlays.
 document.addEventListener('touchmove', (e) => {
   if (gameState === 'PLAYING') {
     const isScrollableOverlay = e.target.closest && e.target.closest('.result-stack, .upgrades-row-list, .settings-box');
@@ -449,6 +450,7 @@ document.addEventListener('touchmove', (e) => {
   }
 }, { passive: false });
 
+// [UI110] Interactive level tutorial overlay and sequence step controller.
 function initTutorialForLevel(lvl) {
   tutorialActive = false;
   tutorialLevel = null;
@@ -841,7 +843,6 @@ function updateDiamondUI() {
   }
 }
 
-// --- Dev Mode Resource Management (Click vs Long Press) ---
 let devHoldTimer = null;
 let devHoldTriggered = false;
 let devHoldStartPos = { x: 0, y: 0 };
@@ -926,6 +927,7 @@ function devPromptWaveSelect() {
   }
 }
 
+// [UI111] Dev mode resource click and hold handlers.
 function initDevResourceHold() {
   const setupHold = (id, promptFn) => {
     const el = document.getElementById(id);
@@ -1047,6 +1049,7 @@ function enablePointerScroll(el) {
   el.addEventListener('pointerleave', endDrag);
 }
 
+// [UI112] Meta-upgrade skill tree DOM interface renderer.
 function renderUpgradeTree() {
   updateDiamondUI();
   const container = document.getElementById('upgradesTreeBody');
@@ -1228,10 +1231,10 @@ function renderLevelsGrid() {
   }
 }
 
-// --- DEV MODE CONTROLS ---
 let isDevModeActive = false;
 let isDevExpanded = false;
 
+// [UI113] Developer mode panel interface and visibility control.
 function openDevMode() {
   isDevModeActive = true;
   devMode = true;
@@ -1244,7 +1247,6 @@ function openDevMode() {
   if (hpHalf) hpHalf.classList.add('interactive');
   if (typeof initDevResourceHold === 'function') initDevResourceHold();
 
-  // Навешиваем клик на существующие надписи уровня и волны
   const levelEl = document.getElementById('levelText');
   const waveEl = document.getElementById('waveText');
   if (levelEl) {
@@ -1318,7 +1320,7 @@ function toggleDevPanelExpand() {
   }
 }
 
-// --- Перетаскивание панели Dev-режима ---
+// [UI114] Drag handler for developer control panel.
 (function initDevBarDrag() {
   let isDragging = false;
   let startX = 0;
@@ -1477,9 +1479,9 @@ function devJumpToWave(targetWave) {
 }
 
 
-// --- Time Modulation & Speed Controls ---
 const DEV_SPEED_STEPS = [0.5, 0.8, 1, 1.5, 2, 4, 8];
 
+// [UI115] Time modulation speed levels and HUD controls.
 function getHudAllowedSpeeds() {
   const tier = typeof timeModTier !== 'undefined' ? timeModTier : 0;
   if (tier >= 2) {
@@ -1494,7 +1496,6 @@ function updateHudSpeedWidget() {
   const widget = document.getElementById('hudSpeedWidget');
   if (!widget) return;
 
-  // Show HUD speed widget in combat only if timeModTier > 0 or devMode
   const showWidget = (gameState === 'PLAYING' || gameState === 'PAUSED') && ((typeof timeModTier !== 'undefined' && timeModTier > 0) || devMode);
   widget.classList.toggle('hidden', !showWidget);
 
@@ -1520,7 +1521,7 @@ function setGameSpeed(speed) {
   if (typeof gameTimeScale !== 'undefined') {
     gameTimeScale = speed;
   }
-  // Sync dev dropdowns
+  // [UI115.01] Synchronize speed dropdown selectors.
   const selects = document.querySelectorAll('#speedContainer, .dev-speed-select, .dev-bar select');
   selects.forEach(s => {
     s.value = String(speed);
@@ -1546,16 +1547,13 @@ function stepHudSpeed(direction) {
 }
 
 function stepDevSpeed(direction) {
-  // Находим все возможные варианты селектора скорости
   const selects = document.querySelectorAll('#speedContainer, .dev-speed-select, .dev-bar select');
   if (!selects || selects.length === 0) return;
 
   const sel = selects[0];
 
-  // 1. Считываем текущую позицию
   let curIndex = sel.selectedIndex;
 
-  // Если selectedIndex не определен корректно, ищем по значению
   if (curIndex === -1 || isNaN(curIndex)) {
     const currentVal = parseFloat(sel.value) || (typeof gameTimeScale !== 'undefined' ? gameTimeScale : 1);
     curIndex = DEV_SPEED_STEPS.indexOf(currentVal);
@@ -1565,26 +1563,22 @@ function stepDevSpeed(direction) {
     }
   }
 
-  // 2. Сдвигаем индекс шага
   const nextIndex = Math.max(0, Math.min(DEV_SPEED_STEPS.length - 1, curIndex + direction));
   const newSpeed = DEV_SPEED_STEPS[nextIndex];
 
-  // 3. Обновляем ВСЕ найденные элементы селектора скорости
   selects.forEach(s => {
     s.selectedIndex = nextIndex;
     s.value = String(newSpeed);
 
-    // Если это кастомные опции или стилизованный блок
     if (s.options && s.options[nextIndex]) {
       s.options[nextIndex].selected = true;
     }
   });
 
-  // 4. Применяем скорость игры
   setGameSpeed(newSpeed);
 }
 
-// --- Revolver / Long-Tap Pull Gesture on HUD Speed Center Element ---
+// [UI116] Revolver long-tap pull gesture on HUD speed indicator.
 (function initHudSpeedRevolverGesture() {
   let isDragging = false;
   let startY = 0;
@@ -1625,9 +1619,9 @@ function stepDevSpeed(direction) {
     if (e.cancelable) e.preventDefault();
 
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    const dy = clientY - startY; // Pulling UP (negative dy) = faster (increase index), pulling DOWN (positive dy) = slower (decrease index)
+    const dy = clientY - startY;
 
-    const stepPx = 25; // 25px drag threshold per speed step
+    const stepPx = 25;
     const stepDelta = Math.round(-dy / stepPx);
 
     const targetIdx = Math.max(0, Math.min(allowedSpeeds.length - 1, startSpeedIndex + stepDelta));
@@ -1694,6 +1688,7 @@ function updateStartChapterLabel(show, text) {
   }
 }
 
+// [UI117] Navigation screen display and menu visibility controllers.
 function showStartScreen() {
   music('menu');
   if (reviveTimerInterval) { clearInterval(reviveTimerInterval); reviveTimerInterval = null; }
@@ -1709,7 +1704,6 @@ function showStartScreen() {
 
   document.getElementById('econHpSplitBadge').classList.add('hidden');
   document.getElementById('levelWaveSplitBadge').classList.add('hidden');
-  // Правая группа остаётся видимой, чтобы шестерёнка была доступна всегда
   document.getElementById('hudRightGroup').classList.remove('hidden');
   updateStartChapterLabel(true);
   document.getElementById('controlsWrapper').classList.add('hidden');
@@ -1758,6 +1752,7 @@ let settingsAccordionExpanded = false;
 let devSettingsTapCount = 0;
 let devSettingsTapTimer = null;
 
+// [UI118] Settings accordion toggle and pause menu controller.
 function toggleSettingsAccordion(forceState) {
   if (typeof forceState === 'boolean') {
     settingsAccordionExpanded = forceState;
@@ -1776,7 +1771,6 @@ function toggleSettingsAccordion(forceState) {
 }
 
 function handleHudSettingsClick() {
-  // 5 быстрых тапов по шестерёнке для переключения Dev-режима
   devSettingsTapCount++;
   if (devSettingsTapTimer) clearTimeout(devSettingsTapTimer);
   devSettingsTapTimer = setTimeout(() => {
@@ -1796,19 +1790,16 @@ function handleHudSettingsClick() {
   const settingsSc = document.getElementById('settingsScreen');
   const isSettingsOpen = settingsSc && !settingsSc.classList.contains('hidden');
 
-  // Если окно настроек/паузы уже открыто — повторный клик закрывает его и возвращает в бой/меню
   if (isSettingsOpen || gameState === 'PAUSED' || gameState === 'SETTINGS') {
     closeSettings();
     return;
   }
 
-  // Если нажато во время боя — ставим на паузу
   if (gameState === 'PLAYING') {
     gameState = 'PAUSED';
     sfxStopBeams();
     showSettings('combat');
   } else {
-    // Если нажато в меню (START, LEVELS, UPGRADES, SHOP и т.д.)
     showSettings(gameState ? gameState.toLowerCase() : 'start');
   }
 }
@@ -1819,8 +1810,6 @@ function showSettings(fromSource = 'start') {
     musicSetDucked(true);
   }
 
-  // Прячем экран вызова или переводим экраны победы/поражения в фоновый режим,
-  // чтобы настройки отображались поверх них без замыливания
   const isResultScreen = (fromSource === 'victory' || fromSource === 'defeat');
   const bgScreenId = fromSource === 'victory' ? 'victoryScreen' 
     : (fromSource === 'defeat' ? 'defeatScreen' 
@@ -1861,7 +1850,7 @@ function showSettings(fromSource = 'start') {
     if (loadoutAnchor) loadoutAnchor.classList.remove('hidden');
     if (collapsibleWidget) collapsibleWidget.classList.remove('plain-mode');
     showLoadoutWidgetIn('loadoutAnchor-pause');
-    toggleSettingsAccordion(false); // В бою настройки свёрнуты под Loadout
+    toggleSettingsAccordion(false);
   } else {
     if (kickerEl) kickerEl.textContent = 'Game';
     if (titleEl) titleEl.textContent = 'Settings';
@@ -1869,7 +1858,7 @@ function showSettings(fromSource = 'start') {
     if (backBtn) backBtn.classList.remove('hidden');
     if (loadoutAnchor) loadoutAnchor.classList.add('hidden');
     if (collapsibleWidget) collapsibleWidget.classList.add('plain-mode');
-    toggleSettingsAccordion(true); // В меню настройки открыты сразу
+    toggleSettingsAccordion(true);
   }
 
   const hpCheckbox = document.getElementById('settingShowHp');
@@ -2057,7 +2046,6 @@ function showLevelSelectFromGame() {
   }
   if (reviveTimerInterval) { clearInterval(reviveTimerInterval); reviveTimerInterval = null; }
 
-  // Скрываем экран настроек/паузы, поверх которого был вызов
   const settingsSc = document.getElementById('settingsScreen');
   if (settingsSc) settingsSc.classList.add('hidden');
 
@@ -2096,32 +2084,28 @@ function showLevelSelectFromGame() {
   gameState = 'LEVELS';
 }
 
+// [UI119] Player loadout slot configuration and milestone sequence manager.
 function refreshLoadoutForProgress() {
   const highestLvl = Math.max(maxUnlockedLevel || 1, currentLevel || 1);
-  const loadoutStart = getLoadoutStartLevel(); // 11
+  const loadoutStart = getLoadoutStartLevel();
   const availableTowers = (typeof getPlayerUnlockedTowers === 'function')
     ? getPlayerUnlockedTowers()
     : ['gun'];
 
-  // До 11 уровня лодаута нет — в набор идут все открытые на данный момент башни
   if (highestLvl < loadoutStart) {
     selectedLoadout = availableTowers.slice(0, LOADOUT_SIZE);
     return;
   }
 
-  // Если лодаут открыт (L11+): фильтруем сохранённые башни по реально открытым игроком
   let valid = Array.isArray(selectedLoadout)
     ? selectedLoadout.filter(t => availableTowers.includes(t))
     : [];
 
-  // Если уже выбрано ровно LOADOUT_SIZE башен — ни в коем случае не трогаем выбор игрока!
   if (valid.length === LOADOUT_SIZE) {
     selectedLoadout = valid;
     return;
   }
 
-  // Если слотов не хватает (например, только открылся 11 уровень или сняли башню) —
-  // добираем недостающие из открытых
   for (const t of availableTowers) {
     if (valid.length >= LOADOUT_SIZE) break;
     if (!valid.includes(t)) valid.push(t);
@@ -2156,7 +2140,6 @@ function showLoadoutWidgetIn(anchorId) {
 function toggleLoadoutWidgetExpanded() {
   loadoutWidgetExpanded = !loadoutWidgetExpanded;
   if (!loadoutWidgetExpanded) {
-    // При сворачивании селектора восстанавливаем слот, если выбор не был завершён
     refreshLoadoutForProgress();
   }
   const arrow = document.getElementById('loadoutArrow');
@@ -2174,7 +2157,6 @@ function renderLoadoutWidgetBody() {
   if (countEl) {
     countEl.textContent = `${selectedLoadout.length}/${LOADOUT_SIZE}`;
     countEl.classList.toggle('is-full', selectedLoadout.length >= LOADOUT_SIZE);
-    // Счётчик виден ТОЛЬКО при раскрытом меню
     countEl.classList.toggle('hidden', !loadoutWidgetExpanded);
   }
 
@@ -2198,7 +2180,6 @@ function renderLoadoutWidgetBody() {
 function renderLoadoutWidgetGrid() {
   const grid = document.getElementById('loadoutWidgetGrid');
   if (!grid) return;
-  // Показываем ВСЕ башни, которые игрок успел открыть по своему прогрессу
   const pool = (typeof getPlayerUnlockedTowers === 'function')
     ? getPlayerUnlockedTowers()
     : ['gun'];
@@ -2765,6 +2746,7 @@ function showHintToast(message) {
   hintToastTimer = setTimeout(() => { el.classList.remove('visible'); }, 2000);
 }
 
+// [UI120] Tower selection, build panel UI and inspection state controller.
 function initBuildPanel() {
   const panel = document.getElementById('buildPanel');
   if (!panel || typeof TOWER_CONFIGS === 'undefined') return;
@@ -3049,6 +3031,7 @@ function updateWaveCircle(dt) {
   bonusEl.classList.toggle('visible', bonus > 0);
 }
 
+// [UI121] Main UI frame update and HUD sync loop.
 function updateUI() {
   const lvlConfig = LEVELS_DATA[currentLevel];
   const maxW = lvlConfig ? lvlConfig.totalWaves : 10;
@@ -3078,7 +3061,6 @@ function updateUI() {
     waveBtn.disabled = (waveInProgress || spawnQueue.length > 0 || wave >= maxW);
   }
 
-  // Update HUD Speed Control Widget
   updateHudSpeedWidget();
 
   if (selectedTower) updateInspectUI();
@@ -3456,6 +3438,7 @@ function drawSynthWaveTriangleLogo5C(w, horizonY, time) {
   });
 }
 
+// [UI200] Synthwave background perspective grid scene renderer.
 function drawSynthWavePerspectiveScene(now) {
   const w = window.innerWidth;
   const h = window.innerHeight;
@@ -3464,14 +3447,11 @@ function drawSynthWavePerspectiveScene(now) {
   const floorH = h - horizonY;
   const vpX = w * 0.5;
 
-  // 1. Верхняя часть (без изменений)
   drawCosmicNebulaBackground(w, h);
   updateAndDrawStars(w, h, now);
 
-  // 2. Нижняя разлинованная часть
   ctx.save();
 
-  // Легкая общая подложка на всю сетку
   const planeGrad = ctx.createLinearGradient(0, horizonY, 0, h);
   planeGrad.addColorStop(0, 'rgba(16, 26, 52, 0.08)');
   planeGrad.addColorStop(0.35, 'rgba(16, 26, 52, 0.24)');
@@ -3479,12 +3459,10 @@ function drawSynthWavePerspectiveScene(now) {
   ctx.fillStyle = planeGrad;
   ctx.fillRect(0, horizonY, w, floorH);
 
-  // Ограничиваем отрисовку нижней половиной
   ctx.beginPath();
   ctx.rect(0, horizonY, w, floorH);
   ctx.clip();
 
-  // Мягкий glow для линий сетки
   setGlow('#00e5ff', 5);
 
   const horizCount = 14;
@@ -3492,7 +3470,6 @@ function drawSynthWavePerspectiveScene(now) {
   const targetBottomCellWidth = bottomStep * 1.1;
   const numLines = Math.ceil((w * 1.4) / targetBottomCellWidth);
 
-  // Вертикальные перспективные лучи
   ctx.lineWidth = 1.0;
   ctx.strokeStyle = 'rgba(125, 165, 255, 0.35)';
   for (let i = -numLines; i <= numLines; i++) {
@@ -3504,7 +3481,6 @@ function drawSynthWavePerspectiveScene(now) {
     ctx.stroke();
   }
 
-  // Центральная трасса: деликатная, едва заметная прозрачная заливка
   const roadTopHalfW = targetBottomCellWidth * 0.16;
   const roadBottomHalfW = targetBottomCellWidth * 0.50;
 
@@ -3517,7 +3493,6 @@ function drawSynthWavePerspectiveScene(now) {
   ctx.closePath();
   ctx.fill();
 
-  // 1-й слой краев дорожки: статичные, спокойные направляющие
   ctx.strokeStyle = 'rgba(0, 229, 255, 0.20)';
   ctx.lineWidth = 2.6;
   ctx.setLineDash([]);
@@ -3528,13 +3503,12 @@ function drawSynthWavePerspectiveScene(now) {
   ctx.lineTo(vpX + roadBottomHalfW, h);
   ctx.stroke();
 
-  // 2-й слой краев дорожки: бегущие яркие штрихи снизу вверх в сторону горизонта
   ctx.save();
   ctx.strokeStyle = 'rgba(165, 243, 252, 0.88)';
   setGlow('#00e5ff', 6);
   ctx.lineWidth = 1.8;
+  // [UI200.01] Perspective track edge and grid ray rendering pass.
   ctx.setLineDash([12, 10]);
-  // Положительный сдвиг направляет штрихи снизу вверх (в перспективу)
   ctx.lineDashOffset = (time * 36);
 
   ctx.beginPath();
@@ -3545,7 +3519,6 @@ function drawSynthWavePerspectiveScene(now) {
   ctx.stroke();
   ctx.restore();
 
-  // Горизонтальные линии сетки
   const gridOffset = (time * 0.42) % 1;
   for (let j = 0; j < horizCount; j++) {
     const progress = (j + gridOffset) / horizCount;
@@ -3559,7 +3532,6 @@ function drawSynthWavePerspectiveScene(now) {
     ctx.stroke();
   }
 
-  // --- Перспективный Scout, бегущий в горизонт ---
   const scoutColor = '#ff9100';
   const scoutGlow = '#ffaa33';
   const mobCycleDuration = 13.5;
@@ -3577,7 +3549,6 @@ function drawSynthWavePerspectiveScene(now) {
 
   ctx.rotate(-Math.PI / 2);
 
-  // Свечение и заливка тела моба цветом glow
   setGlow(scoutGlow, 8 * mobScale);
   ctx.fillStyle = 'rgba(255, 170, 51, 0.32)';
   ctx.strokeStyle = scoutColor;
@@ -3594,9 +3565,8 @@ function drawSynthWavePerspectiveScene(now) {
 
   ctx.restore();
 
-  ctx.restore(); // Закрываем clip и нижнюю плоскость
+  ctx.restore();
 
-  // 3. Линия горизонта и туман (без изменений)
   ctx.save();
   const fogGrad = ctx.createLinearGradient(0, horizonY, 0, horizonY + 80);
   fogGrad.addColorStop(0, 'rgba(0, 229, 255, 0.20)');
@@ -3613,7 +3583,6 @@ function drawSynthWavePerspectiveScene(now) {
   ctx.stroke();
   ctx.restore();
 
-  // 4. Логотип (без изменений)
   drawSynthWaveTriangleLogo5C(w, horizonY, time);
 }
 
@@ -3683,11 +3652,11 @@ function renderCellRails(cell) {
   }
 }
 
-// Переменные прозрачности и контроля первого старта
 let battlePathAlpha = 1.0;
 let lastPathTime = performance.now();
-let battleStartedOnce = false; // Блокирует повторное возгорание дорожки при автостарте волны
+let battleStartedOnce = false;
 
+// [UI201] Dynamic track flow and animated path rails pass.
 function drawPathRails(now) {
   if (!pathCells || pathCells.length <= 2) return;
   const totalCells = pathCells.length;
@@ -3696,7 +3665,6 @@ function drawPathRails(now) {
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';
 
-  // 1. Статичная подложка пути (спокойный постоянный контур)
   ctx.strokeStyle = 'rgba(0, 229, 255, 0.18)';
   ctx.lineWidth = 3.5;
   ctx.setLineDash([]);
@@ -3704,12 +3672,10 @@ function drawPathRails(now) {
     renderCellRails(pathCells[i]);
   }
 
-  // Расчет дельты времени
   const curTime = (typeof now === 'number' && now > 0) ? now : performance.now();
   const dt = Math.min((curTime - (lastPathTime || curTime)) / 1000, 0.1);
   lastPathTime = curTime;
 
-  // Проверяем, начался ли бой (ручное нажатие GO, автосрабатывание таймера или появление мобов)
   const isBattleActive = (typeof waveInProgress !== 'undefined' && waveInProgress) || 
                          (typeof enemies !== 'undefined' && enemies.length > 0);
 
@@ -3717,23 +3683,19 @@ function drawPathRails(now) {
     battleStartedOnce = true;
   }
 
-  // Если бой хоть раз стартовал — дорожка ТОЛЬКО гаснет и никогда не возвращает яркость назад
   if (battleStartedOnce || isBattleActive) {
     if (battlePathAlpha > 0) {
-      battlePathAlpha = Math.max(0, battlePathAlpha - dt * 0.5); // плавно в 0 за 2 секунды
+      battlePathAlpha = Math.max(0, battlePathAlpha - dt * 0.5);
     }
   } else {
-    // Яркость держится только до самого первого старта
     battlePathAlpha = 1.0;
   }
 
-  // 2. Яркие штрихи: рендерятся без скачков только пока прозрачность больше 0
   if (battlePathAlpha > 0.005) {
     ctx.strokeStyle = `rgba(165, 243, 252, ${0.90 * battlePathAlpha})`;
     ctx.lineWidth = 1.8;
     ctx.setLineDash([12, 10]);
 
-    // Непрерывное плавное движение без сброса фазы
     ctx.lineDashOffset = -((curTime / 1000) * 36);
 
     for (let i = 1; i < totalCells - 1; i++) {
@@ -3744,6 +3706,7 @@ function drawPathRails(now) {
   ctx.restore();
 }
 
+// [UI202] Tower vector glyph sprite and model geometry renderer.
 function drawTowerGlyphOps(ops, color, isDisabled, isCooling) {
   const fillOf = (f) => {
     if (f === 'd') return TOWER_GLYPH_DARK;
@@ -3919,6 +3882,7 @@ function drawTowerModel(type, angle, color, level = 1, glow = '#00e5ff', isDisab
   ctx.restore();
 }
 
+// [UI203] Enemy model vector graphics and health bar renderer.
 function drawEnemyModel(e, showHpBar = true) {
   if (!e || typeof e.x !== 'number' || typeof e.y !== 'number') return;
 
@@ -4085,7 +4049,7 @@ function drawEnemyModel(e, showHpBar = true) {
     ctx.restore();
   }
 
-// Полоска HP здоровья
+  // [UI203.01] Enemy health bar status indicator pass.
   if (showHpBar && typeof settings !== 'undefined' && settings.showEnemyHp && (e.isBoss || e.isMiniBoss || (e.hp < e.maxHp))) {
     ctx.shadowBlur = 0;
     const rad = e.radius || 12;
@@ -4094,7 +4058,6 @@ function drawEnemyModel(e, showHpBar = true) {
     const hpPct = Math.max(0, e.hp / (e.maxHp || 1));
     const barY = -rad - (e.isBoss ? 14 : (e.isMiniBoss ? 12 : 8));
 
-    // Фон и заполнение полоски HP
     ctx.fillStyle = 'rgba(7, 10, 20, 0.9)';
     ctx.fillRect(-barW/2, barY, barW, barH);
     ctx.fillStyle = e.isBoss ? (e.color || '#f05f9f') : (hpPct > 0.5 ? '#00e5ff' : '#ff9100');
@@ -4104,6 +4067,7 @@ function drawEnemyModel(e, showHpBar = true) {
   ctx.restore();
 }
 
+// [UI204] Jagged lightning path generator and beam renderer.
 function drawJaggedLightning(x1, y1, x2, y3, color, alpha, progress = 1.0) {
   const fullDist = Math.hypot(x2 - x1, y3 - y1);
   if (fullDist <= 0 || progress <= 0) return;
@@ -4180,6 +4144,7 @@ function drawJaggedLightning(x1, y1, x2, y3, color, alpha, progress = 1.0) {
   ctx.restore();
 }
 
+// [UI205] Master gameplay canvas graphics rendering pipeline.
 function render(now) {
   const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -4354,6 +4319,7 @@ function render(now) {
       ctx.restore();
     }
 
+  // [UI205.01] Railgun laser beam visual pass.
     if (t.type === 'melter' && t.target && t.isLockedOn && t.disabledTimer <= 0 && t.melterCoolingTimer <= 0) {
       const muzzleX = t.x + Math.cos(t.angle) * 24;
       const muzzleY = t.y + Math.sin(t.angle) * 24;
@@ -4420,7 +4386,6 @@ function render(now) {
       ctx.globalAlpha = alpha;
       const railGlowColor = lb.color || '#a275df';
 
-      // Outer glow beam
       ctx.strokeStyle = railGlowColor;
       setGlow(railGlowColor, 12);
       ctx.lineWidth = 6;
@@ -4429,7 +4394,6 @@ function render(now) {
       ctx.lineTo(lb.x2, lb.y2);
       ctx.stroke();
 
-      // Inner intense core beam
       ctx.strokeStyle = '#ffffff';
       setGlow('#ffffff', 6);
       ctx.lineWidth = 2.5;
@@ -4461,7 +4425,7 @@ function render(now) {
 
   const _tFxStart = performance.now();
   
-  // Слой 1: Дым и пар (source-over)
+  // [UI205.02] Particle pass 1: Concentric smoke and steam.
   ctx.globalCompositeOperation = 'source-over';
   const smokeSprite = typeof getSmokeSprite === 'function' ? getSmokeSprite() : null;
 
@@ -4485,11 +4449,11 @@ function render(now) {
     }
   }
 
-  // Слой 2: Осколки мобов (битое стекло, source-over)
   ctx.strokeStyle = '#ffffff';
   ctx.lineWidth = 1.0;
   for (let i = 0; i < particles.length; i++) {
     const pt = particles[i];
+  // [UI205.03] Particle pass 2: Glass shards and debris.
     if (!pt.isShard) continue;
 
     const rawProg = Math.max(0, Math.min(1, pt.life / pt.maxLife));
@@ -4515,7 +4479,7 @@ function render(now) {
     ctx.restore();
   }
 
-  // Слой 3: Световые частицы и искры (lighter)
+  // [UI205.04] Particle pass 3: Energy sparks and glow halos.
   ctx.globalCompositeOperation = 'lighter';
   for (let i = 0; i < particles.length; i++) {
     const pt = particles[i];
@@ -4574,10 +4538,10 @@ function render(now) {
     }
   }
 
-  // Слой 4: Всплывающий урон (floating damage text)
   ctx.globalCompositeOperation = 'source-over';
   for (let i = 0; i < particles.length; i++) {
     const pt = particles[i];
+  // [UI205.05] Particle pass 4: Floating combat text.
     if (!pt.isText) continue;
 
     const rawProg = Math.max(0, Math.min(1, pt.life / pt.maxLife));
