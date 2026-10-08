@@ -425,14 +425,15 @@ const SFX = (function () {
   function isEnabled() { return enabled; }
 
   const TAPPABLE = 'button, .menu-btn, .menu-btn-primary-capsule, .menu-btn-glass-capsule,' +
-    '.level-btn, .setting-row, .badge-half, .switch, .loadout-widget-header,' +
-    '.build-slot, .upgrade-node, [data-sfx], [onclick]';
+    '.level-card-btn, .part-nav-btn, .upgrade-row-buy, .shop-item-btn, .btn-upgrade, .btn-sell,' +
+    '.btn-close-inspect, .tower-btn, .loadout-tower-btn, .action-btn, .hud-gear-btn, .spd-btn,' +
+    '.result-btn, .result-skip-btn, .tutorial-skip-btn, .setting-row, .badge-half, .switch,' +
+    '.loadout-widget-header, .build-slot, .upgrade-node, [data-sfx], [onclick]';
 
   // [AUD108] User Interface Event Listeners & Audio Unlocking
   function installUiHooks() {
     document.addEventListener('pointerdown', (ev) => {
       if (!unlocked) { unlocked = true; ensureCtx(); resume(); }
-      if (!enabled) return;
       let el = ev.target;
       let hit = null;
       for (let i = 0; i < 5 && el && el !== document.body; i++) {
@@ -440,6 +441,13 @@ const SFX = (function () {
         el = el.parentElement;
       }
       if (!hit) return;
+
+      if (!hit.disabled && !hit.classList.contains('disabled') && !hit.classList.contains('no-press-feedback')) {
+        hit.classList.add('btn-pushed');
+        setTimeout(() => { hit.classList.remove('btn-pushed'); }, 120);
+      }
+
+      if (!enabled) return;
       if (hit.disabled || hit.classList.contains('disabled')) { play('denied'); return; }
       const override = hit.getAttribute && hit.getAttribute('data-sfx');
       if (override === 'none') return;

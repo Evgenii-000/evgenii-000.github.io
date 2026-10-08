@@ -1,6 +1,6 @@
 // [SW100] Service Worker: Provides offline capability, asset caching, and request interception.
 
-const CACHE_NAME = 'synth-wave-td-v1.36.06';
+const CACHE_NAME = 'synth-wave-td-v1.36.07';
 
 const PRECACHE_ASSETS = [
   './',
