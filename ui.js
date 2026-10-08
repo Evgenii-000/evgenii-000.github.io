@@ -1169,13 +1169,40 @@ function renderUpgradeTree() {
   baseRows.forEach(addRow);
 }
 
+let isNavigatingSection = false;
+
 function navLevelSection(dir) {
+  if (isNavigatingSection) return;
   const target = currentLevelSection + dir;
   if (target < 1 || target > TOTAL_SECTIONS) return;
   const isTargetUnlocked = devMode || maxUnlockedLevel > (target - 1) * LEVELS_PER_SECTION;
   if (!isTargetUnlocked) return;
-  currentLevelSection = target;
-  renderLevelsGrid();
+
+  const grid = document.getElementById('levelsGrid');
+  if (!grid) {
+    currentLevelSection = target;
+    renderLevelsGrid();
+    return;
+  }
+
+  isNavigatingSection = true;
+  grid.classList.remove('grid-swipe-out-left', 'grid-swipe-out-right', 'grid-swipe-in-left', 'grid-swipe-in-right');
+  const outClass = dir > 0 ? 'grid-swipe-out-left' : 'grid-swipe-out-right';
+  const inClass = dir > 0 ? 'grid-swipe-in-right' : 'grid-swipe-in-left';
+
+  grid.classList.add(outClass);
+
+  setTimeout(() => {
+    currentLevelSection = target;
+    renderLevelsGrid();
+    grid.classList.remove(outClass);
+    grid.classList.add(inClass);
+
+    setTimeout(() => {
+      grid.classList.remove(inClass);
+      isNavigatingSection = false;
+    }, 220);
+  }, 180);
 }
 
 function renderLevelsGrid() {

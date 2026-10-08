@@ -457,7 +457,7 @@ body {
   transition: all 0.2s;
   position: relative;
 }
-.tower-btn:active:not(.disabled):not(:disabled) { cursor: grabbing; }
+.tower-btn:active:not(.disabled):not(:disabled) { cursor: grabbing; transform: scale(0.93); }
 
 .tower-btn[data-type="gun"]:hover:not(:disabled):not(.disabled) { border-color: #00e5ff; box-shadow: 0 0 14px rgba(0, 229, 255, 0.35); }
 .tower-btn[data-type="laser"]:hover:not(:disabled):not(.disabled) { border-color: #f05f9f; box-shadow: 0 0 14px rgba(240, 95, 159, 0.35); }
@@ -632,6 +632,13 @@ body {
 }
 .action-btn:hover:not(:disabled) .wave-circle-wrap::before {
   box-shadow: 0 0 38px rgba(0, 229, 255, 0.75);
+}
+.action-btn:active:not(:disabled) {
+  transform: scale(0.92);
+}
+.action-btn:active:not(:disabled) .wave-circle-wrap::before {
+  box-shadow: 0 0 45px rgba(0, 229, 255, 0.95);
+  background: radial-gradient(circle at 50% 50%, rgba(0, 229, 255, 0.55), rgba(0, 229, 255, 0.2));
 }
 .action-btn:disabled {
   background: #0d101d;
@@ -1682,6 +1689,12 @@ body {
   border-color: #00e5ff;
   box-shadow: 0 0 14px rgba(0, 229, 255, 0.3);
 }
+.part-nav-btn:active:not(:disabled) {
+  transform: scale(0.90);
+  background: rgba(0, 229, 255, 0.3);
+  border-color: #00e5ff;
+  box-shadow: 0 0 18px rgba(0, 229, 255, 0.6);
+}
 .part-nav-btn:disabled {
   opacity: 0.3;
   cursor: not-allowed;
@@ -1733,6 +1746,44 @@ body {
   width: 100%;
   margin: 0 auto;
   flex: none;
+  will-change: transform, opacity;
+}
+
+/* Level grid chapter swipe transition animations */
+@keyframes gridSwipeOutLeft {
+  0% { transform: translateX(0); opacity: 1; }
+  100% { transform: translateX(-60px); opacity: 0; }
+}
+
+@keyframes gridSwipeOutRight {
+  0% { transform: translateX(0); opacity: 1; }
+  100% { transform: translateX(60px); opacity: 0; }
+}
+
+@keyframes gridSwipeInRight {
+  0% { transform: translateX(60px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes gridSwipeInLeft {
+  0% { transform: translateX(-60px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}
+
+.grid-swipe-out-left {
+  animation: gridSwipeOutLeft 0.18s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+.grid-swipe-out-right {
+  animation: gridSwipeOutRight 0.18s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+.grid-swipe-in-right {
+  animation: gridSwipeInRight 0.22s cubic-bezier(0, 0, 0.2, 1) forwards;
+}
+
+.grid-swipe-in-left {
+  animation: gridSwipeInLeft 0.22s cubic-bezier(0, 0, 0.2, 1) forwards;
 }
 .level-card-btn {
   height: 56px;
@@ -1753,6 +1804,11 @@ body {
   border-color: #00e5ff;
   box-shadow: 0 0 14px rgba(0, 229, 255, 0.4);
   transform: translateY(-2px);
+}
+.level-card-btn:active:not(:disabled):not(.locked) {
+  transform: scale(0.92);
+  border-color: #00e5ff;
+  box-shadow: 0 0 20px rgba(0, 229, 255, 0.6);
 }
 .level-card-btn.current {
   background: linear-gradient(rgba(0, 229, 255, 0.3), rgba(0, 229, 255, 0.06)), rgba(8, 12, 24, 0.92);
@@ -2431,6 +2487,10 @@ input:checked + .slider:before { transform: translateX(20px); background-color: 
   box-shadow: 0 0 28px rgba(0, 229, 255, 0.65);
   transform: translateY(-1px);
 }
+.btn-upgrade:active:not(:disabled) {
+  transform: scale(0.94);
+  box-shadow: 0 0 32px rgba(0, 229, 255, 0.85);
+}
 .btn-upgrade:disabled {
   opacity: 0.4;
   cursor: not-allowed;
@@ -2481,6 +2541,10 @@ input:checked + .slider:before { transform: translateX(20px); background-color: 
   border-color: #f05f9f;
   box-shadow: 0 0 16px rgba(240, 95, 159, 0.4);
   transform: translateY(-1px);
+}
+.btn-sell:active {
+  transform: scale(0.94);
+  background: rgba(240, 95, 159, 0.3);
 }
 .btn-sell.confirm-armed {
   background: #ff2a85;
