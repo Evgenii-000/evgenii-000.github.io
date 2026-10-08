@@ -1,3 +1,4 @@
+// [DEV100] Developer Access Gate: Password lock overlay and authentication state check.
 (function() {
   const SECRET_TOKEN = "MTMzNw=="; // ПИН-код (по умолчанию "1337"). Чтобы сменить: btoa("ваш_пин")
 

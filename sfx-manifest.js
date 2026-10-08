@@ -1,3 +1,4 @@
+// [SFX100] Sound Effects Manifest: Procedural sound synthesis parameters for audio FX.
 // sfx-manifest.js -- сгенерировано Audio Lab v2.8
 // Положи рядом с index.html и подключи ПЕРЕД audio.js:
 //   <script src="sfx-manifest.js"></script>

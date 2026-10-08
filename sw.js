@@ -1,8 +1,4 @@
-// ============================================================================
-// Service Worker: sw.js
-// Provides offline capability, asset caching, and request interception for
-// Synth Wave Defense.
-// ============================================================================
+// [SW100] Service Worker: Provides offline capability, asset caching, and request interception.
 
 const CACHE_NAME = 'synth-wave-td-v1.36.02';
 
@@ -27,7 +23,7 @@ const PRECACHE_ASSETS = [
   './icon-512-maskable.png'
 ];
 
-// --- Install Phase: Pre-cache static assets & skip waiting -----------------
+// [SW101] Install Phase: Pre-cache static assets & skip waiting
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -40,7 +36,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// --- Activate Phase: Purge outdated caches & claim clients ----------------
+// [SW102] Activate Phase: Purge outdated caches & claim clients
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
@@ -69,7 +65,7 @@ function isTelemetryRequest(request) {
          url.includes('discord.com/api/webhooks');
 }
 
-// --- Fetch Phase: Request Interception ------------------------------------
+// [SW103] Fetch Phase: Request Interception & Caching Strategy
 self.addEventListener('fetch', (event) => {
   // Telemetry pings follow Network-Only policy with silent failure
   if (isTelemetryRequest(event.request)) {

@@ -1,10 +1,10 @@
-// [XYZ200] Game configuration data: campaign constants, upgrade branch specifications, tower definitions, enemy parameters, map catalog, and level generator.
+// [DAT100] Game configuration data: campaign constants, upgrade branch specifications, tower definitions, enemy parameters, map catalog, and level generator.
 
 if (typeof console !== 'undefined') {
   console.log('[data.js] Loading game data...');
 }
 
-// [XYZ201] Campaign Constants & Meta Upgrade Branches: Defines campaign structure and purchasable tech tree branches for towers and base.
+// [DAT101] Campaign Constants & Meta Upgrade Branches: Defines campaign structure and purchasable tech tree branches for towers and base.
 const TOTAL_LEVELS = 50;
 const LEVELS_PER_SECTION = 10;
 const TOTAL_SECTIONS = 5;
@@ -46,7 +46,7 @@ const TOWER_NAMES = {
   railgun: 'Railgun'
 };
 
-// [XYZ202] Tower Visual Geometry: Geometric rendering specs for tower turrets, barrels, and levels.
+// [DAT102] Tower Visual Geometry: Geometric rendering specs for tower turrets, barrels, and levels.
 const TOWER_GLYPH_DARK = '#0a0e1c';
 
 const TOWER_GLYPH_SPECS = {
@@ -80,7 +80,7 @@ const TOWER_GLYPH_FLAKES = {
       { cx: 5.5, cy: 0.5, scale: 0.85, sw: 2.24 }]
 };
 
-// [XYZ202.01] Tower SVG Generator: Generates standalone SVG strings for tower icons across UI surfaces.
+// [DAT102.01] Tower SVG Generator: Generates standalone SVG strings for tower icons across UI surfaces.
 function buildTowerIconSvg(type, level = 1, size = 28, angleDeg = 0) {
   const spec = TOWER_GLYPH_SPECS[type];
   const conf = TOWER_CONFIGS[type];
@@ -135,7 +135,7 @@ function buildTowerIconSvg(type, level = 1, size = 28, angleDeg = 0) {
   return out;
 }
 
-// [XYZ203] Tower Configurations: Base costs, range, attack metrics, upgrade multipliers, and milestone unlocked blurbs.
+// [DAT103] Tower Configurations: Base costs, range, attack metrics, upgrade multipliers, and milestone unlocked blurbs.
 const TOWER_CONFIGS = {
   gun: { cost: 50, range: 165, damage: 16, fireRate: 0.52, color: '#00e5ff', glow: '#00e5ff', type: 'projectile', costMultiplier: 1.3, damageMultiplier: 1.7, rateMultiplier: 0.8, rangeMultiplier: 1.1, powerDmg: 0.08, powerRate: 0.06, powerRange: 0.04 },
   laser: { cost: 70, range: 150, dps: 48, color: '#f05f9f', glow: '#f05f9f', type: 'beam', costMultiplier: 1.3, damageMultiplier: 1.85, rangeMultiplier: 1.1, powerDmg: 0.08, powerRate: 0.06, powerRange: 0.04 },
@@ -194,13 +194,13 @@ const TOWER_UNLOCK_BLURBS = {
 const UPGRADE_STEPS_PER_SECTOR = 2;
 const UPGRADE_STEP_COSTS = [6, 7, 8, 9, 10, 11, 12, 13, 15, 19];
 
-// [XYZ203.01] Tower Target Lock-on Specs: Lock-on delay constants and targeted tower classification.
+// [DAT103.01] Tower Target Lock-on Specs: Lock-on delay constants and targeted tower classification.
 const LOCK_ON_DELAY_LIGHT = 0.1;
 const LOCK_ON_DELAY_HEAVY = 0.5;
 const LOCKED_TARGET_TOWERS = ['laser', 'melter'];
 const MORTAR_BASE_TRAVEL_TIME = 1.0;
 
-// [XYZ204] Enemy Configurations: Base stats, shapes, speeds, bounties, and swarm clump parameters.
+// [DAT104] Enemy Configurations: Base stats, shapes, speeds, bounties, and swarm clump parameters.
 const SWARM_CLUMP_SIZE = 10;
 const SWARM_CLUMP_SIZE_DEBUT = 8;
 const SWARM_DEBUT_LEVEL = 11;
@@ -229,7 +229,7 @@ const ENEMY_CONFIGS = {
   emp_overlord: { shape: 'triangle_inverted', color: '#38bdf8', glow: '#f05f9f', size: 17, baseSpeed: 30, baseHp: 7200, baseBounty: 140 }
 };
 
-// [XYZ205] Map Catalog: Grid dimensions, tile paths, and obstacle locations for campaign levels.
+// [DAT105] Map Catalog: Grid dimensions, tile paths, and obstacle locations for campaign levels.
 const MAP_CATALOG = {
   L1: { name: "Straight Path", cols: 5, rows: 7, path: [{c: 2, r: 0}, {c: 2, r: 6}] },
   L2: { name: "First Turn", cols: 6, rows: 6, path: [{c: 4, r: 1}, {c: 4, r: 4}, {c: 1, r: 4}] },
@@ -283,7 +283,7 @@ const MAP_CATALOG = {
   L50: { name: "Final Apex", cols: 20, rows: 17, path: [{c: 0, r: 16}, {c: 0, r: 11}, {c: 6, r: 11}, {c: 6, r: 16}, {c: 1, r: 16}, {c: 1, r: 12}, {c: 5, r: 12}, {c: 5, r: 15}, {c: 2, r: 15}, {c: 2, r: 10}, {c: 19, r: 10}, {c: 19, r: 16}, {c: 14, r: 16}, {c: 14, r: 11}, {c: 18, r: 11}, {c: 18, r: 15}, {c: 15, r: 15}, {c: 15, r: 12}, {c: 17, r: 12}, {c: 17, r: 2}, {c: 14, r: 2}, {c: 14, r: 5}, {c: 18, r: 5}, {c: 18, r: 1}, {c: 13, r: 1}, {c: 13, r: 6}, {c: 19, r: 6}, {c: 19, r: 0}, {c: 0, r: 0}, {c: 0, r: 6}, {c: 6, r: 6}, {c: 6, r: 1}, {c: 1, r: 1}, {c: 1, r: 5}, {c: 5, r: 5}, {c: 5, r: 2}, {c: 2, r: 2}, {c: 2, r: 8}, {c: 10, r: 8}], blocked: [{c: 0, r: 10}, {c: 1, r: 10}, {c: 1, r: 9}, {c: 1, r: 8}, {c: 1, r: 7}, {c: 0, r: 7}, {c: 0, r: 8}, {c: 0, r: 9}, {c: 7, r: 16}, {c: 8, r: 16}, {c: 9, r: 16}, {c: 10, r: 16}, {c: 11, r: 16}, {c: 12, r: 16}, {c: 13, r: 16}, {c: 13, r: 15}, {c: 13, r: 14}, {c: 13, r: 13}, {c: 13, r: 12}, {c: 13, r: 11}, {c: 12, r: 11}, {c: 11, r: 11}, {c: 10, r: 11}, {c: 9, r: 11}, {c: 8, r: 11}, {c: 7, r: 11}, {c: 7, r: 12}, {c: 7, r: 13}, {c: 7, r: 14}, {c: 7, r: 15}, {c: 8, r: 15}, {c: 9, r: 15}, {c: 10, r: 15}, {c: 11, r: 15}, {c: 12, r: 15}, {c: 12, r: 14}, {c: 11, r: 14}, {c: 10, r: 14}, {c: 9, r: 14}, {c: 8, r: 14}, {c: 8, r: 13}, {c: 9, r: 13}, {c: 10, r: 13}, {c: 11, r: 13}, {c: 12, r: 12}, {c: 12, r: 13}, {c: 11, r: 12}, {c: 10, r: 12}, {c: 9, r: 12}, {c: 8, r: 12}, {c: 7, r: 1}, {c: 8, r: 1}, {c: 9, r: 1}, {c: 10, r: 1}, {c: 11, r: 1}, {c: 12, r: 1}, {c: 12, r: 2}, {c: 12, r: 3}, {c: 12, r: 4}, {c: 12, r: 5}, {c: 12, r: 6}, {c: 11, r: 6}, {c: 10, r: 6}, {c: 9, r: 6}, {c: 8, r: 6}, {c: 7, r: 6}, {c: 7, r: 5}, {c: 7, r: 4}, {c: 7, r: 3}, {c: 7, r: 2}, {c: 8, r: 2}, {c: 9, r: 2}, {c: 10, r: 2}, {c: 11, r: 2}, {c: 11, r: 3}, {c: 10, r: 3}, {c: 9, r: 3}, {c: 8, r: 3}, {c: 8, r: 4}, {c: 9, r: 4}, {c: 10, r: 4}, {c: 11, r: 4}, {c: 11, r: 5}, {c: 10, r: 5}, {c: 9, r: 5}, {c: 8, r: 5}, {c: 18, r: 9}, {c: 19, r: 9}, {c: 19, r: 8}, {c: 19, r: 7}, {c: 18, r: 7}, {c: 18, r: 8}, {c: 16, r: 9}, {c: 16, r: 8}, {c: 16, r: 7}, {c: 15, r: 7}, {c: 14, r: 7}, {c: 14, r: 8}, {c: 15, r: 8}, {c: 15, r: 9}, {c: 14, r: 9}, {c: 13, r: 9}, {c: 13, r: 8}, {c: 13, r: 7}, {c: 12, r: 7}, {c: 12, r: 8}, {c: 12, r: 9}, {c: 2, r: 9}, {c: 3, r: 7}, {c: 4, r: 7}, {c: 5, r: 7}, {c: 6, r: 7}, {c: 7, r: 7}, {c: 3, r: 9}, {c: 4, r: 9}, {c: 5, r: 9}, {c: 6, r: 9}, {c: 7, r: 9}, {c: 8, r: 9}, {c: 8, r: 7}] },
 };
 
-// [XYZ206] Level Scaling & Spawn Factory: Continuous level speed and count scaling helpers, plus enemy spawn object factory.
+// [DAT106] Level Scaling & Spawn Factory: Continuous level speed and count scaling helpers, plus enemy spawn object factory.
 function getLevelSpeedMult(lvl) {
   const t = Math.max(0, Math.min(1, (lvl - 11) / 39));
   return 1.0 + t * 0.35;
@@ -315,7 +315,7 @@ function createEnemySpawn(type, count, opts = {}) {
   };
 }
 
-// [XYZ206.01] Standard Level Generator: Constructs wave definitions, enemy compositions, and boss encounters for campaign levels.
+// [DAT106.01] Standard Level Generator: Constructs wave definitions, enemy compositions, and boss encounters for campaign levels.
 function generateStandardLevel(lvl, mapId, wavesCount, sGold, baseHpScale, bossHpVal, bossType, tune = {}) {
   const mobHpMult = tune.mobHpMult ?? 1.0;
   const miniBossHpMult = tune.miniBossHpMult ?? 1.0;
