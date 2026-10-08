@@ -1060,8 +1060,11 @@ function triggerDefeat() {
   document.getElementById('defeatScreen').classList.remove('hidden');
   replayDefeatFlash();
   showLoadoutWidgetIn('loadoutAnchor-defeat');
-  safeTrack('level_failed', { level: currentLevel, wave });
+  registerDefeatOutcome();
+}
 
+function registerDefeatOutcome() {
+  safeTrack('level_failed', { level: currentLevel, wave });
   consecutiveFails++;
   if (consecutiveFails >= 3) {
     consecutiveFails = 0;
@@ -1085,7 +1088,8 @@ function showRecommendationsModal() {
   const maxTechItem = document.getElementById('recMaxTechItem');
   if (!modal) return;
 
-  const showMaxTech = (typeof maxUnlockedLevel !== 'undefined' && maxUnlockedLevel > 10) || (typeof currentLevel !== 'undefined' && currentLevel > 10);
+  const lvl = (typeof currentLevel !== 'undefined') ? currentLevel : 1;
+  const showMaxTech = lvl >= 11;
   if (maxTechItem) {
     maxTechItem.style.display = showMaxTech ? 'list-item' : 'none';
   }
@@ -1208,6 +1212,7 @@ function finishRevivePromptWindow() {
 
   updateUpgradeButtonsLock();
   showLoadoutWidgetIn('loadoutAnchor-defeat');
+  registerDefeatOutcome();
 }
 
 function skipEmergencyRevive() {
