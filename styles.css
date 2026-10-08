@@ -1697,6 +1697,34 @@ body {
   text-shadow: 0 0 16px rgba(0, 229, 255, 0.6);
 }
 
+.levels-swipe-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 2px;
+  color: #8ef3ff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  opacity: 0.75;
+  pointer-events: none;
+  animation: swipeHintPulse 2.4s ease-in-out infinite;
+}
+
+.swipe-arrow {
+  font-size: 9px;
+  color: #00e5ff;
+  opacity: 0.85;
+}
+
+@keyframes swipeHintPulse {
+  0%, 100% { opacity: 0.55; transform: scale(0.98); }
+  50%      { opacity: 0.95; transform: scale(1.02); }
+}
+
 .levels-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);

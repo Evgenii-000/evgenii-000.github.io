@@ -2023,6 +2023,78 @@ function toggleSettingPerf(isChecked) {
   saveGameSoon();
 }
 
+// [UI113.01] Level select horizontal swipe gesture handler.
+(function initLevelSelectSwipeGesture() {
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let touchStartTime = 0;
+  let isSwiping = false;
+
+  function onPointerDown(e) {
+    if (gameState !== 'LEVELS') return;
+    const levelsScreen = document.getElementById('levelsScreen');
+    if (!levelsScreen || levelsScreen.classList.contains('hidden')) return;
+
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+    touchStartX = clientX;
+    touchStartY = clientY;
+    touchStartTime = performance.now();
+    isSwiping = false;
+  }
+
+  function onPointerUp(e) {
+    if (gameState !== 'LEVELS') return;
+    const levelsScreen = document.getElementById('levelsScreen');
+    if (!levelsScreen || levelsScreen.classList.contains('hidden')) return;
+
+    const clientX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+    const clientY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+
+    const deltaX = clientX - touchStartX;
+    const deltaY = clientY - touchStartY;
+    const duration = performance.now() - touchStartTime;
+
+    const minDistance = 45;
+    const maxDuration = 600;
+
+    if (duration <= maxDuration && Math.abs(deltaX) >= minDistance && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
+      isSwiping = true;
+      if (deltaX < 0) {
+        navLevelSection(1);
+      } else {
+        navLevelSection(-1);
+      }
+    }
+  }
+
+  function onClickCapture(e) {
+    if (isSwiping) {
+      e.stopPropagation();
+      e.preventDefault();
+      isSwiping = false;
+    }
+  }
+
+  function setupListeners() {
+    const levelsScreen = document.getElementById('levelsScreen');
+    if (levelsScreen) {
+      levelsScreen.addEventListener('touchstart', onPointerDown, { passive: true });
+      levelsScreen.addEventListener('touchend', onPointerUp, { passive: true });
+      levelsScreen.addEventListener('mousedown', onPointerDown);
+      levelsScreen.addEventListener('mouseup', onPointerUp);
+      levelsScreen.addEventListener('click', onClickCapture, true);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupListeners);
+  } else {
+    setupListeners();
+  }
+})();
+
 function showLevelSelect() {
   music('menu');
   if (reviveTimerInterval) { clearInterval(reviveTimerInterval); reviveTimerInterval = null; }
