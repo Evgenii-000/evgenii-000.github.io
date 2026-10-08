@@ -1525,7 +1525,10 @@ function updateHudSpeedWidget() {
   const widget = document.getElementById('hudSpeedWidget');
   if (!widget) return;
 
-  const showWidget = (gameState === 'PLAYING' || gameState === 'PAUSED') && ((typeof timeModTier !== 'undefined' && timeModTier > 0) || devMode);
+  const isCombatPause = (gameState === 'PAUSED' && (typeof settingsPreviousSource === 'undefined' || settingsPreviousSource === 'combat' || settingsPreviousSource === 'pause'));
+  const isBattle = (gameState === 'PLAYING' || isCombatPause);
+
+  const showWidget = isBattle && ((typeof timeModTier !== 'undefined' && timeModTier > 0) || devMode);
   widget.classList.toggle('hidden', !showWidget);
 
   if (!showWidget) return;
@@ -1803,6 +1806,7 @@ function showStartScreen() {
   if (l1) buildLevelGeometry(l1.path, l1.cols, l1.rows, l1.blocked);
   resizeCanvasAndCamera();
   gameState = 'START';
+  updateHudSpeedWidget();
   updateUpgradeButtonsLock();
 }
 
@@ -2175,6 +2179,7 @@ function showLevelSelect() {
   renderLevelsGrid();
   showLoadoutWidgetIn('loadoutAnchor-levels');
   gameState = 'LEVELS';
+  updateHudSpeedWidget();
 }
 
 function giveUpMatch() {
@@ -2258,6 +2263,7 @@ function showLevelSelectFromGame() {
   renderLevelsGrid();
   showLoadoutWidgetIn('loadoutAnchor-levels');
   gameState = 'LEVELS';
+  updateHudSpeedWidget();
 }
 
 // [UI119] Player loadout slot configuration and milestone sequence manager.
@@ -2588,6 +2594,7 @@ function showUpgradesScreen(fromSource) {
   upg.classList.toggle('from-main', !isResultBg);
   upg.classList.remove('hidden');
   gameState = 'UPGRADES';
+  updateHudSpeedWidget();
   renderUpgradeTree();
 }
 
@@ -2655,6 +2662,7 @@ function showShopScreen(fromSource) {
   shopEl.classList.remove('hidden');
   gameState = 'SHOP';
 
+  updateHudSpeedWidget();
   renderShopScreen();
 }
 
