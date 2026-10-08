@@ -1479,15 +1479,15 @@ function devJumpToWave(targetWave) {
 }
 
 
-const DEV_SPEED_STEPS = [0.5, 0.8, 1, 1.5, 2, 4, 8];
+const DEV_SPEED_STEPS = [0.5, 0.75, 0.8, 0.9, 1, 1.25, 1.5, 2, 4, 8];
 
 // [UI115] Time modulation speed levels and HUD controls.
 function getHudAllowedSpeeds() {
   const tier = typeof timeModTier !== 'undefined' ? timeModTier : 0;
   if (tier >= 2) {
-    return [0.5, 0.8, 1.0, 1.5, 2.0];
+    return [0.5, 0.75, 0.9, 1.0, 1.25, 1.5, 2.0];
   } else if (tier >= 1) {
-    return [0.8, 1.0, 1.5];
+    return [0.9, 1.0, 1.25];
   }
   return [1.0];
 }
