@@ -2129,6 +2129,7 @@ function showLevelSelectFromGame() {
 }
 
 // [ENG113] Simulation Step Update Pipeline: Enemy movement, tower targeting, projectile physics, and status effects.
+// javascript-obfuscator: disable
 function update(dt) {
   if (cameraShakeTimer > 0) {
     cameraShakeTimer -= dt;
@@ -2882,3 +2883,4 @@ for (let i = lightningBolts.length - 1; i >= 0; i--) {
     victoryDelayTimer = 0;
   }
 }
+// javascript-obfuscator: enable
