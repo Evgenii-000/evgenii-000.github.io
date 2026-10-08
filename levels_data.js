@@ -1,4 +1,6 @@
-// levels_data.js - Sector & Wave level definitions
+// [XYZ300] Level Definitions Module: Campaign sector and wave definitions catalog, tower unlock overrides, and level editor metadata.
+
+// [XYZ301] Campaign Level Waves Catalog: Sector level configurations defining starting resources, wave sequences, enemy spawn compositions, and bounty metrics.
 var LEVELS_DATA = {
   "1": {
     "mapId": "L1",
@@ -14932,10 +14934,13 @@ var LEVELS_DATA = {
     ]
   }
 };
+
+// [XYZ301.01] Tower Unlock Overrides: Enforces unlocked tower options for Sector 1 transition levels.
 for (let lvl = 5; lvl <= 10; lvl++) {
   LEVELS_DATA[lvl].unlockedTowers = ["gun", "laser", "mortar"];
 }
 
+// [XYZ302] Editor Binding Metadata: Level editor template definitions and level generation mode bindings.
 const EDITOR_META = {
   "templates": {},
   "bindings": {
@@ -14992,6 +14997,7 @@ const EDITOR_META = {
   }
 };
 
+// [XYZ303] Module Load Verification: Console logging diagnostic confirming levels data initialization.
 if (typeof console !== 'undefined') {
   console.log('[levels_data.js] Loaded successfully!', {
     totalLevels: typeof TOTAL_LEVELS !== 'undefined' ? TOTAL_LEVELS : 50,
